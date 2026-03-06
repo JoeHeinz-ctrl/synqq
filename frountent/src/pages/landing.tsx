@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import NeuralBackground from "@/components/ui/flow-field-background";
+import { PricingSection } from "@/components/PricingSection";
 
 interface LandingProps {
     onGetStarted: () => void;
-    onShowPricing?: () => void;
 }
 
 const features = [
@@ -19,7 +19,7 @@ const navLinks = ["Features", "About", "Pricing", "Blog"];
 const footerLinks = ["Features", "Pricing", "About", "Blog", "Privacy", "Terms"];
 
 
-export default function Landing({ onGetStarted, onShowPricing }: LandingProps) {
+export default function Landing({ onGetStarted }: LandingProps) {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -40,7 +40,13 @@ export default function Landing({ onGetStarted, onShowPricing }: LandingProps) {
                 </div>
                 <nav className="nav-links">
                     {navLinks.map((l) => (
-                        <button key={l} className="nav-link" onClick={() => { if (l === 'Pricing') { onShowPricing?.(); } }}>{l}</button>
+                        <button key={l} className="nav-link" onClick={() => {
+                            if (l === 'Pricing') {
+                                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                            } else if (l === 'Features') {
+                                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }}>{l}</button>
                     ))}
                 </nav>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -93,7 +99,7 @@ export default function Landing({ onGetStarted, onShowPricing }: LandingProps) {
             </section>
 
             {/* Features */}
-            <section style={s.features}>
+            <section id="features" style={s.features}>
                 <p style={s.eyebrow}>WHY SYNQ</p>
                 <h2 style={s.featuresHeadline}>
                     Everything your team needs,<br />nothing they don't
@@ -108,6 +114,8 @@ export default function Landing({ onGetStarted, onShowPricing }: LandingProps) {
                     ))}
                 </div>
             </section>
+            {/* Pricing Section */}
+            <PricingSection />
 
             {/* CTA Banner */}
             <section style={s.ctaBanner}>

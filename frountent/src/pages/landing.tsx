@@ -49,10 +49,10 @@ export default function Landing({ onGetStarted, onShowPricing }: LandingProps) {
                 </div>
             </header>
 
-                        {/* (previous manual wrapper removed; using the component’s fullScreen prop instead) */}
+            {/* (previous manual wrapper removed; using the component’s fullScreen prop instead) */}
 
-                        {/* Hero */}
-                        <section style={s.hero}>
+            {/* Hero */}
+            <section style={s.hero}>
 
                 {/* Background animation confined to hero area */}
                 <div style={s.heroBg}>

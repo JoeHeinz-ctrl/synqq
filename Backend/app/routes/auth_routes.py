@@ -101,7 +101,7 @@ def google_auth(payload: dict, db: Session = Depends(get_db)):
             "code": code,
             "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uri": "postmessage",
+            "redirect_uri": "http://localhost:8000/auth/google",
             "grant_type": "authorization_code",
         },
     )

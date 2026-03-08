@@ -11,3 +11,4 @@ google-auth
 python-multipart
 email-validator
 pydantic
+psycopg2-binary

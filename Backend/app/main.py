@@ -6,7 +6,6 @@ from app.models import user, project, task, team
 from fastapi.middleware.cors import CORSMiddleware
 
 # ⭐ Reset DB to apply new schema (dev only — drops all tables then recreates)
-Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Project Management App")
@@ -15,8 +14,8 @@ app = FastAPI(title="Project Management App")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],

@@ -1,17 +1,35 @@
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
+from dotenv import load_dotenv
 
-DATABASE_URL = "sqlite:///./project.db"
+load_dotenv()
+
+# Build PostgreSQL connection string
+DATABASE_URL = (
+    f"postgresql://{os.getenv('DB_USER', 'postgres')}:"
+    f"{os.getenv('DB_PASSWORD', 'password')}@"
+    f"{os.getenv('DB_HOST', 'localhost')}:"
+    f"{os.getenv('DB_PORT', '5432')}/"
+    f"{os.getenv('DB_NAME', 'synq_db')}"
+)
+
+# For local testing, you can also use:
+# DATABASE_URL = "postgresql://postgres:synq_password@localhost:5432/synq_db"
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    pool_pre_ping=True,  # Test connections before using
+    pool_size=10,
+    max_overflow=20
 )
 
 Base = declarative_base()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# ⭐ ADD THIS BLOCK
-from app.models.user import User
-from app.models.project import Project
-from app.models.task import Task
-from app.models.team import Team, TeamMember
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

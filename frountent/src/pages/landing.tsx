@@ -4,6 +4,7 @@ import { PricingSection } from "@/components/PricingSection";
 
 interface LandingProps {
     onGetStarted: () => void;
+    onShowPricing: () => void;
 }
 
 const features = [
@@ -19,7 +20,7 @@ const navLinks = ["Features", "About", "Pricing", "Blog"];
 const footerLinks = ["Features", "Pricing", "About", "Blog", "Privacy", "Terms"];
 
 
-export default function Landing({ onGetStarted }: LandingProps) {
+export default function Landing({ onGetStarted}: LandingProps) {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {

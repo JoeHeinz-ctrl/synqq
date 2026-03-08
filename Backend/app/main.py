@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.routes import auth_routes, project_routes, task_routes
 from app.routes import team_routes
 from app.db.database import Base, engine
+from app.models import user, project, task, team
 from fastapi.middleware.cors import CORSMiddleware
 
 # ⭐ Reset DB to apply new schema (dev only — drops all tables then recreates)

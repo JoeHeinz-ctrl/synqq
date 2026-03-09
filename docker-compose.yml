@@ -26,7 +26,7 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    container_name: synq-backend
+    container_name: synq-Backend
     environment:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-joe123}
@@ -41,7 +41,7 @@ services:
       - "8000:8000"
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_healthsy
     volumes:
       - ./Backend:/app
     networks:
@@ -51,9 +51,9 @@ services:
   # Frontend (React)
   frontend:
     build:
-      context: ./frontend
+      context: ./frountent
       dockerfile: Dockerfile
-    container_name: synq-frontend
+    container_name: synq-frountent
     environment:
       VITE_API_URL: http://localhost:8000
     ports:
@@ -61,7 +61,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend:/app
+      - ./frountent:/app
       - /app/node_modules
     networks:
       - synq-network

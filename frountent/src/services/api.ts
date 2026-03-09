@@ -37,13 +37,13 @@ export async function registerUser(name: string, email: string, password: string
   return handleResponse(res);
 }
 
-export async function googleLogin(code: string) {
+export async function googleLogin(token: string) {
   const res = await fetch(`${API_URL}/auth/google`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ token }),
   });
 
   const data = await res.json();

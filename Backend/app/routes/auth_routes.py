@@ -12,6 +12,7 @@ from fastapi import HTTPException
 
 GOOGLE_CLIENT_ID = "335846643539-am8i2gne8ajsu3sbgfomb61pp26dr6ir.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "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"
+FRONTEND_URL = "http://localhost:5173"
 from app.core.config import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -90,18 +91,18 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/google")
 def google_auth(payload: dict, db: Session = Depends(get_db)):
-    code = payload.get("code")
+    code = payload.get("token")
 
     if not code:
         raise HTTPException(status_code=400, detail="Missing Google code")
-
+    
     token_res = requests.post(
         "https://oauth2.googleapis.com/token",
         data={
             "code": code,
             "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uri": "http://localhost:8000/auth/google",
+            "redirect_uri": FRONTEND_URL,  # ✅ USE ENV VAR
             "grant_type": "authorization_code",
         },
     )

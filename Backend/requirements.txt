@@ -4,3 +4,5 @@ sqlalchemy
 python-dotenv
 passlib[bcrypt]
 python-jose
+psycopg2-binary
+requests

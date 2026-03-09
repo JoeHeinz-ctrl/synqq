@@ -2,10 +2,15 @@ from fastapi import FastAPI
 from app.routes import auth_routes, project_routes, task_routes
 from app.routes import team_routes
 from app.db.database import Base, engine
-from app.models import user, project, task, team
 from fastapi.middleware.cors import CORSMiddleware
+from app.models.user import User
+from app.models.project import Project
+from app.models.task import Task
+from app.models.team import Team, TeamMember
 
-# ⭐ Reset DB to apply new schema (dev only — drops all tables then recreates)
+from app.routes import auth_routes, project_routes, task_routes, team_routes
+
+# ⭐ Create database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Project Management App")

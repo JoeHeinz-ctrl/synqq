@@ -91,7 +91,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/google")
 def google_auth(payload: dict, db: Session = Depends(get_db)):
-    code = payload.get("token")
+    code = payload.get("code")
 
     if not code:
         raise HTTPException(status_code=400, detail="Missing Google code")

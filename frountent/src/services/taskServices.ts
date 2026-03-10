@@ -10,7 +10,7 @@ export const createTask = async (task: TaskPayload) => {
     const token = localStorage.getItem("token");
 
     return axios.post(
-        "http://127.0.0.1:8000/tasks/",
+        "http://localhost:8000/tasks/",
         task,
         {
             headers: {

@@ -102,7 +102,7 @@ def google_auth(payload: dict, db: Session = Depends(get_db)):
             "code": code,
             "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uri": FRONTEND_URL,  # ✅ USE ENV VAR
+            "redirect_uri": "postmessage",  # ✅ USE ENV VAR
             "grant_type": "authorization_code",
         },
     )

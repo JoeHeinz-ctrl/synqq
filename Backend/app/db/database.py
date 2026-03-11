@@ -3,23 +3,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
-# Build PostgreSQL connection string
 DATABASE_URL = (
-    f"postgresql://{os.getenv('DB_USER', 'postgres')}:"
-    f"{os.getenv('DB_PASSWORD', 'password')}@"
-    f"{os.getenv('DB_HOST', 'localhost')}:"
-    f"{os.getenv('DB_PORT', '5432')}/"
-    f"{os.getenv('DB_NAME', 'synq_db')}"
+    f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
+    f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
 )
-
-# For local testing, you can also use:
-# DATABASE_URL = "postgresql://postgres:synq_password@localhost:5432/synq_db"
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,  # Test connections before using
+    pool_pre_ping=True,
     pool_size=10,
     max_overflow=20
 )

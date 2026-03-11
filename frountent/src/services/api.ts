@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 /* ---------------- HELPER ---------------- */
 
@@ -37,13 +37,13 @@ export async function registerUser(name: string, email: string, password: string
   return handleResponse(res);
 }
 
-export async function googleLogin(code: string) {
+export async function googleLogin(token: string) {
   const res = await fetch(`${API_URL}/auth/google`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ token }),
   });
 
   const data = await res.json();

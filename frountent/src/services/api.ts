@@ -43,7 +43,7 @@ export async function googleLogin(token: string) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ token }),
+    body: JSON.stringify({ code: token }),
   });
 
   const data = await res.json();

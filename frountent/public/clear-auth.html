@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Auth - Synq</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            background: #242424;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+        h1 { margin: 0 0 20px 0; font-size: 28px; }
+        p { color: #b3b3b3; margin: 0 0 30px 0; line-height: 1.6; }
+        button {
+            padding: 16px 32px;
+            background: #0b7de0;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #1a8cf0;
+            transform: translateY(-1px);
+        }
+        .success {
+            color: #10b981;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Clear Authentication</h1>
+        <p>If you're experiencing login issues or seeing "Could not validate credentials", click the button below to clear all stored authentication data.</p>
+        <button onclick="clearAuth()">Clear Auth & Reload</button>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        function clearAuth() {
+            // Clear all localStorage
+            localStorage.clear();
+            
+            // Clear all sessionStorage
+            sessionStorage.clear();
+            
+            // Clear all cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            // Show success message
+            document.getElementById('message').innerHTML = '<p class="success">✅ Authentication cleared! Redirecting to home...</p>';
+            
+            // Redirect to home after 1 second
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

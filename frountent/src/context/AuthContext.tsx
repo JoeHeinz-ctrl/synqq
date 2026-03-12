@@ -19,7 +19,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     const storedToken = localStorage.getItem("token");
+    
+    console.log("🔍 Checking auth - token exists:", !!storedToken);
+    
     if (!storedToken) {
+      console.log("❌ No token found");
       setToken(null);
       setIsAuthenticated(false);
       setIsLoading(false);
@@ -27,24 +31,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
+      console.log("🔄 Validating token with backend...");
       await getCurrentUser();
+      console.log("✅ Token valid - user authenticated");
       setToken(storedToken);
       setIsAuthenticated(true);
     } catch (error) {
-      // Token is invalid or expired - clear everything
-      console.log("Auth check failed, clearing session");
-      localStorage.removeItem("token");
-      localStorage.removeItem("greeting_variant");
-      localStorage.removeItem("greeting_ts");
+      console.error("❌ Token validation failed:", error);
+      
+      // CRITICAL: Clear ALL auth data immediately
+      localStorage.clear(); // Clear everything to be safe
       setToken(null);
       setIsAuthenticated(false);
       
-      // Force redirect to login if we're on a protected route
-      if (window.location.pathname !== '/login' && 
-          window.location.pathname !== '/register' && 
-          window.location.pathname !== '/' && 
-          window.location.pathname !== '/pricing') {
-        window.location.href = '/login';
+      // Force hard redirect to login for ANY page except public pages
+      const currentPath = window.location.pathname;
+      const publicPaths = ['/', '/login', '/register', '/pricing'];
+      
+      if (!publicPaths.includes(currentPath)) {
+        console.log("🔄 Forcing redirect to login from:", currentPath);
+        window.location.replace('/login'); // Use replace to prevent back button issues
       }
     } finally {
       setIsLoading(false);
@@ -52,19 +58,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    console.log("🚀 AuthProvider mounted");
     checkAuth();
 
     const handleUnauthorized = () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("greeting_variant");
-      localStorage.removeItem("greeting_ts");
+      console.error("🚨 Unauthorized event received - clearing session");
+      localStorage.clear();
       setToken(null);
       setIsAuthenticated(false);
-      window.location.href = '/login';
+      window.location.replace('/login');
     };
     
     window.addEventListener("auth:unauthorized", handleUnauthorized);
-    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    return () => {
+      console.log("🔌 AuthProvider unmounting");
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
   }, []);
 
   const login = (newToken: string) => {
@@ -74,15 +83,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("greeting_variant");
-    localStorage.removeItem("greeting_ts");
-    
+    console.log("👋 Logging out");
+    localStorage.clear();
     setToken(null);
     setIsAuthenticated(false);
-    
-    // Force redirect to login
-    window.location.href = '/login';
+    window.location.replace('/login');
   };
 
   return (

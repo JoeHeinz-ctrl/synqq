@@ -26,6 +26,7 @@ RUN npm install -g serve
 
 # Copy built app from builder
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/serve.json ./serve.json
 
 # Expose port
 EXPOSE 5173
@@ -34,5 +35,5 @@ EXPOSE 5173
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:5173 || exit 1
 
-# Serve the built app
-CMD ["serve", "-s", "dist", "-l", "5173"]
+# Serve the built app with SPA routing
+CMD ["serve", "-s", "dist", "-l", "5173", "--no-clipboard", "-c", "serve.json"]

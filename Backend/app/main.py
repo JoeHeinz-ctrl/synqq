@@ -7,14 +7,18 @@ from app.models.user import User
 from app.models.project import Project
 from app.models.task import Task
 from app.models.team import Team, TeamMember
+import socketio
 
 from app.routes import auth_routes, project_routes, task_routes, team_routes
+from app.socket_handler import sio
 
 # ⭐ Create database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Project Management App")
 
+# Wrap FastAPI app with Socket.IO
+socket_app = socketio.ASGIApp(sio, app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,4 +40,4 @@ app.include_router(team_routes.router)
 
 @app.get("/")
 def root():
-    return {"message": "Backend is running 🚀"}
+    return {"message": "Backend is running 🚀 with Socket.IO"}

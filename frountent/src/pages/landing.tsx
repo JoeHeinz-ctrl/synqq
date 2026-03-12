@@ -20,6 +20,11 @@ export default function Landing() {
     const [scrolled, setScrolled] = useState(false);
     const navigate = useNavigate();
 
+    // Debug: log when landing page mounts
+    useEffect(() => {
+        console.log("Landing page mounted - current path:", window.location.pathname);
+    }, []);
+
     const onGetStarted = () => navigate('/login');
 
     useEffect(() => {

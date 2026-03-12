@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useEffect } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { PublicRoute } from "./routes/PublicRoute";
@@ -70,6 +70,12 @@ function AppRoutes() {
 }
 
 export default function App() {
+  // Debug: Log the initial path
+  useEffect(() => {
+    console.log("App mounted - initial path:", window.location.pathname);
+    console.log("App mounted - full URL:", window.location.href);
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>

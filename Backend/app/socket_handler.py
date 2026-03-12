@@ -1,6 +1,9 @@
 from datetime import datetime
 from typing import Dict, List
 import socketio
+from sqlalchemy.orm import Session
+from app.db.session import SessionLocal
+from app.models.user import User
 
 # Create Socket.IO server
 sio = socketio.AsyncServer(
@@ -14,6 +17,15 @@ sio = socketio.AsyncServer(
 active_users: Dict[str, Dict] = {}  # sid -> {user_id, project_id, name}
 project_rooms: Dict[str, List[str]] = {}  # project_id -> [sid, sid, ...]
 message_history: Dict[str, List[Dict]] = {}  # project_id -> [messages]
+
+
+def get_db():
+    """Get database session"""
+    db = SessionLocal()
+    try:
+        return db
+    finally:
+        db.close()
 
 
 @sio.event
@@ -50,12 +62,19 @@ async def join_project(sid, data):
     """User joins a project room"""
     project_id = str(data.get('projectId'))
     user_id = data.get('userId')
+    user_name = data.get('userName', f"User {user_id}")
+    
+    # Fetch real user name from database
+    db = get_db()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        user_name = user.name
     
     # Store user info
     active_users[sid] = {
         'user_id': user_id,
         'project_id': project_id,
-        'name': f"User {user_id}",  # You should fetch real name from DB
+        'name': user_name,
         'online': True
     }
     
@@ -71,7 +90,7 @@ async def join_project(sid, data):
     # Update users list for everyone in the room
     await update_users_list(project_id)
     
-    print(f"User {user_id} joined project {project_id}")
+    print(f"User {user_name} ({user_id}) joined project {project_id}")
 
 
 @sio.event
@@ -104,6 +123,44 @@ async def send_message(sid, data):
         'content': content,
         'timestamp': datetime.now().isoformat(),
         'type': 'text'
+    }
+    
+    # Store message
+    if project_id not in message_history:
+        message_history[project_id] = []
+    message_history[project_id].append(message)
+    
+    # Broadcast to all users in the project
+    if project_id in project_rooms:
+        for user_sid in project_rooms[project_id]:
+            await sio.emit('new_message', message, room=user_sid)
+
+
+@sio.event
+async def send_file(sid, data):
+    """Handle file upload"""
+    if sid not in active_users:
+        return
+    
+    user_data = active_users[sid]
+    project_id = data.get('projectId')
+    file_name = data.get('fileName')
+    file_data = data.get('fileData')
+    file_type = data.get('fileType')
+    file_size = data.get('fileSize')
+    
+    # Create file message
+    message = {
+        'id': f"{sid}_{datetime.now().timestamp()}",
+        'userId': user_data['user_id'],
+        'userName': user_data['name'],
+        'content': f"📎 {file_name}",
+        'timestamp': datetime.now().isoformat(),
+        'type': 'file',
+        'fileUrl': file_data,  # In production, upload to storage and use URL
+        'fileName': file_name,
+        'fileType': file_type,
+        'fileSize': file_size
     }
     
     # Store message

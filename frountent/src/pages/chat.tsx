@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getCurrentUser } from "../services/api";
 import BottomNav from "../components/BottomNav";
 import { useChat } from "../hooks/useChat";
+import { useWebRTC } from "../hooks/useWebRTC";
 
 const styles: any = {
   container: {
@@ -249,6 +250,91 @@ const styles: any = {
     transition: "all 0.2s ease",
   },
 
+  fileInput: {
+    display: "none",
+  },
+
+  attachBtn: {
+    width: "44px",
+    height: "44px",
+    borderRadius: "50%",
+    border: "1px solid rgba(255,255,255,0.1)",
+    background: "transparent",
+    color: "#888",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "18px",
+    transition: "all 0.2s ease",
+  },
+
+  callModal: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0,0,0,0.9)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+  },
+
+  callContent: {
+    background: "#242424",
+    borderRadius: "16px",
+    padding: "24px",
+    maxWidth: "600px",
+    width: "90%",
+  },
+
+  videoContainer: {
+    position: "relative",
+    width: "100%",
+    aspectRatio: "16/9",
+    background: "#000",
+    borderRadius: "12px",
+    overflow: "hidden",
+    marginBottom: "16px",
+  },
+
+  video: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+
+  localVideo: {
+    position: "absolute",
+    bottom: "16px",
+    right: "16px",
+    width: "150px",
+    aspectRatio: "16/9",
+    borderRadius: "8px",
+    border: "2px solid #fff",
+  },
+
+  callControls: {
+    display: "flex",
+    gap: "12px",
+    justifyContent: "center",
+  },
+
+  controlBtn: {
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "20px",
+    transition: "all 0.2s ease",
+  },
+
   emptyState: {
     flex: 1,
     display: "flex",
@@ -266,11 +352,15 @@ export default function Chat() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [messageInput, setMessageInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, users, isConnected, sendMessage } = useChat(
+  const { messages, users, isConnected, sendMessage, sendFile, socket } = useChat(
     projectId,
-    currentUser?.id
+    currentUser?.id,
+    currentUser?.name
   );
+
+  const { callState, localVideoRef, remoteVideoRef, startCall, answerCall, rejectCall, endCall } = useWebRTC(socket, currentUser?.id);
 
   useEffect(() => {
     getCurrentUser().then(setCurrentUser).catch(console.error);
@@ -292,6 +382,20 @@ export default function Chat() {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      sendFile(file);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleCallClick = (userId: number, callType: "audio" | "video") => {
+    startCall(userId, callType);
   };
 
   const getInitials = (name: string) => {
@@ -337,6 +441,11 @@ export default function Chat() {
           <div style={styles.sidebarHeader}>
             Team Members ({users.length})
           </div>
+          {users.length === 0 && (
+            <div style={{ padding: "16px", color: "#666", fontSize: "13px", textAlign: "center" }}>
+              This is a personal project. You can still use chat to organize your thoughts and notes!
+            </div>
+          )}
           <div style={styles.userList}>
             {users.map((user) => (
               <div
@@ -374,6 +483,7 @@ export default function Chat() {
                     <button
                       style={styles.callBtn}
                       title="Audio call"
+                      onClick={() => handleCallClick(user.id, "audio")}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background =
                           "rgba(11,125,224,0.2)";
@@ -388,6 +498,7 @@ export default function Chat() {
                     <button
                       style={styles.callBtn}
                       title="Video call"
+                      onClick={() => handleCallClick(user.id, "video")}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background =
                           "rgba(11,125,224,0.2)";
@@ -420,6 +531,8 @@ export default function Chat() {
             ) : (
               messages.map((msg) => {
                 const isOwn = msg.userId === currentUser?.id;
+                const isFile = msg.type === "file";
+                
                 return (
                   <div
                     key={msg.id}
@@ -441,7 +554,23 @@ export default function Chat() {
                           ...(isOwn ? styles.messageBubbleOwn : {}),
                         }}
                       >
-                        {msg.content}
+                        {isFile ? (
+                          <a
+                            href={msg.fileUrl}
+                            download={msg.fileName}
+                            style={{
+                              color: isOwn ? "#fff" : "#0b7de0",
+                              textDecoration: "none",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            {msg.content}
+                          </a>
+                        ) : (
+                          msg.content
+                        )}
                       </div>
                       <div style={styles.messageTime}>
                         {formatTime(msg.timestamp)}
@@ -455,6 +584,27 @@ export default function Chat() {
           </div>
 
           <div style={styles.inputArea}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              style={styles.fileInput}
+              onChange={handleFileSelect}
+            />
+            <button
+              style={styles.attachBtn}
+              onClick={() => fileInputRef.current?.click()}
+              title="Attach file"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                e.currentTarget.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#888";
+              }}
+            >
+              📎
+            </button>
             <input
               style={styles.input}
               placeholder="Type a message..."
@@ -478,6 +628,76 @@ export default function Chat() {
           </div>
         </div>
       </div>
+
+      {/* Call Modal */}
+      {(callState.isInCall || callState.isCalling || callState.isReceivingCall) && (
+        <div style={styles.callModal}>
+          <div style={styles.callContent}>
+            {callState.isReceivingCall && (
+              <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                <h3 style={{ color: "#fff", marginBottom: "8px" }}>
+                  Incoming {callState.callType} call
+                </h3>
+                <p style={{ color: "#888" }}>
+                  {callState.caller?.name} is calling...
+                </p>
+                <div style={{ display: "flex", gap: "12px", justifyContent: "center", marginTop: "20px" }}>
+                  <button
+                    style={{ ...styles.controlBtn, background: "#10b981" }}
+                    onClick={answerCall}
+                  >
+                    ✓
+                  </button>
+                  <button
+                    style={{ ...styles.controlBtn, background: "#ef4444" }}
+                    onClick={rejectCall}
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {(callState.isInCall || callState.isCalling) && (
+              <>
+                <div style={styles.videoContainer}>
+                  <video
+                    ref={remoteVideoRef}
+                    autoPlay
+                    playsInline
+                    style={styles.video}
+                  />
+                  {callState.callType === "video" && (
+                    <video
+                      ref={localVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      style={styles.localVideo}
+                    />
+                  )}
+                </div>
+
+                {callState.isCalling && (
+                  <p style={{ textAlign: "center", color: "#888", marginBottom: "16px" }}>
+                    Calling...
+                  </p>
+                )}
+
+                <div style={styles.callControls}>
+                  <button
+                    style={{ ...styles.controlBtn, background: "#ef4444" }}
+                    onClick={endCall}
+                    title="End call"
+                  >
+                    📞
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <BottomNav projectId={projectId} />
     </div>

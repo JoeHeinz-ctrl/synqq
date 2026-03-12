@@ -83,3 +83,59 @@ def delete_project(
     db.delete(project)
     db.commit()
     return {"detail": "Project deleted"}
+
+
+@router.get("/{project_id}/members")
+def get_project_members(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get all members who have access to this project"""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check if user has access to this project
+    if project.owner_id != current_user.id:
+        if project.team_id:
+            membership = db.query(TeamMember).filter(
+                TeamMember.team_id == project.team_id,
+                TeamMember.user_id == current_user.id,
+            ).first()
+            if not membership:
+                raise HTTPException(status_code=403, detail="Access denied")
+        else:
+            raise HTTPException(status_code=403, detail="Access denied")
+    
+    members = []
+    
+    # Add project owner
+    owner = db.query(User).filter(User.id == project.owner_id).first()
+    if owner:
+        members.append({
+            "id": owner.id,
+            "name": owner.name,
+            "email": owner.email,
+            "role": "owner"
+        })
+    
+    # If project has a team, add all team members
+    if project.team_id:
+        team_members = db.query(TeamMember).filter(
+            TeamMember.team_id == project.team_id
+        ).all()
+        
+        for tm in team_members:
+            if tm.user_id != project.owner_id:  # Don't duplicate owner
+                user = db.query(User).filter(User.id == tm.user_id).first()
+                if user:
+                    members.append({
+                        "id": user.id,
+                        "name": user.name,
+                        "email": user.email,
+                        "role": "member"
+                    })
+    
+    return members

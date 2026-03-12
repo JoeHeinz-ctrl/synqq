@@ -19,12 +19,38 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
   });
 
   const [targetUserId, setTargetUserId] = useState<number | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(true);
+  const [callDuration, setCallDuration] = useState(0);
+  const callTimerRef = useRef<number | null>(null);
+  
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Start call timer when connected
+  useEffect(() => {
+    if (callState.isInCall && !callTimerRef.current) {
+      setCallDuration(0);
+      callTimerRef.current = window.setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    } else if (!callState.isInCall && callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+      setCallDuration(0);
+    }
+
+    return () => {
+      if (callTimerRef.current) {
+        clearInterval(callTimerRef.current);
+        callTimerRef.current = null;
+      }
+    };
+  }, [callState.isInCall]);
 
   useEffect(() => {
     if (!socket) return;
@@ -117,6 +143,8 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       remoteStreamRef.current = event.streams[0];
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
+        // Ensure audio plays
+        remoteVideoRef.current.play().catch(e => console.error("Error playing remote stream:", e));
         console.log("✅ Remote video element updated");
       }
       // Auto-transition to connected state when we receive tracks
@@ -294,8 +322,22 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
+        setIsMuted(!audioTrack.enabled);
+        console.log(audioTrack.enabled ? "🔊 Unmuted" : "🔇 Muted");
       }
     }
+  };
+
+  const toggleSpeaker = () => {
+    setIsSpeakerOn(!isSpeakerOn);
+    console.log(isSpeakerOn ? "🔇 Speaker off" : "🔊 Speaker on");
+    // Note: Speaker toggle is mainly for mobile, handled by the device
+  };
+
+  const formatCallDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const toggleVideo = () => {
@@ -317,5 +359,10 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
     endCall,
     toggleMute,
     toggleVideo,
+    toggleSpeaker,
+    isMuted,
+    isSpeakerOn,
+    callDuration,
+    formatCallDuration,
   };
 }

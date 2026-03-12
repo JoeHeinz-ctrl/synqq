@@ -295,7 +295,7 @@ const styles: any = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: "rgba(0,0,0,0.9)",
+    background: "rgba(0,0,0,0.95)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -308,6 +308,9 @@ const styles: any = {
     padding: "24px",
     maxWidth: "600px",
     width: "90%",
+    maxHeight: "90vh",
+    display: "flex",
+    flexDirection: "column",
   },
 
   videoContainer: {
@@ -338,8 +341,9 @@ const styles: any = {
 
   callControls: {
     display: "flex",
-    gap: "12px",
+    gap: "16px",
     justifyContent: "center",
+    alignItems: "center",
   },
 
   controlBtn: {
@@ -412,7 +416,7 @@ export default function Chat() {
     currentUser?.name
   );
 
-  const { callState, localVideoRef, remoteVideoRef, startCall, answerCall, rejectCall, endCall } = useWebRTC(socket, currentUser?.id);
+  const { callState, localVideoRef, remoteVideoRef, startCall, answerCall, rejectCall, endCall, toggleMute, toggleSpeaker, isMuted, isSpeakerOn, callDuration, formatCallDuration } = useWebRTC(socket, currentUser?.id);
 
   useEffect(() => {
     getCurrentUser().then(setCurrentUser).catch(console.error);
@@ -768,14 +772,18 @@ export default function Chat() {
                       />
                     </>
                   ) : (
-                    <div style={styles.audioCallView}>
-                      <div style={styles.audioAvatar}>
-                        {callState.caller ? getInitials(callState.caller.name) : "👤"}
+                    <>
+                      <audio ref={remoteVideoRef} autoPlay playsInline />
+                      <audio ref={localVideoRef} autoPlay playsInline muted />
+                      <div style={styles.audioCallView}>
+                        <div style={styles.audioAvatar}>
+                          {callState.caller ? getInitials(callState.caller.name) : getInitials(currentUser?.name || "U")}
+                        </div>
+                        <div style={{ color: "#fff", fontSize: "20px", marginTop: "16px" }}>
+                          {callState.caller?.name || currentUser?.name || "Audio Call"}
+                        </div>
                       </div>
-                      <div style={{ color: "#fff", fontSize: "20px", marginTop: "16px" }}>
-                        {callState.caller?.name || "Audio Call"}
-                      </div>
-                    </div>
+                    </>
                   )}
                 </div>
 
@@ -786,12 +794,44 @@ export default function Chat() {
                 )}
 
                 {callState.isInCall && (
-                  <p style={{ textAlign: "center", color: "#10b981", marginBottom: "16px", fontSize: "14px" }}>
-                    ● Connected
+                  <p style={{ textAlign: "center", color: "#10b981", marginBottom: "16px", fontSize: "16px", fontWeight: "600" }}>
+                    ● {formatCallDuration(callDuration)}
                   </p>
                 )}
 
                 <div style={styles.callControls}>
+                  {callState.isInCall && (
+                    <>
+                      <button
+                        style={{
+                          ...styles.controlBtn,
+                          background: isMuted ? "#ef4444" : "rgba(255,255,255,0.1)",
+                          width: "56px",
+                          height: "56px",
+                        }}
+                        onClick={toggleMute}
+                        title={isMuted ? "Unmute" : "Mute"}
+                      >
+                        {isMuted ? "🔇" : "🎤"}
+                      </button>
+                      
+                      {isMobile && (
+                        <button
+                          style={{
+                            ...styles.controlBtn,
+                            background: isSpeakerOn ? "#10b981" : "rgba(255,255,255,0.1)",
+                            width: "56px",
+                            height: "56px",
+                          }}
+                          onClick={toggleSpeaker}
+                          title={isSpeakerOn ? "Speaker on" : "Speaker off"}
+                        >
+                          {isSpeakerOn ? "🔊" : "🔇"}
+                        </button>
+                      )}
+                    </>
+                  )}
+                  
                   <button
                     style={{ ...styles.controlBtn, background: "#ef4444", width: "56px", height: "56px" }}
                     onClick={endCall}

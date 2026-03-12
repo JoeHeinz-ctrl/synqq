@@ -235,7 +235,7 @@ const styles: any = {
   emptyIcon: {
     fontSize: "40px",
     marginBottom: "12px",
-    opacity: 0.3",
+    opacity: 0.3,
   },
 
   // Modal styles

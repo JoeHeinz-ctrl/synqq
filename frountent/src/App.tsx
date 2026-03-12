@@ -9,6 +9,7 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import ProjectBoard from "./pages/projectboard";
 import Dashboard from "./pages/dashboard";
+import Chat from "./pages/chat";
 import { PricingDemo } from "./components/ui/pricing-demo";
 
 function AppRoutes() {
@@ -62,6 +63,7 @@ function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route path="/board" element={<ProjectBoard />} />
         <Route path="/dashboard/:projectId" element={<Dashboard />} />
+        <Route path="/chat/:projectId" element={<Chat />} />
       </Route>
 
       {/* Fallback routing */}

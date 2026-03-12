@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks, getCurrentUser } from "../services/api";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import BottomNav from "../components/BottomNav";
 
 const styles: any = {
   container: {
@@ -10,17 +11,18 @@ const styles: any = {
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     display: "flex",
     flexDirection: "column",
+    paddingBottom: "70px",
   },
 
   // Header styles
   topBar: {
     background: "#242424",
     borderBottom: "1px solid rgba(255,255,255,0.05)",
-    padding: "16px 24px",
+    padding: "12px 16px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: "16px",
+    gap: "12px",
     flexWrap: "wrap",
   },
 
@@ -28,15 +30,20 @@ const styles: any = {
     display: "flex",
     alignItems: "center",
     gap: "16px",
+    flex: "0 0 auto",
   },
 
   topBarCenter: {
-    flex: "1 1 300px",
-    minWidth: "200px",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    flex: "1 1 auto",
+    justifyContent: "center",
   },
 
   topBarRight: {
     display: "flex",
+    alignItems: "center",
     gap: "12px",
   },
 
@@ -70,28 +77,44 @@ const styles: any = {
   },
 
   greeting: {
-    fontSize: "12px",
-    color: "#888",
-    marginBottom: "4px",
+    fontSize: "14px",
+    color: "#fff",
+    fontWeight: "500",
   },
 
   projectTitle: {
-    fontSize: "20px",
+    fontSize: "18px",
     fontWeight: "600",
     color: "#ffffff",
     letterSpacing: "-0.3px",
-    marginBottom: "2px",
   },
 
   taskCount: {
     fontSize: "12px",
-    color: "#666",
+    color: "#888",
+    marginLeft: "8px",
+  },
+
+  chatBtn: {
+    padding: "8px 16px",
+    borderRadius: "10px",
+    border: "1px solid rgba(11, 125, 224, 0.3)",
+    background: "rgba(11, 125, 224, 0.1)",
+    color: "#0b7de0",
+    fontWeight: "600",
+    fontSize: "13px",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    whiteSpace: "nowrap",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
   },
 
   // Main content
   mainContent: {
     flex: 1,
-    padding: "20px",
+    padding: "12px",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -100,8 +123,8 @@ const styles: any = {
   shortcuts: {
     fontSize: "11px",
     color: "#555",
-    marginBottom: "16px",
-    padding: "8px 12px",
+    marginBottom: "12px",
+    padding: "6px 10px",
     background: "#242424",
     borderRadius: "8px",
     display: "inline-block",
@@ -111,18 +134,18 @@ const styles: any = {
   board: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "16px",
+    gap: "12px",
     flex: 1,
     overflow: "auto",
   },
 
   column: {
     background: "#242424",
-    padding: "16px",
-    borderRadius: "16px",
+    padding: "12px",
+    borderRadius: "12px",
     display: "flex",
     flexDirection: "column",
-    minHeight: "400px",
+    minHeight: "300px",
     maxHeight: "calc(100vh - 220px)",
     transition: "all 0.3s ease",
   },
@@ -701,9 +724,28 @@ export default function Dashboard() {
           border: 1px solid #3a3a3a;
         }
         @media (max-width: 768px) {
-          .top-bar { flex-direction: column; align-items: stretch !important; }
-          .top-bar-center { order: -1; margin-bottom: 12px; }
-          .board-grid { grid-template-columns: 1fr !important; }
+          .top-bar { 
+            flex-direction: column; 
+            align-items: stretch !important; 
+            padding: 10px 12px !important;
+            gap: 8px !important;
+          }
+          .top-bar-left, .top-bar-right {
+            justify-content: space-between;
+          }
+          .top-bar-center { 
+            order: -1; 
+            margin-bottom: 8px; 
+          }
+          .board-grid { 
+            grid-template-columns: 1fr !important; 
+            gap: 10px !important;
+          }
+          .shortcuts-badge {
+            font-size: 10px !important;
+            padding: 5px 8px !important;
+            margin-bottom: 8px !important;
+          }
         }
       `}</style>
 
@@ -718,15 +760,25 @@ export default function Dashboard() {
           >
             ← Back
           </button>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={styles.projectTitle}>{project ? project.title : "Project Board"}</div>
+            <div style={styles.taskCount}>· {tasks.length} tasks</div>
+          </div>
         </div>
 
         <div style={styles.topBarCenter} className="top-bar-center">
           {greeting && <div style={styles.greeting}>{greeting}</div>}
-          <div style={styles.projectTitle}>{project ? project.title : "Project Board"}</div>
-          <div style={styles.taskCount}>{tasks.length} total tasks</div>
         </div>
 
         <div style={styles.topBarRight}>
+          <button 
+            style={styles.chatBtn} 
+            onClick={() => projectId && navigate(`/chat/${projectId}`)}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.2)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.1)"; }}
+          >
+            💬 Chat
+          </button>
           <button 
             style={styles.logoutBtn} 
             onClick={logout}
@@ -740,7 +792,7 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div style={styles.mainContent}>
-        <div style={styles.shortcuts}>
+        <div style={styles.shortcuts} className="shortcuts-badge">
           <kbd>N</kbd> new task · <kbd>E</kbd> edit · <kbd>D</kbd> mark done
         </div>
 
@@ -903,6 +955,9 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+      
+      {/* Bottom Navigation */}
+      <BottomNav projectId={projectId} />
     </div>
   );
 }

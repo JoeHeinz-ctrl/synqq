@@ -46,12 +46,11 @@ def socket_test():
     return {
         "socket_configured": True,
         "active_users": len(active_users),
-        "project_rooms": {k: len(v) for k, v in project_rooms.items()},
-        "message_history_count": {k: len(v) for k, v in message_history.items()}
+        "project_rooms": {k: len(v) for k, v in project_rooms.items()}
     }
 
 # Import the dictionaries from socket_handler
-from app.socket_handler import active_users, project_rooms, message_history
+from app.socket_handler import active_users, project_rooms
 
 # Wrap FastAPI app with Socket.IO - MUST be at the end
 socket_app = socketio.ASGIApp(sio, app)

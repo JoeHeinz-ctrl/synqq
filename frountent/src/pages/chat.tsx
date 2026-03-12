@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getCurrentUser } from "../services/api";
 import BottomNav from "../components/BottomNav";
@@ -261,7 +261,6 @@ const styles: any = {
 };
 
 export default function Chat() {
-  const navigate = useNavigate();
   const { logout } = useAuth();
   const { projectId } = useParams();
   const [currentUser, setCurrentUser] = useState<any>(null);

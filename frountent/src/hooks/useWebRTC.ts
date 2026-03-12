@@ -9,7 +9,7 @@ interface CallState {
   callType: "audio" | "video" | null;
 }
 
-export function useWebRTC(socket: Socket | null, userId: number | null) {
+export function useWebRTC(socket: Socket | null) {
   const [callState, setCallState] = useState<CallState>({
     isInCall: false,
     isCalling: false,

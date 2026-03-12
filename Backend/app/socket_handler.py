@@ -279,11 +279,15 @@ async def reject_call(sid, data):
 
 
 @sio.event
-async def end_call(sid, data):
+async def end_call(sid, data=None):
     """End an active call"""
+    if data is None:
+        data = {}
+    
     target_user_id = data.get('targetUserId')
     
     if not target_user_id:
+        print(f"⚠️ end_call called without targetUserId from {sid}")
         return
     
     # Find other party's sid
@@ -296,6 +300,8 @@ async def end_call(sid, data):
     if target_sid:
         print(f"📴 Call ended, notifying user {target_user_id}")
         await sio.emit('call_ended', {}, room=target_sid)
+    else:
+        print(f"⚠️ Target user {target_user_id} not found for end_call")
 
 
 @sio.event

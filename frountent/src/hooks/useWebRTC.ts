@@ -263,7 +263,7 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       peerConnectionRef.current = null;
     }
 
-    // Notify server
+    // Notify server only if we have a target
     if (socket && targetUserId) {
       socket.emit("end_call", { targetUserId });
     }

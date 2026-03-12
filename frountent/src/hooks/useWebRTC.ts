@@ -113,17 +113,24 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
     };
 
     pc.ontrack = (event) => {
-      console.log("📺 Received remote track");
+      console.log("📺 Received remote track:", event.track.kind);
       remoteStreamRef.current = event.streams[0];
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
+        console.log("✅ Remote video element updated");
       }
+      // Auto-transition to connected state when we receive tracks
+      setCallState((prev) => ({ ...prev, isCalling: false, isInCall: true }));
     };
 
     pc.oniceconnectionstatechange = () => {
       console.log("🔌 ICE connection state:", pc.iceConnectionState);
-      if (pc.iceConnectionState === "connected") {
+      if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+        console.log("✅ Call connected!");
         setCallState((prev) => ({ ...prev, isCalling: false, isInCall: true }));
+      } else if (pc.iceConnectionState === "failed" || pc.iceConnectionState === "disconnected") {
+        console.log("❌ Call connection failed/disconnected");
+        endCall();
       }
     };
 
@@ -145,12 +152,14 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
 
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
+        console.log("✅ Local video stream set");
       }
 
       const pc = createPeerConnection(targetUserId);
       peerConnectionRef.current = pc;
 
       stream.getTracks().forEach((track) => {
+        console.log("➕ Adding track:", track.kind);
         pc.addTrack(track, stream);
       });
 
@@ -193,15 +202,17 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
 
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
+        console.log("✅ Local video stream set (answering)");
       }
 
       const pc = peerConnectionRef.current;
       if (!pc) {
-        console.error("No peer connection found");
+        console.error("❌ No peer connection found");
         return;
       }
 
       stream.getTracks().forEach((track) => {
+        console.log("➕ Adding track (answering):", track.kind);
         pc.addTrack(track, stream);
       });
 

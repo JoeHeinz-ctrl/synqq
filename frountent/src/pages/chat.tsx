@@ -353,6 +353,30 @@ const styles: any = {
     justifyContent: "center",
     fontSize: "20px",
     transition: "all 0.2s ease",
+    color: "#fff",
+  },
+
+  audioCallView: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  },
+
+  audioAvatar: {
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.2)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "48px",
+    color: "#fff",
+    fontWeight: "600",
   },
 
   emptyState: {
@@ -727,32 +751,49 @@ export default function Chat() {
             {(callState.isInCall || callState.isCalling) && (
               <>
                 <div style={styles.videoContainer}>
-                  <video
-                    ref={remoteVideoRef}
-                    autoPlay
-                    playsInline
-                    style={styles.video}
-                  />
-                  {callState.callType === "video" && (
-                    <video
-                      ref={localVideoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      style={styles.localVideo}
-                    />
+                  {callState.callType === "video" ? (
+                    <>
+                      <video
+                        ref={remoteVideoRef}
+                        autoPlay
+                        playsInline
+                        style={styles.video}
+                      />
+                      <video
+                        ref={localVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        style={styles.localVideo}
+                      />
+                    </>
+                  ) : (
+                    <div style={styles.audioCallView}>
+                      <div style={styles.audioAvatar}>
+                        {callState.caller ? getInitials(callState.caller.name) : "👤"}
+                      </div>
+                      <div style={{ color: "#fff", fontSize: "20px", marginTop: "16px" }}>
+                        {callState.caller?.name || "Audio Call"}
+                      </div>
+                    </div>
                   )}
                 </div>
 
                 {callState.isCalling && (
-                  <p style={{ textAlign: "center", color: "#888", marginBottom: "16px" }}>
+                  <p style={{ textAlign: "center", color: "#888", marginBottom: "16px", fontSize: "14px" }}>
                     Calling...
+                  </p>
+                )}
+
+                {callState.isInCall && (
+                  <p style={{ textAlign: "center", color: "#10b981", marginBottom: "16px", fontSize: "14px" }}>
+                    ● Connected
                   </p>
                 )}
 
                 <div style={styles.callControls}>
                   <button
-                    style={{ ...styles.controlBtn, background: "#ef4444" }}
+                    style={{ ...styles.controlBtn, background: "#ef4444", width: "56px", height: "56px" }}
                     onClick={endCall}
                     title="End call"
                   >

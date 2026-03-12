@@ -30,13 +30,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await getCurrentUser();
       setToken(storedToken);
       setIsAuthenticated(true);
-    } catch {
-      // Token is invalid or expired
+    } catch (error) {
+      // Token is invalid or expired - clear everything
+      console.log("Auth check failed, clearing session");
       localStorage.removeItem("token");
       localStorage.removeItem("greeting_variant");
       localStorage.removeItem("greeting_ts");
       setToken(null);
       setIsAuthenticated(false);
+      
+      // Force redirect to login if we're on a protected route
+      if (window.location.pathname !== '/login' && 
+          window.location.pathname !== '/register' && 
+          window.location.pathname !== '/' && 
+          window.location.pathname !== '/pricing') {
+        window.location.href = '/login';
+      }
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
 
     const handleUnauthorized = () => {
-      logout();
+      localStorage.removeItem("token");
+      localStorage.removeItem("greeting_variant");
+      localStorage.removeItem("greeting_ts");
+      setToken(null);
+      setIsAuthenticated(false);
+      window.location.href = '/login';
     };
     
     window.addEventListener("auth:unauthorized", handleUnauthorized);
@@ -66,6 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     setToken(null);
     setIsAuthenticated(false);
+    
+    // Force redirect to login
+    window.location.href = '/login';
   };
 
   return (

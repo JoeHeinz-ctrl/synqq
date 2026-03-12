@@ -33,15 +33,17 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
 
   // Start call timer when connected
   useEffect(() => {
-    if (callState.isInCall && !callTimerRef.current) {
+    if (callState.isInCall && !callState.isCalling && !callState.isReceivingCall && !callTimerRef.current) {
       setCallDuration(0);
       callTimerRef.current = window.setInterval(() => {
         setCallDuration((prev) => prev + 1);
       }, 1000);
-    } else if (!callState.isInCall && callTimerRef.current) {
+      console.log("⏱️ Call timer started");
+    } else if ((!callState.isInCall || callState.isCalling || callState.isReceivingCall) && callTimerRef.current) {
       clearInterval(callTimerRef.current);
       callTimerRef.current = null;
       setCallDuration(0);
+      console.log("⏱️ Call timer stopped");
     }
 
     return () => {
@@ -50,7 +52,7 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
         callTimerRef.current = null;
       }
     };
-  }, [callState.isInCall]);
+  }, [callState.isInCall, callState.isCalling, callState.isReceivingCall]);
 
   useEffect(() => {
     if (!socket) return;
@@ -249,6 +251,8 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
 
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
+      
+      console.log("📤 Created answer, local description set");
 
       if (socket && targetUserId) {
         console.log("📤 Sending answer to:", targetUserId);
@@ -264,6 +268,8 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
         isCalling: false,
         isInCall: true,
       }));
+      
+      console.log("✅ Call answered, state updated to isInCall");
     } catch (error) {
       console.error("Error answering call:", error);
       alert("Could not access camera/microphone. Please grant permissions.");

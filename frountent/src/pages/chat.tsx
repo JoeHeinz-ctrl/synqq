@@ -783,8 +783,19 @@ export default function Chat() {
                     </>
                   ) : (
                     <>
-                      <audio ref={remoteVideoRef} autoPlay playsInline />
-                      <audio ref={localVideoRef} autoPlay playsInline muted />
+                      <audio 
+                        ref={remoteVideoRef} 
+                        autoPlay 
+                        playsInline
+                        style={{ display: 'none' }}
+                      />
+                      <audio 
+                        ref={localVideoRef} 
+                        autoPlay 
+                        playsInline 
+                        muted
+                        style={{ display: 'none' }}
+                      />
                       <div style={styles.audioCallView}>
                         <div style={styles.audioAvatar}>
                           {callState.caller ? getInitials(callState.caller.name) : getInitials(currentUser?.name || "U")}

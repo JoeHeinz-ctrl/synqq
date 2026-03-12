@@ -222,6 +222,7 @@ async def call_user(sid, data):
             break
     
     if target_sid:
+        print(f"📞 Routing call from {caller['name']} to user {target_user_id}")
         await sio.emit('incoming_call', {
             'from': {
                 'id': caller['user_id'],
@@ -230,39 +231,94 @@ async def call_user(sid, data):
             'offer': offer,
             'callType': call_type
         }, room=target_sid)
+    else:
+        print(f"❌ Target user {target_user_id} not found")
 
 
 @sio.event
 async def answer_call(sid, data):
     """Answer an incoming call"""
-    accepted = data.get('accepted')
     answer = data.get('answer')
+    target_user_id = data.get('targetUserId')
     
-    # Simplified - you'd need to track who called whom
-    # For now, just emit to the caller
-    await sio.emit('call_accepted', {'answer': answer}, room=sid)
+    if sid not in active_users:
+        return
+    
+    # Find caller's sid
+    target_sid = None
+    for user_sid, user_data in active_users.items():
+        if user_data['user_id'] == target_user_id:
+            target_sid = user_sid
+            break
+    
+    if target_sid:
+        print(f"✅ Routing answer to user {target_user_id}")
+        await sio.emit('call_accepted', {
+            'answer': answer,
+            'from': active_users[sid]['user_id']
+        }, room=target_sid)
+    else:
+        print(f"❌ Caller {target_user_id} not found")
 
 
 @sio.event
 async def reject_call(sid, data):
     """Reject an incoming call"""
-    # Simplified - emit to caller
-    await sio.emit('call_rejected', {}, room=sid)
+    target_user_id = data.get('targetUserId')
+    
+    # Find caller's sid
+    target_sid = None
+    for user_sid, user_data in active_users.items():
+        if user_data['user_id'] == target_user_id:
+            target_sid = user_sid
+            break
+    
+    if target_sid:
+        print(f"❌ Call rejected, notifying user {target_user_id}")
+        await sio.emit('call_rejected', {}, room=target_sid)
 
 
 @sio.event
 async def end_call(sid, data):
     """End an active call"""
-    # Simplified - emit to other party
-    await sio.emit('call_ended', {}, room=sid)
+    target_user_id = data.get('targetUserId')
+    
+    if not target_user_id:
+        return
+    
+    # Find other party's sid
+    target_sid = None
+    for user_sid, user_data in active_users.items():
+        if user_data['user_id'] == target_user_id:
+            target_sid = user_sid
+            break
+    
+    if target_sid:
+        print(f"📴 Call ended, notifying user {target_user_id}")
+        await sio.emit('call_ended', {}, room=target_sid)
 
 
 @sio.event
 async def ice_candidate(sid, data):
     """Exchange ICE candidates for WebRTC"""
     candidate = data.get('candidate')
-    # Simplified - broadcast to other party
-    await sio.emit('ice_candidate', {'candidate': candidate}, room=sid)
+    target_user_id = data.get('targetUserId')
+    
+    if sid not in active_users:
+        return
+    
+    # Find other party's sid
+    target_sid = None
+    for user_sid, user_data in active_users.items():
+        if user_data['user_id'] == target_user_id:
+            target_sid = user_sid
+            break
+    
+    if target_sid:
+        await sio.emit('ice_candidate', {
+            'candidate': candidate,
+            'from': active_users[sid]['user_id']
+        }, room=target_sid)
 
 
 async def update_users_list(project_id: str):

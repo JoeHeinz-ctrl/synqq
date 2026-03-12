@@ -23,6 +23,7 @@ const styles: any = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    flexShrink: 0,
   },
 
   title: {
@@ -57,6 +58,7 @@ const styles: any = {
     flex: 1,
     display: "flex",
     overflow: "hidden",
+    position: "relative",
   },
 
   sidebar: {
@@ -65,6 +67,24 @@ const styles: any = {
     borderRight: "1px solid rgba(255,255,255,0.05)",
     display: "flex",
     flexDirection: "column",
+    flexShrink: 0,
+  },
+
+  sidebarMobile: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: "100%",
+    maxWidth: "300px",
+    background: "#242424",
+    zIndex: 100,
+    transform: "translateX(-100%)",
+    transition: "transform 0.3s ease",
+  },
+
+  sidebarMobileOpen: {
+    transform: "translateX(0)",
   },
 
   sidebarHeader: {
@@ -351,8 +371,16 @@ export default function Chat() {
   const { projectId } = useParams();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [messageInput, setMessageInput] = useState("");
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const { messages, users, isConnected, sendMessage, sendFile, socket } = useChat(
     projectId,
@@ -417,9 +445,26 @@ export default function Chat() {
   return (
     <div style={styles.container}>
       <div style={styles.topBar}>
-        <div style={styles.title}>
-          💬 Team Chat
-          {isConnected && <div style={styles.statusDot} title="Connected" />}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {isMobile && (
+            <button
+              onClick={() => setShowSidebar(!showSidebar)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "#fff",
+                fontSize: "20px",
+                cursor: "pointer",
+                padding: "4px",
+              }}
+            >
+              👥
+            </button>
+          )}
+          <div style={styles.title}>
+            💬 Team Chat
+            {isConnected && <div style={styles.statusDot} title="Connected" />}
+          </div>
         </div>
         <button
           style={styles.logoutBtn}
@@ -437,9 +482,30 @@ export default function Chat() {
 
       <div style={styles.mainContent}>
         {/* Sidebar with users */}
-        <div style={styles.sidebar}>
+        <div
+          style={{
+            ...styles.sidebar,
+            ...(isMobile ? styles.sidebarMobile : {}),
+            ...(isMobile && showSidebar ? styles.sidebarMobileOpen : {}),
+          }}
+        >
           <div style={styles.sidebarHeader}>
             Team Members ({users.length})
+            {isMobile && (
+              <button
+                onClick={() => setShowSidebar(false)}
+                style={{
+                  float: "right",
+                  background: "transparent",
+                  border: "none",
+                  color: "#888",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+              >
+                ✕
+              </button>
+            )}
           </div>
           {users.length === 0 && (
             <div style={{ padding: "16px", color: "#666", fontSize: "13px", textAlign: "center" }}>

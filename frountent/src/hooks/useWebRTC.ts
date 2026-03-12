@@ -18,6 +18,7 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
     callType: null,
   });
 
+  const [targetUserId, setTargetUserId] = useState<number | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -29,7 +30,8 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
     if (!socket) return;
 
     // Listen for incoming calls
-    socket.on("incoming_call", ({ from, callType }: { from: { id: number; name: string }; callType: "audio" | "video" }) => {
+    socket.on("incoming_call", async ({ from, offer, callType }: { from: { id: number; name: string }; offer: RTCSessionDescriptionInit; callType: "audio" | "video" }) => {
+      console.log("📞 Incoming call from:", from);
       setCallState({
         isInCall: false,
         isCalling: false,
@@ -37,10 +39,19 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
         caller: from,
         callType,
       });
+      setTargetUserId(from.id);
+      
+      // Store the offer for when user accepts
+      if (!peerConnectionRef.current) {
+        const pc = createPeerConnection(from.id);
+        peerConnectionRef.current = pc;
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      }
     });
 
     // Listen for call accepted
-    socket.on("call_accepted", async ({ answer }: { answer: RTCSessionDescriptionInit }) => {
+    socket.on("call_accepted", async ({ answer }: { answer: RTCSessionDescriptionInit; from: number }) => {
+      console.log("✅ Call accepted, setting remote description");
       if (peerConnectionRef.current) {
         await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(answer));
         setCallState((prev) => ({ ...prev, isCalling: false, isInCall: true }));
@@ -49,19 +60,26 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
 
     // Listen for call rejected
     socket.on("call_rejected", () => {
+      console.log("❌ Call was rejected");
       endCall();
       alert("Call was rejected");
     });
 
     // Listen for call ended
     socket.on("call_ended", () => {
+      console.log("📴 Call ended by other party");
       endCall();
     });
 
     // Listen for ICE candidates
-    socket.on("ice_candidate", async ({ candidate }: { candidate: RTCIceCandidateInit }) => {
-      if (peerConnectionRef.current) {
-        await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+    socket.on("ice_candidate", async ({ candidate, from }: { candidate: RTCIceCandidateInit; from: number }) => {
+      console.log("🧊 Received ICE candidate from:", from);
+      if (peerConnectionRef.current && peerConnectionRef.current.remoteDescription) {
+        try {
+          await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (error) {
+          console.error("Error adding ICE candidate:", error);
+        }
       }
     });
 
@@ -74,7 +92,7 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
     };
   }, [socket]);
 
-  const createPeerConnection = () => {
+  const createPeerConnection = (remoteUserId: number) => {
     const configuration: RTCConfiguration = {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
@@ -86,14 +104,26 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
 
     pc.onicecandidate = (event) => {
       if (event.candidate && socket) {
-        socket.emit("ice_candidate", { candidate: event.candidate });
+        console.log("🧊 Sending ICE candidate to:", remoteUserId);
+        socket.emit("ice_candidate", { 
+          candidate: event.candidate,
+          targetUserId: remoteUserId
+        });
       }
     };
 
     pc.ontrack = (event) => {
+      console.log("📺 Received remote track");
       remoteStreamRef.current = event.streams[0];
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log("🔌 ICE connection state:", pc.iceConnectionState);
+      if (pc.iceConnectionState === "connected") {
+        setCallState((prev) => ({ ...prev, isCalling: false, isInCall: true }));
       }
     };
 
@@ -102,6 +132,9 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
 
   const startCall = async (targetUserId: number, callType: "audio" | "video") => {
     try {
+      console.log("📞 Starting call to:", targetUserId);
+      setTargetUserId(targetUserId);
+      
       const constraints: MediaStreamConstraints = {
         audio: true,
         video: callType === "video",
@@ -114,7 +147,7 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
         localVideoRef.current.srcObject = stream;
       }
 
-      const pc = createPeerConnection();
+      const pc = createPeerConnection(targetUserId);
       peerConnectionRef.current = pc;
 
       stream.getTracks().forEach((track) => {
@@ -125,6 +158,7 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       await pc.setLocalDescription(offer);
 
       if (socket) {
+        console.log("📤 Sending call offer");
         socket.emit("call_user", {
           targetUserId,
           offer,
@@ -141,12 +175,14 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       });
     } catch (error) {
       console.error("Error starting call:", error);
-      alert("Could not access camera/microphone");
+      alert("Could not access camera/microphone. Please grant permissions.");
+      endCall();
     }
   };
 
   const answerCall = async () => {
     try {
+      console.log("✅ Answering call");
       const constraints: MediaStreamConstraints = {
         audio: true,
         video: callState.callType === "video",
@@ -159,32 +195,44 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
         localVideoRef.current.srcObject = stream;
       }
 
-      const pc = createPeerConnection();
-      peerConnectionRef.current = pc;
+      const pc = peerConnectionRef.current;
+      if (!pc) {
+        console.error("No peer connection found");
+        return;
+      }
 
       stream.getTracks().forEach((track) => {
         pc.addTrack(track, stream);
       });
 
-      // This would need the offer from the caller - simplified for now
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      if (socket && targetUserId) {
+        console.log("📤 Sending answer to:", targetUserId);
+        socket.emit("answer_call", { 
+          answer,
+          targetUserId
+        });
+      }
+
       setCallState((prev) => ({
         ...prev,
         isReceivingCall: false,
+        isCalling: false,
         isInCall: true,
       }));
-
-      if (socket) {
-        socket.emit("answer_call", { accepted: true });
-      }
     } catch (error) {
       console.error("Error answering call:", error);
-      alert("Could not access camera/microphone");
+      alert("Could not access camera/microphone. Please grant permissions.");
+      rejectCall();
     }
   };
 
   const rejectCall = () => {
-    if (socket) {
-      socket.emit("reject_call");
+    console.log("❌ Rejecting call");
+    if (socket && targetUserId) {
+      socket.emit("reject_call", { targetUserId });
     }
     setCallState({
       isInCall: false,
@@ -193,9 +241,11 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       caller: null,
       callType: null,
     });
+    setTargetUserId(null);
   };
 
   const endCall = () => {
+    console.log("📴 Ending call");
     // Stop all tracks
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -214,8 +264,8 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
     }
 
     // Notify server
-    if (socket) {
-      socket.emit("end_call");
+    if (socket && targetUserId) {
+      socket.emit("end_call", { targetUserId });
     }
 
     setCallState({
@@ -225,6 +275,7 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       caller: null,
       callType: null,
     });
+    setTargetUserId(null);
   };
 
   const toggleMute = () => {

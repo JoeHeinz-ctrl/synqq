@@ -91,34 +91,40 @@ export function useChat(projectId: string | undefined, userId: number | null, us
     if (!socketRef.current || !content.trim()) {
       console.log("❌ Cannot send message:", { 
         hasSocket: !!socketRef.current, 
-        content: content.trim() 
+        content: content.trim(),
+        isConnected: socketRef.current?.connected
       });
       return;
     }
 
-    console.log("📤 Sending message:", content);
+    console.log("📤 Sending message:", { projectId, content: content.trim() });
     socketRef.current.emit("send_message", {
-      projectId,
+      projectId: projectId,
       content: content.trim(),
     });
+    console.log("✅ Message emitted");
   };
 
   const sendFile = async (file: File) => {
-    if (!socketRef.current) return;
+    if (!socketRef.current) {
+      console.log("❌ Cannot send file: no socket connection");
+      return;
+    }
 
     // Convert file to base64
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
-      console.log("📤 Sending file:", file.name);
+      console.log("📤 Sending file:", { projectId, fileName: file.name, fileSize: file.size });
       
       socketRef.current?.emit("send_file", {
-        projectId,
+        projectId: projectId,
         fileName: file.name,
         fileData: base64,
         fileType: file.type,
         fileSize: file.size,
       });
+      console.log("✅ File emitted");
     };
     reader.readAsDataURL(file);
   };

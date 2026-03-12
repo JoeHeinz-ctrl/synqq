@@ -21,11 +21,7 @@ message_history: Dict[str, List[Dict]] = {}  # project_id -> [messages]
 
 def get_db():
     """Get database session"""
-    db = SessionLocal()
-    try:
-        return db
-    finally:
-        db.close()
+    return SessionLocal()
 
 
 @sio.event
@@ -64,11 +60,17 @@ async def join_project(sid, data):
     user_id = data.get('userId')
     user_name = data.get('userName', f"User {user_id}")
     
+    print(f"👤 User joining: {user_name} ({user_id}) -> Project {project_id}")
+    
     # Fetch real user name from database
     db = get_db()
-    user = db.query(User).filter(User.id == user_id).first()
-    if user:
-        user_name = user.name
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            user_name = user.name
+            print(f"✅ Found user in DB: {user_name}")
+    finally:
+        db.close()
     
     # Store user info
     active_users[sid] = {
@@ -83,14 +85,20 @@ async def join_project(sid, data):
         project_rooms[project_id] = []
     project_rooms[project_id].append(sid)
     
+    print(f"📋 Project rooms: {project_rooms}")
+    print(f"👥 Active users: {active_users}")
+    
     # Send message history
     if project_id in message_history:
+        print(f"📜 Sending {len(message_history[project_id])} messages from history")
         await sio.emit('message_history', message_history[project_id], room=sid)
+    else:
+        print(f"📜 No message history for project {project_id}")
     
     # Update users list for everyone in the room
     await update_users_list(project_id)
     
-    print(f"User {user_name} ({user_id}) joined project {project_id}")
+    print(f"✅ User {user_name} ({user_id}) joined project {project_id}")
 
 
 @sio.event
@@ -109,12 +117,17 @@ async def leave_project(sid, data):
 @sio.event
 async def send_message(sid, data):
     """Handle new message"""
+    print(f"📨 Received send_message from {sid}: {data}")
+    
     if sid not in active_users:
+        print(f"❌ User {sid} not in active_users")
         return
     
     user_data = active_users[sid]
-    project_id = data.get('projectId')
+    project_id = str(data.get('projectId'))
     content = data.get('content')
+    
+    print(f"📤 Creating message for project {project_id}")
     
     message = {
         'id': f"{sid}_{datetime.now().timestamp()}",
@@ -130,20 +143,29 @@ async def send_message(sid, data):
         message_history[project_id] = []
     message_history[project_id].append(message)
     
+    print(f"💾 Stored message. History length: {len(message_history[project_id])}")
+    
     # Broadcast to all users in the project
     if project_id in project_rooms:
+        print(f"📢 Broadcasting to {len(project_rooms[project_id])} users")
         for user_sid in project_rooms[project_id]:
             await sio.emit('new_message', message, room=user_sid)
+            print(f"✅ Sent to {user_sid}")
+    else:
+        print(f"❌ Project {project_id} not in project_rooms")
 
 
 @sio.event
 async def send_file(sid, data):
     """Handle file upload"""
+    print(f"📎 Received send_file from {sid}: {data.get('fileName')}")
+    
     if sid not in active_users:
+        print(f"❌ User {sid} not in active_users")
         return
     
     user_data = active_users[sid]
-    project_id = data.get('projectId')
+    project_id = str(data.get('projectId'))
     file_name = data.get('fileName')
     file_data = data.get('fileData')
     file_type = data.get('fileType')
@@ -168,10 +190,16 @@ async def send_file(sid, data):
         message_history[project_id] = []
     message_history[project_id].append(message)
     
+    print(f"💾 Stored file message. History length: {len(message_history[project_id])}")
+    
     # Broadcast to all users in the project
     if project_id in project_rooms:
+        print(f"📢 Broadcasting file to {len(project_rooms[project_id])} users")
         for user_sid in project_rooms[project_id]:
             await sio.emit('new_message', message, room=user_sid)
+            print(f"✅ Sent file to {user_sid}")
+    else:
+        print(f"❌ Project {project_id} not in project_rooms")
 
 
 @sio.event

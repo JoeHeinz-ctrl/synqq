@@ -17,9 +17,6 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Project Management App")
 
-# Wrap FastAPI app with Socket.IO
-socket_app = socketio.ASGIApp(sio, app)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -41,3 +38,19 @@ app.include_router(team_routes.router)
 @app.get("/")
 def root():
     return {"message": "Backend is running 🚀 with Socket.IO"}
+
+@app.get("/socket-test")
+def socket_test():
+    """Test endpoint to verify socket.io is configured"""
+    return {
+        "socket_configured": True,
+        "active_users": len(active_users),
+        "project_rooms": {k: len(v) for k, v in project_rooms.items()},
+        "message_history_count": {k: len(v) for k, v in message_history.items()}
+    }
+
+# Import the dictionaries from socket_handler
+from app.socket_handler import active_users, project_rooms, message_history
+
+# Wrap FastAPI app with Socket.IO - MUST be at the end
+socket_app = socketio.ASGIApp(sio, app)

@@ -38,18 +38,26 @@ export function useChat(projectId: string | undefined, userId: number | null, us
 
     // Initialize socket connection
     const socket = io(SOCKET_URL, {
+      path: "/socket.io/",
       auth: {
         token: localStorage.getItem("token"),
       },
       transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
     });
 
     socketRef.current = socket;
 
     socket.on("connect", () => {
       console.log("✅ Socket connected:", socket.id);
+      console.log("🔗 Socket transport:", socket.io.engine.transport.name);
       setIsConnected(true);
-      socket.emit("join_project", { projectId, userId, userName });
+      
+      const joinData = { projectId, userId, userName };
+      console.log("📤 Emitting join_project:", joinData);
+      socket.emit("join_project", joinData);
     });
 
     socket.on("disconnect", () => {
@@ -65,7 +73,12 @@ export function useChat(projectId: string | undefined, userId: number | null, us
     // Listen for messages
     socket.on("new_message", (message: Message) => {
       console.log("📨 New message received:", message);
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => {
+        console.log("📝 Current messages:", prev.length);
+        const updated = [...prev, message];
+        console.log("📝 Updated messages:", updated.length);
+        return updated;
+      });
     });
 
     // Listen for user list updates

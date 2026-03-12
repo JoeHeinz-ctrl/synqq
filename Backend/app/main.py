@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.project import Project
 from app.models.task import Task
 from app.models.team import Team, TeamMember
+from app.models.message import Message
 import socketio
 
 from app.routes import auth_routes, project_routes, task_routes, team_routes

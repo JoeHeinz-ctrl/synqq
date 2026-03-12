@@ -4,6 +4,7 @@ import socketio
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.user import User
+from app.models.message import Message
 
 # Create Socket.IO server
 sio = socketio.AsyncServer(
@@ -16,7 +17,6 @@ sio = socketio.AsyncServer(
 # Store active connections
 active_users: Dict[str, Dict] = {}  # sid -> {user_id, project_id, name}
 project_rooms: Dict[str, List[str]] = {}  # project_id -> [sid, sid, ...]
-message_history: Dict[str, List[Dict]] = {}  # project_id -> [messages]
 
 
 def get_db():
@@ -88,12 +88,35 @@ async def join_project(sid, data):
     print(f"📋 Project rooms: {project_rooms}")
     print(f"👥 Active users: {active_users}")
     
-    # Send message history
-    if project_id in message_history:
-        print(f"📜 Sending {len(message_history[project_id])} messages from history")
-        await sio.emit('message_history', message_history[project_id], room=sid)
-    else:
-        print(f"📜 No message history for project {project_id}")
+    # Send message history from database
+    db = get_db()
+    try:
+        messages = db.query(Message).filter(
+            Message.project_id == int(project_id)
+        ).order_by(Message.created_at).all()
+        
+        message_list = []
+        for msg in messages:
+            message_list.append({
+                'id': str(msg.id),
+                'userId': msg.user_id,
+                'userName': msg.user.name,
+                'content': msg.content,
+                'timestamp': msg.created_at.isoformat(),
+                'type': msg.message_type,
+                'fileUrl': msg.file_url,
+                'fileName': msg.file_name,
+                'fileType': msg.file_type,
+                'fileSize': msg.file_size
+            })
+        
+        if message_list:
+            print(f"📜 Sending {len(message_list)} messages from database")
+            await sio.emit('message_history', message_list, room=sid)
+        else:
+            print(f"📜 No message history for project {project_id}")
+    finally:
+        db.close()
     
     # Update users list for everyone in the room
     await update_users_list(project_id)
@@ -129,21 +152,31 @@ async def send_message(sid, data):
     
     print(f"📤 Creating message for project {project_id}")
     
-    message = {
-        'id': f"{sid}_{datetime.now().timestamp()}",
-        'userId': user_data['user_id'],
-        'userName': user_data['name'],
-        'content': content,
-        'timestamp': datetime.now().isoformat(),
-        'type': 'text'
-    }
-    
-    # Store message
-    if project_id not in message_history:
-        message_history[project_id] = []
-    message_history[project_id].append(message)
-    
-    print(f"💾 Stored message. History length: {len(message_history[project_id])}")
+    # Save to database
+    db = get_db()
+    try:
+        db_message = Message(
+            project_id=int(project_id),
+            user_id=user_data['user_id'],
+            content=content,
+            message_type='text'
+        )
+        db.add(db_message)
+        db.commit()
+        db.refresh(db_message)
+        
+        message = {
+            'id': str(db_message.id),
+            'userId': user_data['user_id'],
+            'userName': user_data['name'],
+            'content': content,
+            'timestamp': db_message.created_at.isoformat(),
+            'type': 'text'
+        }
+        
+        print(f"💾 Saved message to database with ID: {db_message.id}")
+    finally:
+        db.close()
     
     # Broadcast to all users in the project
     if project_id in project_rooms:
@@ -171,26 +204,39 @@ async def send_file(sid, data):
     file_type = data.get('fileType')
     file_size = data.get('fileSize')
     
-    # Create file message
-    message = {
-        'id': f"{sid}_{datetime.now().timestamp()}",
-        'userId': user_data['user_id'],
-        'userName': user_data['name'],
-        'content': f"📎 {file_name}",
-        'timestamp': datetime.now().isoformat(),
-        'type': 'file',
-        'fileUrl': file_data,  # In production, upload to storage and use URL
-        'fileName': file_name,
-        'fileType': file_type,
-        'fileSize': file_size
-    }
-    
-    # Store message
-    if project_id not in message_history:
-        message_history[project_id] = []
-    message_history[project_id].append(message)
-    
-    print(f"💾 Stored file message. History length: {len(message_history[project_id])}")
+    # Save to database
+    db = get_db()
+    try:
+        db_message = Message(
+            project_id=int(project_id),
+            user_id=user_data['user_id'],
+            content=f"📎 {file_name}",
+            message_type='file',
+            file_url=file_data,
+            file_name=file_name,
+            file_type=file_type,
+            file_size=file_size
+        )
+        db.add(db_message)
+        db.commit()
+        db.refresh(db_message)
+        
+        message = {
+            'id': str(db_message.id),
+            'userId': user_data['user_id'],
+            'userName': user_data['name'],
+            'content': f"📎 {file_name}",
+            'timestamp': db_message.created_at.isoformat(),
+            'type': 'file',
+            'fileUrl': file_data,
+            'fileName': file_name,
+            'fileType': file_type,
+            'fileSize': file_size
+        }
+        
+        print(f"💾 Saved file message to database with ID: {db_message.id}")
+    finally:
+        db.close()
     
     # Broadcast to all users in the project
     if project_id in project_rooms:

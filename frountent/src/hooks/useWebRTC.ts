@@ -143,9 +143,12 @@ export function useWebRTC(socket: Socket | null, _userId?: number) {
       remoteStreamRef.current = event.streams[0];
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
-        // Ensure audio plays
-        remoteVideoRef.current.play().catch(e => console.error("Error playing remote stream:", e));
-        console.log("✅ Remote video element updated");
+        // Ensure audio plays - critical for mobile
+        if (remoteVideoRef.current instanceof HTMLAudioElement || remoteVideoRef.current instanceof HTMLVideoElement) {
+          remoteVideoRef.current.volume = 1.0;
+          remoteVideoRef.current.play().catch(e => console.error("Error playing remote stream:", e));
+        }
+        console.log("✅ Remote stream updated, volume:", remoteVideoRef.current.volume);
       }
       // Auto-transition to connected state when we receive tracks
       setCallState((prev) => ({ ...prev, isCalling: false, isInCall: true }));

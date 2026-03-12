@@ -1,20 +1,50 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { getCurrentUser } from "../services/api";
 
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
+  checkAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const checkAuth = async () => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      setToken(null);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await getCurrentUser();
+      setToken(storedToken);
+      setIsAuthenticated(true);
+    } catch {
+      // Token is invalid or expired
+      localStorage.removeItem("token");
+      localStorage.removeItem("greeting_variant");
+      localStorage.removeItem("greeting_ts");
+      setToken(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Listen for custom unauthorized event dispatched from our API module
+    checkAuth();
+
     const handleUnauthorized = () => {
       logout();
     };
@@ -30,7 +60,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    // Remove token and clear greeting preferences
     localStorage.removeItem("token");
     localStorage.removeItem("greeting_variant");
     localStorage.removeItem("greeting_ts");
@@ -40,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ token, isAuthenticated, isLoading, login, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

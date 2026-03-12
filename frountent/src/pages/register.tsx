@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { registerUser } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
-export default function Register({ onBack }: any) {
+export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     setError("");
@@ -14,7 +17,7 @@ export default function Register({ onBack }: any) {
 
     try {
       await registerUser(name, email, password);
-      onBack(); // return to login
+      navigate("/login"); // return to login
     } catch (err: any) {
       setError(err.message || "Registration failed");
     } finally {
@@ -120,7 +123,7 @@ export default function Register({ onBack }: any) {
           <div style={styles.backLink}>
             <button
               style={styles.backButton}
-              onClick={onBack}
+              onClick={() => navigate("/login")}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "#333333";
               }}

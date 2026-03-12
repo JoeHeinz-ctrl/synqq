@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks, getCurrentUser } from "../services/api";
-
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const styles: any = {
   container: {
@@ -249,48 +250,53 @@ const styles: any = {
   },
 };
 
-export default function Dashboard({ project, backToProjects }: any) {
-
+export default function Dashboard() {
+  const { projectId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  
+  const [project, setProject] = useState<any>(location.state?.project || null);
   const [tasks, setTasks] = useState<any[]>([]);
   const [, setCurrentUser] = useState<any | null>(null);
   const [greeting, setGreeting] = useState<string | null>(null);
 
-  // ── drag state ────────────────────────────────────────────────────────────
-  // draggedTask    – the task being dragged
-  // dragOverCol    – which column is highlighted (for cross-column drops)
-  // dragOverTaskId – the task the cursor is currently above (for reorder indicator)
   const [draggedTask, setDraggedTask] = useState<any | null>(null);
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null);
 
-  // Custom Modal States
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [createPromptCol, setCreatePromptCol] = useState<string | null>(null);
   const [createTaskTitle, setCreateTaskTitle] = useState("");
   const [editTaskData, setEditTaskData] = useState<{ id: number; title: string } | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
-  // **Keyboard/selection state**
-  // pressed shortcuts should operate on the currently selected task.
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
 
-  // keep a ref we can read inside drag handlers (avoids stale closures)
   const tasksRef = useRef(tasks);
   useEffect(() => { tasksRef.current = tasks; }, [tasks]);
 
+  // Load project if missing from state
   useEffect(() => {
-    if (!project) { setTasks([]); return; }
-    fetchTasks(project.id).then(setTasks).catch(() => setTasks([]));
-  }, [project]);
+    if (!project && projectId) {
+      // In a real app, you'd fetch the project by ID here.
+      // For now, we'll try to find it in the list if we had one, 
+      // but since we're navigating directly, we might just use the ID.
+      setProject({ id: parseInt(projectId), title: "Project " + projectId });
+    }
+  }, [projectId, project]);
 
-  // clear selection if the selected task disappears
+  useEffect(() => {
+    if (!projectId) return;
+    fetchTasks(parseInt(projectId)).then(setTasks).catch(() => setTasks([]));
+  }, [projectId]);
+
   useEffect(() => {
     if (selectedTaskId !== null && !tasks.find((t) => t.id === selectedTaskId)) {
       setSelectedTaskId(null);
     }
   }, [tasks, selectedTaskId]);
 
-  // Fetch current user and compute greeting
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -324,16 +330,14 @@ export default function Dashboard({ project, backToProjects }: any) {
     return () => { mounted = false; };
   }, []);
 
-  // ── task modal helpers ────────────────────────────────────────────────────
   const promptCreateTask = (status: string) => { setCreatePromptCol(status); setCreateTaskTitle(""); };
 
   const confirmCreateTask = async () => {
-    if (!createPromptCol) return;
+    if (!createPromptCol || !projectId) return;
     const title = createTaskTitle.trim();
     if (!title) { setCreatePromptCol(null); return; }
-    if (!project) { setAlertMessage("Select a project first"); setCreatePromptCol(null); return; }
     try {
-      const created = await createTask(title, project.id, createPromptCol.toLowerCase());
+      const created = await createTask(title, parseInt(projectId), createPromptCol.toLowerCase());
       setTasks((prev) => [...prev, created]);
     } catch { setAlertMessage("Failed to create task"); }
     finally { setCreatePromptCol(null); }
@@ -363,18 +367,15 @@ export default function Dashboard({ project, backToProjects }: any) {
     finally { setEditTaskData(null); }
   };
 
-  // select a task card (used by click and keyboard helpers)
   const selectTask = (taskId: number | null) => {
     setSelectedTaskId(taskId);
   };
 
-  // edit a task directly (keyboard shortcut can call this)
   const editTaskById = (task: any) => {
     setSelectedTaskId(task.id);
     setEditTaskData({ id: task.id, title: task.title });
   };
 
-  // move the selected task to done column
   const markSelectedDone = async () => {
     if (selectedTaskId === null) return;
     const t = tasks.find((x) => x.id === selectedTaskId);
@@ -387,10 +388,8 @@ export default function Dashboard({ project, backToProjects }: any) {
     }
   };
 
-  // global keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      // ignore when focus is on an input/textarea or a modal is showing
       const tag = (e.target as HTMLElement).tagName;
       if (
         tag === "INPUT" ||
@@ -405,7 +404,6 @@ export default function Dashboard({ project, backToProjects }: any) {
       }
       const key = e.key.toLowerCase();
       if (key === "n") {
-        // new task in same column as selected, or default todo
         const col = selectedTaskId
           ? normalizeStatus(tasks.find((x) => x.id === selectedTaskId)?.status || "")
           : "todo";
@@ -421,7 +419,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     return () => window.removeEventListener("keydown", handler);
   }, [selectedTaskId, tasks]);
 
-  // ── drag handlers ─────────────────────────────────────────────────────────
   const onDragStart = (e: React.DragEvent, task: any) => {
     setDraggedTask(task);
     e.dataTransfer.effectAllowed = "move";
@@ -433,7 +430,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     setDragOverTaskId(null);
   };
 
-  /** Called when dragging over a specific task card — for within-column reorder */
   const onDragOverTask = (e: React.DragEvent, hoveredTask: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -441,7 +437,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     setDragOverTaskId(hoveredTask.id);
   };
 
-  /** Called when dragging over the column background (empty area or cross-col) */
   const onDragOverColumn = (e: React.DragEvent, col: string) => {
     e.preventDefault();
     setDragOverCol(col);
@@ -451,10 +446,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     setDragOverCol(null);
   };
 
-  /**
-   * Drop on a task card → reorder within same column,
-   * OR move to the column if it's a different column.
-   */
   const onDropOnTask = async (e: React.DragEvent, targetTask: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -468,7 +459,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     const sameCol = normalizeStatus(draggedTask.status) === normalizeStatus(targetTask.status);
 
     if (sameCol) {
-      // ── Reorder within the same column ─────────────────────────────────
       const colTasks = current.filter((t) => normalizeStatus(t.status) === normalizeStatus(targetTask.status));
       const fromIdx = colTasks.findIndex((t) => t.id === draggedTask.id);
       const toIdx = colTasks.findIndex((t) => t.id === targetTask.id);
@@ -477,15 +467,12 @@ export default function Dashboard({ project, backToProjects }: any) {
       reordered.splice(fromIdx, 1);
       reordered.splice(toIdx, 0, draggedTask);
 
-      // Optimistic update
       const otherTasks = current.filter((t) => normalizeStatus(t.status) !== normalizeStatus(targetTask.status));
       setTasks([...otherTasks, ...reordered]);
 
-      // Persist
       try { await reorderTasks(reordered.map((t) => t.id)); }
-      catch { fetchTasks(project.id).then(setTasks); }
+      catch { if (projectId) fetchTasks(parseInt(projectId)).then(setTasks); }
     } else {
-      // ── Move to a different column ───────────────────────────────────────
       try {
         const updated = await moveTask(draggedTask.id, normalizeStatus(targetTask.status));
         setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
@@ -497,11 +484,9 @@ export default function Dashboard({ project, backToProjects }: any) {
     setDragOverTaskId(null);
   };
 
-  /** Drop on the column background → move to that column (at end) */
   const onDropColumn = async (col: string) => {
     if (!draggedTask) return;
     if (normalizeStatus(draggedTask.status) === col) {
-      // Same column — just clear state, no-op
       setDraggedTask(null);
       setDragOverCol(null);
       setDragOverTaskId(null);
@@ -518,7 +503,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     }
   };
 
-  // ── helpers ───────────────────────────────────────────────────────────────
   const normalizeStatus = (s: string) => {
     if (!s) return "todo";
     s = s.toLowerCase();
@@ -549,7 +533,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     outlineOffset: "-2px",
   });
 
-  // ── render tasks ──────────────────────────────────────────────────────────
   const renderTasks = (status: string) => {
     const colTasks = getColumnTasks(status);
 
@@ -564,7 +547,6 @@ export default function Dashboard({ project, backToProjects }: any) {
 
     return colTasks.map((t) => (
       <div key={t.id}>
-        {/* Blue drop-line indicator shown above the hovered task */}
         {dragOverTaskId === t.id && draggedTask?.id !== t.id && (
           <div style={styles.dropIndicator} />
         )}
@@ -611,7 +593,6 @@ export default function Dashboard({ project, backToProjects }: any) {
     ));
   };
 
-  // ── JSX ───────────────────────────────────────────────────────────────────
   return (
     <div style={styles.container} onClick={() => selectTask(null)}>
       <style>{`
@@ -621,7 +602,6 @@ export default function Dashboard({ project, backToProjects }: any) {
         input::placeholder { color: #666666; }
       `}</style>
 
-      {/* Delete Confirmation Modal */}
       {deleteConfirmId !== null && (
         <div style={styles.modalOverlay} onClick={() => setDeleteConfirmId(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -639,7 +619,6 @@ export default function Dashboard({ project, backToProjects }: any) {
         </div>
       )}
 
-      {/* Edit Task Modal */}
       {editTaskData !== null && (
         <div style={styles.modalOverlay} onClick={() => setEditTaskData(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -660,7 +639,6 @@ export default function Dashboard({ project, backToProjects }: any) {
         </div>
       )}
 
-      {/* Create Task Modal */}
       {createPromptCol !== null && (
         <div style={styles.modalOverlay} onClick={() => setCreatePromptCol(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -681,7 +659,6 @@ export default function Dashboard({ project, backToProjects }: any) {
         </div>
       )}
 
-      {/* Alert Error Modal */}
       {alertMessage !== null && (
         <div style={styles.modalOverlay} onClick={() => setAlertMessage(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -696,11 +673,20 @@ export default function Dashboard({ project, backToProjects }: any) {
         </div>
       )}
 
-      <button style={styles.backBtn} onClick={backToProjects}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#2c2c2c"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "#242424"; }}>
-        ← Back to Projects
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+        <button style={styles.backBtn} onClick={() => navigate('/board')}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#2c2c2c"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "#242424"; }}>
+          ← Back to Projects
+        </button>
+        
+        <button
+            style={{ ...styles.btnSecondary, color: "#ff6b6b", border: "1px solid rgba(255, 68, 68, 0.2)", padding: "8px 16px" }}
+            onClick={logout}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,68,68,0.1)"; e.currentTarget.style.color = "#fff"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#ff6b6b"; }}
+        >Logout</button>
+      </div>
 
       <div>
         {greeting && <div style={{ ...styles.subheader, fontSize: 16, marginBottom: 8 }}>{greeting}</div>}

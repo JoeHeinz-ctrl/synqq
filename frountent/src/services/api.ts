@@ -19,6 +19,9 @@ async function handleResponse(res: Response) {
   const data = await res.json();
 
   if (!res.ok) {
+    if (res.status === 401) {
+      window.dispatchEvent(new Event("auth:unauthorized"));
+    }
     throw new Error(data.detail || "Request failed");
   }
 

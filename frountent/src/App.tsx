@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { PublicRoute } from "./routes/PublicRoute";
 
 import Landing from "./pages/landing";
 import Login from "./pages/login";
@@ -7,56 +10,31 @@ import ProjectBoard from "./pages/projectboard";
 import Dashboard from "./pages/dashboard";
 import { PricingDemo } from "./components/ui/pricing-demo";
 
-type Screen = "landing" | "login" | "register" | "board" | "pricing";
-
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("landing");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<any>(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setIsAuthenticated(true);
-      setScreen("board");
-    }
-  }, []);
-
-  // ── already logged in ───────────────────────────────────────────────────
-  if (isAuthenticated) {
-    if (!selectedProject) {
-      return <ProjectBoard onSelect={setSelectedProject} />;
-    }
-    return (
-      <Dashboard
-        project={selectedProject}
-        backToProjects={() => setSelectedProject(null)}
-      />
-    );
-  }
-
-  // ── not logged in ───────────────────────────────────────────────────────
-  if (screen === "landing") {
-    return <Landing onGetStarted={() => setScreen("login")} onShowPricing={() => setScreen("pricing")} />;
-  }
-
-  if (screen === "register") {
-    return <Register onBack={() => setScreen("login")} />;
-  }
-
-  // pricing demo screen
-  if (screen === "pricing") {
-    return <PricingDemo />;
-  }
-
-  // login screen
   return (
-    <Login
-      onLogin={() => {
-        setIsAuthenticated(true);
-        setScreen("board");
-      }}
-      onShowRegister={() => setScreen("register")}
-    />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Routes (only for LOGGED OUT users) */}
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+
+          {/* Unrestricted Routes */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<PricingDemo />} />
+
+          {/* Protected Routes (only for LOGGED IN users) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/board" element={<ProjectBoard />} />
+            <Route path="/dashboard/:projectId" element={<Dashboard />} />
+          </Route>
+
+          {/* Fallback routing */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

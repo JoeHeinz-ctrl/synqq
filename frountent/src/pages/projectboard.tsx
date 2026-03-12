@@ -10,6 +10,8 @@ import {
   joinTeam,
   getCurrentUser,
 } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 /* ─────────────────────────── styles ─────────────────────────── */
 const s: any = {
@@ -213,7 +215,10 @@ const s: any = {
 };
 
 /* ─────────────────────────── component ─────────────────────── */
-export default function ProjectBoard({ onSelect }: any) {
+export default function ProjectBoard() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  
   const [personalProjects, setPersonalProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [teamProjects, setTeamProjects] = useState<Record<number, any[]>>({});
@@ -421,7 +426,11 @@ export default function ProjectBoard({ onSelect }: any) {
             : "6px 6px 14px rgba(0,0,0,0.5)",
           cursor: editingId === p.id ? "default" : "pointer",
         }}
-        onClick={() => editingId !== p.id && onSelect(p)}
+        onClick={() => {
+          if (editingId !== p.id) {
+            navigate(`/dashboard/${p.id}`, { state: { project: p } });
+          }
+        }}
         onMouseEnter={() => setHoveredId(p.id)}
         onMouseLeave={() => setHoveredId(null)}
       >
@@ -486,6 +495,15 @@ export default function ProjectBoard({ onSelect }: any) {
           <h2 style={s.pageTitle}>🗂️ Projects</h2>
         </div>
         <div style={s.topActions}>
+          <button
+            style={{ ...s.btnOutline, borderColor: "rgba(255,68,68,0.3)", color: "#ff6b6b" }}
+            onClick={() => {
+              logout();
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,68,68,0.1)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#ff6b6b"; e.currentTarget.style.background = "transparent"; }}
+          >Log out</button>
+
           <button
             style={s.btnOutline}
             onClick={() => { setShowJoinTeam(true); setJoinCode(""); }}

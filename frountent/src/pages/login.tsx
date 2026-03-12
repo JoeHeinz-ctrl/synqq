@@ -2,14 +2,18 @@ import { useState } from "react";
 import { loginUser } from "../services/authService";
 import { useGoogleLogin } from "@react-oauth/google";
 import { googleLogin } from "../services/api"; // backend call
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-
-export default function Login({ onLogin, onShowRegister }: any) {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const loginWithGoogle = useGoogleLogin({
   flow: "auth-code",   // ⭐ CHANGE THIS
@@ -17,9 +21,14 @@ export default function Login({ onLogin, onShowRegister }: any) {
     try {
       console.log("Google Code →", codeResponse);
 
-      await googleLogin(codeResponse.code);  // ⭐ SEND CODE
+      const data = await googleLogin(codeResponse.code);  // ⭐ SEND CODE
+      
+      if (!data?.access_token) {
+        throw new Error("Invalid server response");
+      }
 
-      window.location.reload();
+      login(data.access_token);
+      navigate("/board");
     } catch (err) {
       console.error(err);
       alert("Google login failed");
@@ -39,11 +48,8 @@ export default function Login({ onLogin, onShowRegister }: any) {
       throw new Error("Invalid server response");
     }
 
-    // ✅ Store token
-    localStorage.setItem("token", data.access_token);
-
-    // ✅ Notify app (redirect / state update)
-    onLogin();
+    login(data.access_token);
+    navigate("/board");
 
   } catch (err: any) {
     setError(err.message || "Login failed");
@@ -51,8 +57,6 @@ export default function Login({ onLogin, onShowRegister }: any) {
     setIsLoading(false);
   }
 };
-
-
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -150,7 +154,7 @@ export default function Login({ onLogin, onShowRegister }: any) {
               style={styles.link}
               onClick={(e) => {
                 e.preventDefault();
-                onShowRegister();
+                navigate("/register");
               }}
             >
               Create account

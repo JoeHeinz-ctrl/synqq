@@ -37,7 +37,7 @@ app.include_router(team_routes.router)
 
 @app.get("/")
 def root():
-    return {"message": "Backend is running 🚀 with Socket.IO"}
+    return {"message": "Backend is running 🚀 with Socket.IO v2"}
 
 @app.get("/socket-test")
 def socket_test():

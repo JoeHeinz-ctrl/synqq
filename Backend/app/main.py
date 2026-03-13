@@ -23,21 +23,13 @@ Base.metadata.create_all(bind=engine)
 def run_migrations():
     """Ensure all required columns exist in the database"""
     try:
-        from dotenv import load_dotenv
-        load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
+        from app.db.database import DATABASE_URL
         
-        db_user = os.getenv('DB_USER')
-        db_password = os.getenv('DB_PASSWORD')
-        db_host = os.getenv('DB_HOST')
-        db_port = os.getenv('DB_PORT', '5432')
-        db_name = os.getenv('DB_NAME')
-        
-        if not all([db_user, db_password, db_host, db_name]):
-            print("⚠️  Skipping migrations - database config incomplete")
+        if not DATABASE_URL or DATABASE_URL.startswith("sqlite"):
+            print("ℹ️ Skipping migrations - using SQLite or no database configured")
             return
-        
-        database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-        parsed = urlparse(database_url)
+            
+        parsed = urlparse(DATABASE_URL)
         
         conn = psycopg2.connect(
             host=parsed.hostname,

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks, getCurrentUser, updateTask, fetchTeamMembers } from "../services/api";
+import { fetchTasks, createTask, moveTask, deleteTask, reorderTasks, getCurrentUser, updateTask, fetchTeamMembers } from "../services/api";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "../components/BottomNav";
@@ -377,7 +377,6 @@ export default function Dashboard() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [createPromptCol, setCreatePromptCol] = useState<string | null>(null);
   const [createTaskTitle, setCreateTaskTitle] = useState("");
-  const [editTaskData, setEditTaskData] = useState<{ id: number; title: string } | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
@@ -494,34 +493,11 @@ export default function Dashboard() {
     }
   };
 
-  const promptEditTask = (e: React.MouseEvent, task: any) => { 
-    e.stopPropagation(); 
-    setSelectedTaskId(task.id); 
-    setEditTaskData({ id: task.id, title: task.title }); 
-  };
-
-  const confirmEditTask = async () => {
-    if (!editTaskData) return;
-    const title = editTaskData.title.trim();
-    if (!title) { setEditTaskData(null); return; }
-    try {
-      const updated = await renameTask(editTaskData.id, title);
-      setTasks((prev) => prev.map((t) => (t.id === editTaskData.id ? updated : t)));
-    } catch { 
-      setAlertMessage("Failed to edit task"); 
-    } finally { 
-      setEditTaskData(null); 
-    }
-  };
 
   const selectTask = (taskId: number | null) => {
     setSelectedTaskId(taskId);
   };
 
-  const editTaskById = (task: any) => {
-    setSelectedTaskId(task.id);
-    setEditTaskData({ id: task.id, title: task.title });
-  };
 
   const markSelectedDone = async () => {
     if (selectedTaskId === null) return;
@@ -545,7 +521,6 @@ export default function Dashboard() {
         (e.target as HTMLElement).isContentEditable ||
         deleteConfirmId !== null ||
         createPromptCol !== null ||
-        editTaskData !== null ||
         alertMessage !== null
       ) {
         return;
@@ -558,7 +533,10 @@ export default function Dashboard() {
         promptCreateTask(col.toUpperCase());
       } else if (key === "e") {
         const t = selectedTaskId !== null && tasks.find((x) => x.id === selectedTaskId);
-        if (t) editTaskById(t);
+        if (t) {
+          setSelectedTaskId(t.id);
+          setShowTaskDetail(true);
+        }
       } else if (key === "d") {
         markSelectedDone();
       }
@@ -697,6 +675,7 @@ export default function Dashboard() {
         )}
 
         <div
+          className="task-card"
           style={{
             ...styles.card,
             opacity: draggedTask?.id === t.id ? 0.4 : 1,
@@ -717,13 +696,7 @@ export default function Dashboard() {
           <span style={{ flex: 1, paddingRight: "8px" }}>{t.title}</span>
           <div style={{ display: "flex", gap: "2px" }}>
             <button
-              style={styles.taskEditBtn}
-              title="Edit task"
-              onClick={(e) => promptEditTask(e, t)}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#0b7de0"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#666666"; }}
-            >✏️</button>
-            <button
+              className="delete-btn"
               style={styles.taskDeleteBtn}
               title="Delete task"
               onClick={(e) => onClickDeleteTask(e, t.id)}
@@ -772,6 +745,14 @@ export default function Dashboard() {
         
         /* Hide scrollbar in task lists */
         .task-list::-webkit-scrollbar { display: none; }
+
+        .task-card .delete-btn {
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+        .task-card:hover .delete-btn {
+          opacity: 1;
+        }
         
         input::placeholder { color: #666666; }
         kbd { 
@@ -919,43 +900,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editTaskData !== null && (
-        <div style={styles.modalOverlay} onClick={() => setEditTaskData(null)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3 style={styles.modalTitle}>Edit Task</h3>
-            <input 
-              style={styles.modalInput} 
-              autoFocus 
-              placeholder="What needs to be done?"
-              value={editTaskData.title}
-              onChange={(e) => setEditTaskData({ ...editTaskData, title: e.target.value })}
-              onKeyDown={(e) => { 
-                if (e.key === "Enter") confirmEditTask(); 
-                if (e.key === "Escape") setEditTaskData(null); 
-              }} 
-            />
-            <div style={styles.modalButtons}>
-              <button 
-                style={styles.btnSecondary} 
-                onClick={() => setEditTaskData(null)}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; }}
-              >
-                Cancel
-              </button>
-              <button 
-                style={styles.btnPrimary} 
-                onClick={confirmEditTask}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Create Modal */}
       {createPromptCol !== null && (

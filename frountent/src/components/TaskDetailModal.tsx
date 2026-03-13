@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 interface TaskDetailPanelProps {
   task: {
     id: number;
@@ -13,20 +15,29 @@ interface TaskDetailPanelProps {
 }
 
 export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }: TaskDetailPanelProps) {
-  if (!task) return null;
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState(task ? {
+    title: task.title,
+    due_date: task.due_date || "",
+    assigned_user_id: task.assigned_user_id || "",
+    description: task.description || "",
+  } : null);
 
-  const formatDueDate = (dateStr: string | undefined) => {
-    if (!dateStr) return "";
+  if (!task || !formData) return null;
+
+  const handleSave = async () => {
+    setIsSaving(true);
     try {
-      const date = new Date(dateStr);
-      return date.toISOString().split("T")[0];
-    } catch {
-      return dateStr;
+      await onUpdate(task.id, {
+        title: formData.title,
+        due_date: formData.due_date || null,
+        assigned_user_id: formData.assigned_user_id ? Number(formData.assigned_user_id) : null,
+        description: formData.description || null,
+      });
+      onClose();
+    } finally {
+      setIsSaving(false);
     }
-  };
-
-  const handleSave = (field: string, value: any) => {
-    onUpdate(task.id, { [field]: value });
   };
 
   return (
@@ -49,19 +60,6 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
             Task Details
           </span>
         </div>
-        <button
-          onClick={onClose}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "#888",
-            fontSize: "18px",
-            cursor: "pointer",
-            padding: "4px 8px",
-          }}
-        >
-          ✕
-        </button>
       </div>
 
       {/* Task Title */}
@@ -71,8 +69,8 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
         </label>
         <input
           type="text"
-          defaultValue={task.title}
-          onBlur={(e) => handleSave("title", e.target.value)}
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           style={{
             width: "100%",
             padding: "10px 12px",
@@ -96,8 +94,8 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
           </label>
           <input
             type="date"
-            defaultValue={formatDueDate(task.due_date)}
-            onBlur={(e) => handleSave("due_date", e.target.value || null)}
+            value={formData.due_date}
+            onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -118,8 +116,8 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
             👤 Assigned To
           </label>
           <select
-            defaultValue={task.assigned_user_id || ""}
-            onChange={(e) => handleSave("assigned_user_id", e.target.value ? Number(e.target.value) : null)}
+            value={formData.assigned_user_id}
+            onChange={(e) => setFormData({ ...formData, assigned_user_id: e.target.value })}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -143,13 +141,13 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
       </div>
 
       {/* Description */}
-      <div>
+      <div style={{ marginBottom: "16px" }}>
         <label style={{ fontSize: "11px", color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
           📝 Description
         </label>
         <textarea
-          defaultValue={task.description || ""}
-          onBlur={(e) => handleSave("description", e.target.value || null)}
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={3}
           style={{
             width: "100%",
@@ -166,6 +164,60 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
           }}
           placeholder="Add task description..."
         />
+      </div>
+
+      {/* Buttons */}
+      <div style={{ display: "flex", gap: "8px" }}>
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          style={{
+            flex: 1,
+            padding: "10px 16px",
+            borderRadius: "8px",
+            border: "none",
+            background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+            color: "#fff",
+            fontWeight: "600",
+            fontSize: "13px",
+            cursor: isSaving ? "not-allowed" : "pointer",
+            opacity: isSaving ? 0.6 : 1,
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            if (!isSaving) e.currentTarget.style.opacity = "0.9";
+          }}
+          onMouseLeave={(e) => {
+            if (!isSaving) e.currentTarget.style.opacity = "1";
+          }}
+        >
+          {isSaving ? "Saving..." : "💾 Save"}
+        </button>
+        <button
+          onClick={onClose}
+          disabled={isSaving}
+          style={{
+            flex: 1,
+            padding: "10px 16px",
+            borderRadius: "8px",
+            border: "1px solid rgba(139, 92, 246, 0.3)",
+            background: "transparent",
+            color: "#a78bfa",
+            fontWeight: "600",
+            fontSize: "13px",
+            cursor: isSaving ? "not-allowed" : "pointer",
+            opacity: isSaving ? 0.6 : 1,
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            if (!isSaving) e.currentTarget.style.background = "rgba(139, 92, 246, 0.1)";
+          }}
+          onMouseLeave={(e) => {
+            if (!isSaving) e.currentTarget.style.background = "transparent";
+          }}
+        >
+          Cancel
+        </button>
       </div>
 
       <style>{`

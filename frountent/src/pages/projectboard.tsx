@@ -223,7 +223,7 @@ export default function ProjectBoard() {
   const [personalProjects, setPersonalProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [teamProjects, setTeamProjects] = useState<Record<number, any[]>>({});
-  const [, setCurrentUser] = useState<any | null>(null);
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [greeting, setGreeting] = useState<string | null>(null);
 
   // hover / rename state per card

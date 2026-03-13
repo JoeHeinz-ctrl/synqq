@@ -4,7 +4,7 @@ from sqlalchemy import or_
 from typing import List
 
 from app.db.session import get_db
-from app.schemas.schema import TaskCreate, TaskReorder, TaskFromChat
+from app.schemas.schema import TaskCreate, TaskReorder
 from app.services.task_service import TaskService
 
 from app.core.dependencies import get_current_user

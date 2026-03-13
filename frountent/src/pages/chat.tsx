@@ -426,8 +426,11 @@ export default function Chat() {
 
   const { callState, localVideoRef, remoteVideoRef, startCall, answerCall, rejectCall, endCall, toggleMute, toggleSpeaker, isMuted, isSpeakerOn, callDuration, formatCallDuration } = useWebRTC(socket, currentUser?.id);
 
-  // Listen for AI task suggestions
+  // Listen for AI task suggestions (DISABLED - waiting for database migration)
   useEffect(() => {
+    // AI features temporarily disabled until PostgreSQL migration is complete
+    // Uncomment after running: python migrate_postgresql.py
+    /*
     if (!socket) return;
 
     const handleAiSuggestion = (data: any) => {
@@ -444,6 +447,7 @@ export default function Chat() {
     return () => {
       socket.off("ai_task_suggestion", handleAiSuggestion);
     };
+    */
   }, [socket]);
 
   useEffect(() => {
@@ -761,7 +765,8 @@ export default function Chat() {
                       </div>
                     </div>
                     
-                    {/* AI Task Suggestion */}
+                    {/* AI Task Suggestion - DISABLED until database migration */}
+                    {/* 
                     {hasSuggestion && isOwn && (
                       <div style={{ maxWidth: "70%", alignSelf: "flex-end", width: "100%" }}>
                         <AiTaskSuggestion
@@ -773,6 +778,7 @@ export default function Chat() {
                         />
                       </div>
                     )}
+                    */}
                   </div>
                 );
               })

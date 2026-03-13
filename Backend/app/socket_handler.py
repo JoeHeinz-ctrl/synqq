@@ -5,8 +5,6 @@ from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.user import User
 from app.models.message import Message
-from app.models.team import TeamMember
-from app.services.message_analyzer import MessageAnalyzer
 
 # Create Socket.IO server
 sio = socketio.AsyncServer(
@@ -177,35 +175,6 @@ async def send_message(sid, data):
         }
         
         print(f"💾 Saved message to database with ID: {db_message.id}")
-        
-        # 🤖 SYNQ AI - Analyze message for task detection
-        from app.models.project import Project
-        project = db.query(Project).filter(Project.id == int(project_id)).first()
-        
-        if project and project.team_id:
-            # Get team members for mention detection
-            team_members = db.query(User).join(TeamMember).filter(
-                TeamMember.team_id == project.team_id
-            ).all()
-            
-            team_members_list = [
-                {"id": m.id, "name": m.name, "email": m.email}
-                for m in team_members
-            ]
-            
-            # Analyze message
-            analysis = MessageAnalyzer.analyze_message(content, team_members_list)
-            
-            if analysis.get('isTask'):
-                print(f"🤖 SYNQ AI detected task: {analysis}")
-                
-                # Send AI suggestion to the sender only
-                ai_suggestion = {
-                    'messageId': str(db_message.id),
-                    'suggestion': analysis
-                }
-                await sio.emit('ai_task_suggestion', ai_suggestion, room=sid)
-                print(f"✨ Sent AI suggestion to {sid}")
     finally:
         db.close()
     

@@ -12,14 +12,6 @@ class TaskCreate(BaseModel):
     status: str = "todo"
     project_id: int
 
-class TaskFromChat(BaseModel):
-    title: str
-    project_id: int
-    assigned_user_id: Optional[int] = None
-    description: Optional[str] = None
-    due_date: Optional[str] = None
-    chat_message_id: Optional[int] = None
-
 class TaskReorder(BaseModel):
     task_ids: List[int]
 

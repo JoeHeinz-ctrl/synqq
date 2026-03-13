@@ -163,11 +163,11 @@ def delete_task(
     return {"success": True}
 
 
-# RENAME TASK (Ownership Protected)
+# UPDATE TASK (Ownership Protected)
 @router.patch("/{task_id}")
-def rename_task(
+def update_task(
     task_id: int,
-    title: str,
+    updates: dict,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -180,7 +180,12 @@ def rename_task(
     if not user_has_project_access(db, task.project_id, current_user.id):
         raise HTTPException(status_code=404, detail="Task not found or not authorized")
 
-    task.title = title
+    # Update allowed fields
+    allowed_fields = ['title', 'description', 'due_date', 'assigned_user_id', 'status']
+    for field, value in updates.items():
+        if field in allowed_fields:
+            setattr(task, field, value)
+    
     db.commit()
     db.refresh(task)
 

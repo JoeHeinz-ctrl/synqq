@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from app.db.database import Base
 
 class Task(Base):
@@ -10,5 +11,10 @@ class Task(Base):
     status = Column(String, default="TODO")
     position = Column(Float, default=0.0, nullable=False)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    description = Column(Text, nullable=True)
+    due_date = Column(String, nullable=True)
+    assigned_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     project = relationship("Project", back_populates="tasks")
+    assigned_user = relationship("User", foreign_keys=[assigned_user_id])

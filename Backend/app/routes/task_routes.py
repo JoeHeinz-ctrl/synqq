@@ -81,20 +81,25 @@ def get_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Get tasks from projects the user owns OR is a team member of
-    return (
-        db.query(Task)
-        .join(Project, Task.project_id == Project.id)
-        .outerjoin(TeamMember, (Project.team_id == TeamMember.team_id) & (TeamMember.user_id == current_user.id))
-        .filter(
-            or_(
-                Project.owner_id == current_user.id,
-                TeamMember.user_id == current_user.id
+    try:
+        # Get tasks from projects the user owns OR is a team member of
+        tasks = (
+            db.query(Task)
+            .join(Project, Task.project_id == Project.id)
+            .outerjoin(TeamMember, (Project.team_id == TeamMember.team_id) & (TeamMember.user_id == current_user.id))
+            .filter(
+                or_(
+                    Project.owner_id == current_user.id,
+                    TeamMember.user_id == current_user.id
+                )
             )
+            .order_by(Task.position.asc())
+            .all()
         )
-        .order_by(Task.position.asc())
-        .all()
-    )
+        return tasks
+    except Exception as e:
+        print(f"❌ Error fetching tasks: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch tasks: {str(e)}")
 
 
 # REORDER TASKS WITHIN A COLUMN — must come BEFORE /{task_id} routes

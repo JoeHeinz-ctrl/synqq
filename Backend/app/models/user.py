@@ -11,3 +11,4 @@ class User(Base):
     password = Column(String)
 
     projects = relationship("Project", back_populates="owner")
+    assigned_tasks = relationship("Task", foreign_keys="Task.assigned_user_id", back_populates="assigned_user")

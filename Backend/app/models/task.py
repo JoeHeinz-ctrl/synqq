@@ -17,4 +17,4 @@ class Task(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     project = relationship("Project", back_populates="tasks")
-    assigned_user = relationship("User", foreign_keys=[assigned_user_id])
+    assigned_user = relationship("User", back_populates="assigned_tasks")

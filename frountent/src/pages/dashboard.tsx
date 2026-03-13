@@ -3,6 +3,7 @@ import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks,
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "../components/BottomNav";
+import TaskDetailModal from "../components/TaskDetailModal";
 
 const styles: any = {
   container: {
@@ -376,6 +377,8 @@ export default function Dashboard() {
   const [editTaskData, setEditTaskData] = useState<{ id: number; title: string } | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [showTaskDetail, setShowTaskDetail] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any | null>(null);
 
   const tasksRef = useRef(tasks);
   useEffect(() => { tasksRef.current = tasks; }, [tasks]);
@@ -680,6 +683,11 @@ export default function Dashboard() {
           }}
           draggable
           onClick={(e) => { e.stopPropagation(); selectTask(t.id); }}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            setSelectedTask(t);
+            setShowTaskDetail(true);
+          }}
           onDragStart={(e) => onDragStart(e, t)}
           onDragEnd={onDragEnd}
           onDragOver={(e) => onDragOverTask(e, t)}
@@ -958,6 +966,16 @@ export default function Dashboard() {
       
       {/* Bottom Navigation */}
       <BottomNav projectId={projectId} />
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        isOpen={showTaskDetail}
+        task={selectedTask}
+        onClose={() => {
+          setShowTaskDetail(false);
+          setSelectedTask(null);
+        }}
+      />
     </div>
   );
 }

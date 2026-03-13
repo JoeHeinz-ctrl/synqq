@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import BottomNav from "../components/BottomNav";
 import TaskDetailModal from "../components/TaskDetailModal";
-import ThemeToggle from "../components/ThemeToggle";
+import SettingsDropdown from "../components/SettingsDropdown";
 
 const styles: any = {
   container: {
@@ -27,6 +27,8 @@ const styles: any = {
     justifyContent: "space-between",
     gap: "12px",
     flexWrap: "wrap",
+    position: "relative",
+    zIndex: 50,
   },
 
   topBarLeft: {
@@ -152,6 +154,8 @@ const styles: any = {
     maxHeight: "calc(100vh - 220px)",
     transition: "all 0.25s ease",
     border: "1px solid rgba(255,255,255,0.05)",
+    position: "relative",
+    zIndex: 1,
   },
 
   columnHeader: {
@@ -786,6 +790,7 @@ export default function Dashboard() {
           transform: translateY(-4px);
           box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08);
           border-color: rgba(255,255,255,0.15);
+          z-index: 10;
         }
         
         /* 2. Task Card Hover Animation */
@@ -1035,9 +1040,6 @@ export default function Dashboard() {
         </div>
 
         <div style={styles.topBarRight}>
-          {/* Theme Toggle */}
-          <ThemeToggle />
-          
           {/* Member avatars strip */}
           {teamMembers.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
@@ -1097,14 +1099,9 @@ export default function Dashboard() {
           >
             💬 Chat
           </button>
-          <button 
-            style={styles.logoutBtn} 
-            onClick={logout}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,68,68,0.1)"; e.currentTarget.style.color = "#fff"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#ff6b6b"; }}
-          >
-            Logout
-          </button>
+          
+          {/* Settings Dropdown */}
+          <SettingsDropdown />
         </div>
       </div>
 

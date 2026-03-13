@@ -15,7 +15,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
-import ThemeToggle from "../components/ThemeToggle";
+import SettingsDropdown from "../components/SettingsDropdown";
 
 /* ─────────────────────────── styles ─────────────────────────── */
 const s: any = {
@@ -620,16 +620,7 @@ export default function ProjectBoard() {
           <h2 style={s.pageTitle}>🗂️ Projects</h2>
         </div>
         <div style={s.topActions}>
-          <ThemeToggle />
-          
-          <button
-            style={{ ...s.btnOutline, borderColor: "rgba(255,68,68,0.3)", color: "#ff6b6b" }}
-            onClick={() => {
-              logout();
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,68,68,0.1)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#ff6b6b"; e.currentTarget.style.background = "transparent"; }}
-          >Log out</button>
+          <SettingsDropdown />
 
           <button
             style={s.btnOutline}

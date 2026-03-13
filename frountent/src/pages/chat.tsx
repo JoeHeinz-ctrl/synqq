@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getCurrentUser, createTaskFromChat } from "../services/api";
+import { getCurrentUser } from "../services/api";
 import BottomNav from "../components/BottomNav";
 import { useChat } from "../hooks/useChat";
 import { useWebRTC } from "../hooks/useWebRTC";
-import AiTaskSuggestion from "../components/AiTaskSuggestion";
-import EditTaskModal from "../components/EditTaskModal";
 
 const styles: any = {
   container: {
@@ -405,12 +403,6 @@ export default function Chat() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // AI Task Suggestion state
-  const [aiSuggestions, setAiSuggestions] = useState<Map<string, any>>(new Map());
-  const [ignoredSuggestions, setIgnoredSuggestions] = useState<Set<string>>(new Set());
-  const [editingTask, setEditingTask] = useState<any>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -502,52 +494,7 @@ export default function Chat() {
     });
   };
 
-  // AI Task Suggestion handlers
-  const handleCreateTask = async (messageId: string, taskData: any) => {
-    try {
-      await createTaskFromChat({
-        title: taskData.title,
-        project_id: Number(projectId),
-        assigned_user_id: taskData.assignedUserId,
-        description: taskData.description || `Created from chat message`,
-        due_date: taskData.dueDate,
-        chat_message_id: Number(messageId),
-      });
-
-      // Remove suggestion after creating task
-      setAiSuggestions((prev) => {
-        const newMap = new Map(prev);
-        newMap.delete(messageId);
-        return newMap;
-      });
-
-      console.log("✅ Task created successfully");
-    } catch (error) {
-      console.error("❌ Failed to create task:", error);
-      alert("Failed to create task. Please try again.");
-    }
-  };
-
-  const handleEditTask = (messageId: string, suggestion: any) => {
-    setEditingTask({
-      messageId,
-      title: suggestion.title,
-      assignedUserId: suggestion.assignee?.id,
-      assignedUserName: suggestion.assignee?.name,
-      dueDate: suggestion.dueDate,
-      description: "",
-    });
-    setShowEditModal(true);
-  };
-
-  const handleSaveEditedTask = async (taskData: any) => {
-    if (!editingTask) return;
-
-    await handleCreateTask(editingTask.messageId, taskData);
-    setShowEditModal(false);
-    setEditingTask(null);
-  };
-
+  // AI Task Suggestion handlers (DISABLED - waiting for database migration)
   const handleIgnoreSuggestion = (messageId: string) => {
     setIgnoredSuggestions((prev) => new Set(prev).add(messageId));
     setAiSuggestions((prev) => {
@@ -718,67 +665,50 @@ export default function Chat() {
               messages.map((msg) => {
                 const isOwn = msg.userId === currentUser?.id;
                 const isFile = msg.type === "file";
-                const hasSuggestion = aiSuggestions.has(msg.id) && !ignoredSuggestions.has(msg.id);
                 
                 return (
-                  <div key={msg.id}>
-                    <div
-                      style={{
-                        ...styles.message,
-                        ...(isOwn ? styles.messageOwn : {}),
-                      }}
-                    >
-                      <div style={styles.messageAvatar}>
-                        {getInitials(msg.userName)}
-                      </div>
-                      <div style={styles.messageContent}>
-                        {!isOwn && (
-                          <div style={styles.messageName}>{msg.userName}</div>
+                  <div
+                    key={msg.id}
+                    style={{
+                      ...styles.message,
+                      ...(isOwn ? styles.messageOwn : {}),
+                    }}
+                  >
+                    <div style={styles.messageAvatar}>
+                      {getInitials(msg.userName)}
+                    </div>
+                    <div style={styles.messageContent}>
+                      {!isOwn && (
+                        <div style={styles.messageName}>{msg.userName}</div>
+                      )}
+                      <div
+                        style={{
+                          ...styles.messageBubble,
+                          ...(isOwn ? styles.messageBubbleOwn : {}),
+                        }}
+                      >
+                        {isFile ? (
+                          <a
+                            href={msg.fileUrl}
+                            download={msg.fileName}
+                            style={{
+                              color: isOwn ? "#fff" : "#0b7de0",
+                              textDecoration: "none",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            {msg.content}
+                          </a>
+                        ) : (
+                          msg.content
                         )}
-                        <div
-                          style={{
-                            ...styles.messageBubble,
-                            ...(isOwn ? styles.messageBubbleOwn : {}),
-                          }}
-                        >
-                          {isFile ? (
-                            <a
-                              href={msg.fileUrl}
-                              download={msg.fileName}
-                              style={{
-                                color: isOwn ? "#fff" : "#0b7de0",
-                                textDecoration: "none",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                              }}
-                            >
-                              {msg.content}
-                            </a>
-                          ) : (
-                            msg.content
-                          )}
-                        </div>
-                        <div style={styles.messageTime}>
-                          {formatTime(msg.timestamp)}
-                        </div>
+                      </div>
+                      <div style={styles.messageTime}>
+                        {formatTime(msg.timestamp)}
                       </div>
                     </div>
-                    
-                    {/* AI Task Suggestion - DISABLED until database migration */}
-                    {/* 
-                    {hasSuggestion && isOwn && (
-                      <div style={{ maxWidth: "70%", alignSelf: "flex-end", width: "100%" }}>
-                        <AiTaskSuggestion
-                          messageId={msg.id}
-                          suggestion={aiSuggestions.get(msg.id)}
-                          onCreateTask={(taskData) => handleCreateTask(msg.id, taskData)}
-                          onEdit={() => handleEditTask(msg.id, aiSuggestions.get(msg.id))}
-                          onIgnore={() => handleIgnoreSuggestion(msg.id)}
-                        />
-                      </div>
-                    )}
-                    */}
                   </div>
                 );
               })
@@ -1004,20 +934,6 @@ export default function Chat() {
       )}
 
       <BottomNav projectId={projectId} />
-      
-      {/* Edit Task Modal */}
-      {showEditModal && editingTask && (
-        <EditTaskModal
-          isOpen={showEditModal}
-          initialData={editingTask}
-          teamMembers={users}
-          onSave={handleSaveEditedTask}
-          onCancel={() => {
-            setShowEditModal(false);
-            setEditingTask(null);
-          }}
-        />
-      )}
     </div>
   );
 }

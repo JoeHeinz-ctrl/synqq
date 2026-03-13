@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.project import Project
-from app.models.team import TeamMember
+from app.models.task import Task
+from app.models.team import Team, TeamMember
 from app.models.user import User
 from app.schemas.schema import ProjectCreate
 from app.core.dependencies import get_current_user
@@ -150,3 +151,46 @@ def get_project_members(
                     })
     
     return members
+
+
+# DELETE TEAM (Owner Only)
+@router.delete("/team/{team_id}")
+def delete_team(
+    team_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete a team and all its projects"""
+    try:
+        team = db.query(Team).filter(
+            Team.id == team_id,
+            Team.owner_id == current_user.id
+        ).first()
+
+        if not team:
+            raise HTTPException(status_code=404, detail="Team not found or not authorized")
+
+        # Get all projects in this team
+        projects = db.query(Project).filter(Project.team_id == team_id).all()
+        
+        # Delete all tasks in all projects
+        for project in projects:
+            db.query(Task).filter(Task.project_id == project.id).delete()
+        
+        # Delete all projects
+        db.query(Project).filter(Project.team_id == team_id).delete()
+        
+        # Delete all team members
+        db.query(TeamMember).filter(TeamMember.team_id == team_id).delete()
+        
+        # Delete the team
+        db.delete(team)
+        db.commit()
+        
+        return {"detail": "Team and all projects deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Team deletion error: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete team: {str(e)}")

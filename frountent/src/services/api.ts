@@ -194,6 +194,14 @@ export async function deleteProject(projectId: number) {
   return handleResponse(res);
 }
 
+export async function deleteTeam(teamId: number) {
+  const res = await fetch(`${API_URL}/projects/team/${teamId}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+
 /* ---------------- TEAMS ---------------- */
 
 export async function createTeam(name: string) {

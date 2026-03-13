@@ -4,6 +4,7 @@ import {
   createProject,
   renameProject,
   deleteProject,
+  deleteTeam,
   fetchTeams,
   fetchTeamProjects,
   createTeam,
@@ -239,6 +240,7 @@ export default function ProjectBoard() {
 
   // modals
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [deleteTeamConfirmId, setDeleteTeamConfirmId] = useState<number | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   // create team modal
@@ -347,6 +349,22 @@ export default function ProjectBoard() {
     } catch (err: any) {
       setAlertMessage(err.message || "Failed to delete project");
     } finally { setDeleteConfirmId(null); }
+  }
+
+  async function handleDeleteTeam() {
+    if (deleteTeamConfirmId === null) return;
+    try {
+      await deleteTeam(deleteTeamConfirmId);
+      setTeams((prev) => prev.filter((t) => t.id !== deleteTeamConfirmId));
+      setTeamProjects((prev) => {
+        const next = { ...prev };
+        delete next[deleteTeamConfirmId];
+        return next;
+      });
+      setAlertMessage("Team and all projects deleted successfully");
+    } catch (err: any) {
+      setAlertMessage(err.message || "Failed to delete team");
+    } finally { setDeleteTeamConfirmId(null); }
   }
 
   async function handleCreatePersonal() {
@@ -555,19 +573,42 @@ export default function ProjectBoard() {
 
           <div style={s.sectionHeader}>
             <h3 style={{ ...s.sectionTitle }}>👥 {team.name}</h3>
-            <div
-              style={{
-                ...s.teamCodeBadge,
-                background: copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)",
-                color: copiedCode === team.team_code ? "#10b981" : "#0b7de0",
-                borderColor: copiedCode === team.team_code ? "rgba(16,185,129,0.3)" : "rgba(11,125,224,0.25)",
-              }}
-              title="Click to copy team code"
-              onClick={() => copyCode(team.team_code)}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(11,125,224,0.22)"; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)"; }}
-            >
-              {copiedCode === team.team_code ? "✓ Copied!" : `# ${team.team_code}`}
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <div
+                style={{
+                  ...s.teamCodeBadge,
+                  background: copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)",
+                  color: copiedCode === team.team_code ? "#10b981" : "#0b7de0",
+                  borderColor: copiedCode === team.team_code ? "rgba(16,185,129,0.3)" : "rgba(11,125,224,0.25)",
+                }}
+                title="Click to copy team code"
+                onClick={() => copyCode(team.team_code)}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(11,125,224,0.22)"; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)"; }}
+              >
+                {copiedCode === team.team_code ? "✓ Copied!" : `# ${team.team_code}`}
+              </div>
+              {team.owner_id === (currentUser?.id || null) && (
+                <button
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(255, 68, 68, 0.3)",
+                    background: "transparent",
+                    color: "#ff6b6b",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onClick={() => setDeleteTeamConfirmId(team.id)}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255, 68, 68, 0.1)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  title="Delete team and all projects"
+                >
+                  🗑️ Delete Team
+                </button>
+              )}
             </div>
           </div>
 
@@ -611,6 +652,24 @@ export default function ProjectBoard() {
               <button style={s.btnDanger} onClick={handleDeleteProject}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#ff6b6b"; e.currentTarget.style.transform = "translateY(-1px)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "#ff4444"; e.currentTarget.style.transform = "none"; }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Team Confirmation */}
+      {deleteTeamConfirmId !== null && (
+        <div style={s.modalOverlay} onClick={() => setDeleteTeamConfirmId(null)}>
+          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h3 style={s.modalTitle}>Delete Team</h3>
+            <p style={s.modalText}>⚠️ This will delete the entire team and ALL projects within it. This cannot be undone.</p>
+            <div style={s.modalButtons}>
+              <button style={s.btnSecondary} onClick={() => setDeleteTeamConfirmId(null)}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; }}>Cancel</button>
+              <button style={s.btnDanger} onClick={handleDeleteTeam}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#ff6b6b"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "#ff4444"; e.currentTarget.style.transform = "none"; }}>Delete Team</button>
             </div>
           </div>
         </div>

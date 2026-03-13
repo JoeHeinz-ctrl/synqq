@@ -711,6 +711,34 @@ export default function Dashboard() {
             >🗑️</button>
           </div>
         </div>
+
+        {/* Show detail panel if this task is selected */}
+        {selectedTaskId === t.id && showTaskDetail && (
+          <TaskDetailModal
+            task={t}
+            onClose={() => {
+              setShowTaskDetail(false);
+              setSelectedTask(null);
+              setSelectedTaskId(null);
+            }}
+            onUpdate={async (taskId, updates) => {
+              try {
+                if (updates.title) {
+                  await renameTask(taskId, updates.title);
+                }
+                // Refresh tasks
+                if (projectId) {
+                  const updated = await fetchTasks(parseInt(projectId));
+                  setTasks(updated);
+                  setSelectedTask({ ...t, ...updates });
+                }
+              } catch (err) {
+                console.error("Failed to update task:", err);
+              }
+            }}
+            teamMembers={[]}
+          />
+        )}
       </div>
     ));
   };
@@ -966,16 +994,6 @@ export default function Dashboard() {
       
       {/* Bottom Navigation */}
       <BottomNav projectId={projectId} />
-
-      {/* Task Detail Modal */}
-      <TaskDetailModal
-        isOpen={showTaskDetail}
-        task={selectedTask}
-        onClose={() => {
-          setShowTaskDetail(false);
-          setSelectedTask(null);
-        }}
-      />
     </div>
   );
 }

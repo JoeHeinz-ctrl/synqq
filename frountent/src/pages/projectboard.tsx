@@ -446,6 +446,7 @@ export default function ProjectBoard() {
     return (
       <div
         key={p.id}
+        className="project-card"
         style={{
           ...s.card,
           background: isHovered ? "#2c2c2c" : "#242424",
@@ -511,10 +512,102 @@ export default function ProjectBoard() {
     <div style={s.page}>
       <style>{`
         input::placeholder { color: #555; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+        
+        /* ─────────────────── ANIMATIONS ─────────────────── */
+        
+        /* Page Load Stagger Animation */
+        .project-card {
+          animation: cardSlideIn 0.4s ease-out backwards;
+        }
+        
+        .project-card:nth-child(1) { animation-delay: 0ms; }
+        .project-card:nth-child(2) { animation-delay: 50ms; }
+        .project-card:nth-child(3) { animation-delay: 100ms; }
+        .project-card:nth-child(4) { animation-delay: 150ms; }
+        .project-card:nth-child(5) { animation-delay: 200ms; }
+        .project-card:nth-child(n+6) { animation-delay: 250ms; }
+        
+        @keyframes cardSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        /* Project Card Hover Elevation */
+        .project-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.5) !important;
+        }
+        
+        /* Project Card Glassmorphism */
+        .project-card {
+          backdrop-filter: blur(2px);
+          transition: all 0.2s ease;
+        }
+        
+        .project-card:hover {
+          backdrop-filter: blur(4px);
+        }
+        
+        /* Modal Fade In */
+        .modal-overlay {
+          animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn { 
+          from { 
+            opacity: 0; 
+            transform: translateY(-10px); 
+            backdrop-filter: blur(0px);
+          } 
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+            backdrop-filter: blur(6px);
+          } 
+        }
+        
+        /* Button Hover Glow */
+        .btn-primary:hover {
+          box-shadow: 0 0 12px rgba(11,125,224,0.4);
+        }
+        
+        .btn-success:hover {
+          box-shadow: 0 0 12px rgba(16,185,129,0.4);
+        }
+        
+        /* Team Code Badge Pulse */
+        .team-code-badge {
+          transition: all 0.2s ease;
+        }
+        
+        .team-code-badge:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 12px rgba(11,125,224,0.3);
+        }
+        
+        /* Empty State Fade */
+        .empty-state {
+          animation: fadeInEmpty 0.3s ease-out;
+        }
+        
+        @keyframes fadeInEmpty {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
         *::-webkit-scrollbar { display: none; }
         * { scrollbar-width: none; }
-      `}</style>
+      `}
 
       {/* ── Top bar ── */}
       <div style={s.topBar}>
@@ -541,6 +634,7 @@ export default function ProjectBoard() {
 
           <button
             style={s.btnSuccess}
+            className="btn-success"
             onClick={() => { setShowCreateTeam(true); setCreateTeamName(""); setCreatedTeamCode(null); }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(16,185,129,0.25)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(16,185,129,0.15)"; }}
@@ -563,6 +657,7 @@ export default function ProjectBoard() {
         />
         <button
           style={s.btnPrimary}
+          className="btn-primary"
           onClick={handleCreatePersonal}
           onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
@@ -571,7 +666,7 @@ export default function ProjectBoard() {
 
       <div style={s.list}>
         {personalProjects.length === 0
-          ? <div style={s.empty}>No personal projects yet. Create one above!</div>
+          ? <div style={s.empty} className="empty-state">No personal projects yet. Create one above!</div>
           : personalProjects.map(renderCard)
         }
       </div>
@@ -617,6 +712,7 @@ export default function ProjectBoard() {
             </div>
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <div
+                className="team-code-badge"
                 style={{
                   ...s.teamCodeBadge,
                   background: copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)",
@@ -664,6 +760,7 @@ export default function ProjectBoard() {
             />
             <button
               style={s.btnPrimary}
+              className="btn-primary"
               onClick={() => handleCreateTeamProject(team.id)}
               onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
@@ -672,7 +769,7 @@ export default function ProjectBoard() {
 
           <div style={s.list}>
             {(teamProjects[team.id] || []).length === 0
-              ? <div style={s.empty}>No projects in this team yet. Add one above!</div>
+              ? <div style={s.empty} className="empty-state">No projects in this team yet. Add one above!</div>
               : (teamProjects[team.id] || []).map(renderCard)
             }
           </div>
@@ -683,7 +780,7 @@ export default function ProjectBoard() {
 
       {/* Delete Confirmation */}
       {deleteConfirmId !== null && (
-        <div style={s.modalOverlay} onClick={() => setDeleteConfirmId(null)}>
+        <div style={s.modalOverlay} className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 style={s.modalTitle}>Delete Project</h3>
             <p style={s.modalText}>Are you sure? This will delete the project and all its tasks. This cannot be undone.</p>
@@ -701,7 +798,7 @@ export default function ProjectBoard() {
 
       {/* Delete Team Confirmation */}
       {deleteTeamConfirmId !== null && (
-        <div style={s.modalOverlay} onClick={() => setDeleteTeamConfirmId(null)}>
+        <div style={s.modalOverlay} className="modal-overlay" onClick={() => setDeleteTeamConfirmId(null)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 style={s.modalTitle}>Delete Team</h3>
             <p style={s.modalText}>⚠️ This will delete the entire team and ALL projects within it. This cannot be undone.</p>
@@ -719,7 +816,7 @@ export default function ProjectBoard() {
 
       {/* Create Team Modal */}
       {showCreateTeam && (
-        <div style={s.modalOverlay} onClick={() => { if (!createdTeamCode) setShowCreateTeam(false); }}>
+        <div style={s.modalOverlay} className="modal-overlay" onClick={() => { if (!createdTeamCode) setShowCreateTeam(false); }}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             {createdTeamCode ? (
               <>
@@ -770,7 +867,7 @@ export default function ProjectBoard() {
 
       {/* Join Team Modal */}
       {showJoinTeam && (
-        <div style={s.modalOverlay} onClick={() => setShowJoinTeam(false)}>
+        <div style={s.modalOverlay} className="modal-overlay" onClick={() => setShowJoinTeam(false)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 style={s.modalTitle}>Join a Team</h3>
             <p style={s.modalText}>Enter the team code shared by your teammate (case-insensitive).</p>
@@ -801,7 +898,7 @@ export default function ProjectBoard() {
 
       {/* Alert Modal */}
       {alertMessage !== null && (
-        <div style={s.modalOverlay} onClick={() => setAlertMessage(null)}>
+        <div style={s.modalOverlay} className="modal-overlay" onClick={() => setAlertMessage(null)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 style={s.modalTitle}>Notice</h3>
             <p style={s.modalText}>{alertMessage}</p>

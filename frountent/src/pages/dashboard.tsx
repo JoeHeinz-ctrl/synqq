@@ -148,7 +148,8 @@ const styles: any = {
     flexDirection: "column",
     minHeight: "300px",
     maxHeight: "calc(100vh - 220px)",
-    transition: "all 0.3s ease",
+    transition: "all 0.25s ease",
+    border: "1px solid rgba(255,255,255,0.05)",
   },
 
   columnHeader: {
@@ -194,7 +195,7 @@ const styles: any = {
     padding: "12px",
     borderRadius: "10px",
     cursor: "grab",
-    transition: "all 0.15s ease",
+    transition: "all 0.2s ease",
     color: "#ffffff",
     fontSize: "13px",
     userSelect: "none",
@@ -202,6 +203,7 @@ const styles: any = {
     justifyContent: "space-between",
     alignItems: "center",
     gap: "8px",
+    border: "1px solid rgba(255,255,255,0.03)",
   },
 
   addBtn: {
@@ -667,7 +669,7 @@ export default function Dashboard() {
 
     if (colTasks.length === 0) {
       return (
-        <div style={styles.emptyState}>
+        <div style={styles.emptyState} className="empty-state">
           <div style={styles.emptyIcon}>{getColumnConfig(status).emoji}</div>
           <div>No tasks yet</div>
         </div>
@@ -677,7 +679,7 @@ export default function Dashboard() {
     return colTasks.map((t) => (
       <div key={t.id}>
         {dragOverTaskId === t.id && draggedTask?.id !== t.id && (
-          <div style={styles.dropIndicator} />
+          <div style={styles.dropIndicator} className="drop-indicator" />
         )}
 
         <div
@@ -751,6 +753,204 @@ export default function Dashboard() {
         
         /* Hide scrollbar in task lists */
         .task-list::-webkit-scrollbar { display: none; }
+
+        /* ─────────────────── ANIMATIONS ─────────────────── */
+        
+        /* 1. Column Hover Elevation */
+        .board-grid > div {
+          animation: columnStaggerIn 0.5s ease-out backwards;
+        }
+        .board-grid > div:nth-child(1) { animation-delay: 0ms; }
+        .board-grid > div:nth-child(2) { animation-delay: 100ms; }
+        .board-grid > div:nth-child(3) { animation-delay: 200ms; }
+        
+        @keyframes columnStaggerIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .board-grid > div:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.15);
+        }
+        
+        /* 2. Task Card Hover Animation */
+        .task-card {
+          transition: all 0.2s ease;
+        }
+        
+        .task-card:hover {
+          transform: scale(1.02);
+          background: rgba(255,255,255,0.05);
+          box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+          border-color: rgba(255,255,255,0.1);
+        }
+        
+        /* 3. Task Card Slide In Animation */
+        .task-card {
+          animation: taskSlideIn 0.25s ease-out;
+        }
+        
+        @keyframes taskSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        /* 4. Column Header Pulse Animation for DOING status */
+        .column-header-doing {
+          animation: headerPulse 2s infinite;
+        }
+        
+        @keyframes headerPulse {
+          0%, 100% { opacity: 0.8; }
+          50% { opacity: 1; }
+        }
+        
+        /* 5. Column Counter Pop Animation */
+        .column-count {
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .column-count.pop {
+          animation: countPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @keyframes countPop {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.3); }
+          100% { transform: scale(1); }
+        }
+        
+        /* 6. Add Button Hover Glow */
+        .add-btn:hover {
+          box-shadow: 0 0 12px rgba(11,125,224,0.4);
+        }
+        
+        /* 7. Chat Button Glow */
+        .chat-btn-animated:hover {
+          box-shadow: 0 0 10px rgba(80,140,255,0.6);
+        }
+        
+        /* 8. Task Completion Checkmark Animation */
+        .task-done-check {
+          animation: checkmarkPulse 0.4s ease-out;
+        }
+        
+        @keyframes checkmarkPulse {
+          0% {
+            transform: scale(0) rotate(-45deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.2);
+          }
+          100% {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+          }
+        }
+        
+        /* 9. Empty State Fade In */
+        .empty-state {
+          animation: fadeInEmpty 0.3s ease-out;
+        }
+        
+        @keyframes fadeInEmpty {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        /* 10. Modal Fade In */
+        .modal-overlay {
+          animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+          }
+          to {
+            opacity: 1;
+            backdrop-filter: blur(4px);
+          }
+        }
+        
+        /* 11. Smooth Scroll */
+        .task-list {
+          scroll-behavior: smooth;
+        }
+        
+        /* 12. Drag Physics - Task being dragged */
+        .task-card.dragging {
+          animation: dragLift 0.2s ease-out forwards;
+        }
+        
+        @keyframes dragLift {
+          from {
+            transform: scale(1) rotate(0deg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          }
+          to {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+          }
+        }
+        
+        /* 13. Drop Indicator Pulse */
+        .drop-indicator {
+          animation: dropPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes dropPulse {
+          0%, 100% {
+            box-shadow: 0 0 6px rgba(11,125,224,0.6);
+            opacity: 1;
+          }
+          50% {
+            box-shadow: 0 0 12px rgba(11,125,224,0.8);
+            opacity: 0.8;
+          }
+        }
+        
+        /* 14. Keyboard Shortcut Highlight */
+        kbd {
+          transition: all 0.2s ease;
+        }
+        
+        .shortcuts-badge:hover kbd {
+          background: #3a3a3a;
+          box-shadow: 0 0 8px rgba(11,125,224,0.3);
+          transform: scale(1.05);
+        }
+        
+        /* 15. Glassmorphism Effect for Cards */
+        .task-card {
+          backdrop-filter: blur(2px);
+          background: rgba(42, 42, 42, 0.7);
+        }
+        
+        .task-card:hover {
+          backdrop-filter: blur(4px);
+          background: rgba(255, 255, 255, 0.08);
+        }
 
         .task-card .delete-btn {
           opacity: 0;
@@ -880,6 +1080,7 @@ export default function Dashboard() {
           )}
           <button 
             style={styles.chatBtn} 
+            className="chat-btn-animated"
             onClick={() => projectId && navigate(`/chat/${projectId}`)}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.2)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.1)"; }}
@@ -911,19 +1112,21 @@ export default function Dashboard() {
                 ...styles.column,
                 outline: dragOverCol === col ? `2px solid ${getColumnConfig(col).color}` : "none",
               }}
+              className={`column-${col}`}
               onDragOver={(e) => onDragOverColumn(e, col)}
               onDragLeave={onDragLeaveColumn}
               onDrop={() => onDropColumn(col)}
             >
-              <div style={styles.columnHeader}>
+              <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <span style={{ fontSize: "16px" }}>{getColumnConfig(col).emoji}</span>
                   <div style={styles.columnTitle}>{col}</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <div style={styles.columnCount}>{getColumnTasks(col).length}</div>
+                  <div style={styles.columnCount} className="column-count">{getColumnTasks(col).length}</div>
                   <button
                     style={styles.addBtn}
+                    className="add-btn"
                     title={`Add to ${col.toUpperCase()}`}
                     onClick={() => promptCreateTask(col.toUpperCase())}
                     onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#3a3a3a"; }}
@@ -941,7 +1144,7 @@ export default function Dashboard() {
 
       {/* Delete Modal */}
       {deleteConfirmId !== null && (
-        <div style={styles.modalOverlay} onClick={() => setDeleteConfirmId(null)}>
+        <div style={styles.modalOverlay} className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 style={styles.modalTitle}>Delete Task</h3>
             <p style={styles.modalText}>Are you sure you want to delete this task? This action cannot be undone.</p>
@@ -970,7 +1173,7 @@ export default function Dashboard() {
 
       {/* Create Modal */}
       {createPromptCol !== null && (
-        <div style={styles.modalOverlay} onClick={() => setCreatePromptCol(null)}>
+        <div style={styles.modalOverlay} className="modal-overlay" onClick={() => setCreatePromptCol(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 style={styles.modalTitle}>New Task ({createPromptCol})</h3>
             <input 
@@ -1008,7 +1211,7 @@ export default function Dashboard() {
 
       {/* Alert Modal */}
       {alertMessage !== null && (
-        <div style={styles.modalOverlay} onClick={() => setAlertMessage(null)}>
+        <div style={styles.modalOverlay} className="modal-overlay" onClick={() => setAlertMessage(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 style={styles.modalTitle}>Notice</h3>
             <p style={styles.modalText}>{alertMessage}</p>

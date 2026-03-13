@@ -5,12 +5,10 @@ import { PricingSection } from "@/components/PricingSection";
 import { useNavigate } from "react-router-dom";
 
 const features = [
-    { icon: "📋", title: "Kanban boards", desc: "Drag tasks between To-do, Doing, and Done with buttery-smooth animations. Reorder within any column anytime." },
-    { icon: "⚡", title: "Real-time updates", desc: "Changes appear instantly across every device. No refresh, no delays — your whole team sees the same board." },
-    { icon: "🔒", title: "Per-user isolation", desc: "Each user's projects and tasks are fully private. Nothing leaks between accounts, ever." },
-    { icon: "🌐", title: "Google sign-in", desc: "One click and you're in. OAuth 2.0 backed by Google's infrastructure, so credentials stay safe." },
-    { icon: "✏️", title: "Inline editing", desc: "Rename tasks and projects directly on the board. No modals, no context switching." },
-    { icon: "📁", title: "Multi-project", desc: "Organise work into separate projects. Switch between them instantly from the sidebar." },
+    { icon: "🤖", title: "Chat → Task AI", desc: "Automatically detect tasks from conversations and convert them into project tasks with one click." },
+    { icon: "📋", title: "Kanban Project Boards", desc: "Organize work with simple boards: Todo, Doing, Done. Drag and drop tasks with smooth animations." },
+    { icon: "👥", title: "Team Collaboration", desc: "Work together with integrated team chat and shared projects. Real-time updates across all devices." },
+    { icon: "⚡", title: "Instant Team Setup", desc: "Create a workspace and invite teammates in seconds. Share team codes and start collaborating immediately." },
 ];
 
 const navLinks = ["Features", "About", "Pricing", "Blog"];
@@ -75,40 +73,44 @@ export default function Landing() {
                     <div className="animate-up" style={{ animationDelay: "0s" }}>
                         <div style={s.heroBadge}>
                             <span style={s.heroBadgeDot} />
-                            The new standard in teamwork
+                            Chat → Task AI · Automatically convert conversations to tasks
                         </div>
                     </div>
 
                     <h1 className="hero-headline animate-up" style={{ animationDelay: "0.12s" }}>
-                        Ship faster.<br />Stay in sync.
+                        Turn Team Conversations<br />Into Tasks Instantly
                     </h1>
 
                     <p className="hero-sub animate-up" style={{ animationDelay: "0.26s" }}>
-                        Synq is the project management workspace that keeps every task,
-                        conversation, and deadline beautifully organised — for every team.
+                        SYNQ combines team chat and project management so discussions become 
+                        actionable tasks automatically. Stop losing important work in chat threads.
                     </p>
 
                     <div className="hero-btns animate-up" style={{ animationDelay: "0.4s" }}>
                         <button className="pill-btn pill-btn-dark pill-btn-lg" onClick={onGetStarted}>
-                            Get started — it's free
+                            Get Started Free
                         </button>
                         <button className="pill-btn pill-btn-ghost pill-btn-lg" onClick={onGetStarted}>
-                            See a demo ↗
+                            Watch Demo ↗
                         </button>
                     </div>
 
                     <p className="animate-up" style={{ ...s.heroNote, animationDelay: "0.52s" }}>
-                        No credit card required · Free forever on solo plan
+                        🚧 Early Access · Free during beta · Help shape the future
                     </p>
                 </div>
             </section>
 
             {/* Features */}
             <section id="features" style={s.features}>
-                <p style={s.eyebrow}>WHY SYNQ</p>
+                <p style={s.eyebrow}>CORE FEATURES</p>
                 <h2 style={s.featuresHeadline}>
-                    Everything your team needs,<br />nothing they don't
+                    Teams Talk. Tasks Get Done.
                 </h2>
+                <p style={s.featuresSubheadline}>
+                    Important work often gets buried in chat threads. SYNQ solves this by detecting 
+                    tasks directly from conversations and turning them into actionable project items.
+                </p>
                 <div className="feature-grid">
                     {features.map((f) => (
                         <div key={f.title} className="feature-card">
@@ -124,14 +126,14 @@ export default function Landing() {
 
             {/* CTA Banner */}
             <section style={s.ctaBanner}>
-                <h2 style={s.ctaHeadline}>Ready to get in sync?</h2>
-                <p style={s.ctaSub}>Join thousands of teams already using Synq to ship on time.</p>
+                <h2 style={s.ctaHeadline}>Ready to turn conversations into tasks?</h2>
+                <p style={s.ctaSub}>Join early adopters using SYNQ to keep work organized and nothing lost in chat.</p>
                 <button
                     className="pill-btn"
                     style={{ background: "#fff", color: "#1a1a1a", padding: "16px 44px", fontSize: 16, fontWeight: 700, marginTop: 24 }}
                     onClick={onGetStarted}
                 >
-                    Start for free →
+                    Start Using SYNQ →
                 </button>
             </section>
 
@@ -245,7 +247,7 @@ const css = `
   /* Feature grid */
   .feature-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     text-align: left;
   }
@@ -281,7 +283,7 @@ const css = `
 
   /* Responsive */
   @media (max-width: 900px) {
-    .feature-grid { grid-template-columns: repeat(2, 1fr); }
+    .feature-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 600px) {
     .feature-grid { grid-template-columns: 1fr; }
@@ -403,7 +405,11 @@ const s: Record<string, React.CSSProperties> = {
     },
     featuresHeadline: {
         fontSize: 40, fontWeight: 700, letterSpacing: "-1px",
-        color: "#111", lineHeight: 1.2, marginBottom: 56,
+        color: "#111", lineHeight: 1.2, marginBottom: 16,
+    },
+    featuresSubheadline: {
+        fontSize: 16, color: "#666", lineHeight: 1.7, 
+        maxWidth: 700, margin: "0 auto 56px", fontWeight: 400,
     },
     featureIcon: { fontSize: 32, marginBottom: 16 },
     featureTitle: { fontSize: 16, fontWeight: 700, color: "#111", marginBottom: 10, letterSpacing: "-0.2px" },

@@ -232,5 +232,9 @@ def create_task_from_chat(
             due_date=task.due_date,
             assigned_user_id=task.assigned_user_id,
         )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Task from chat creation error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to create task: {str(e)}")
 

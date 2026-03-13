@@ -24,7 +24,7 @@ def run_migrations():
     """Ensure all required columns exist in the database"""
     try:
         from dotenv import load_dotenv
-        load_dotenv()
+        load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
         
         db_user = os.getenv('DB_USER')
         db_password = os.getenv('DB_PASSWORD')

@@ -7,7 +7,13 @@ class TaskService:
 
     @staticmethod
     def create_task(db: Session, title: str, project_id: int, status: str, position: float = 0.0):
-        task = Task(title=title, project_id=project_id, status=status, position=position)
+        task = Task(
+            title=title, 
+            project_id=project_id, 
+            status=status, 
+            position=position,
+            source="manual"  # Set default source for manual task creation
+        )
         db.add(task)
         db.commit()
         db.refresh(task)

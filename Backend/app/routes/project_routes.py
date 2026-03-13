@@ -72,17 +72,28 @@ def delete_project(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    project = db.query(Project).filter(
-        Project.id == project_id,
-        Project.owner_id == current_user.id
-    ).first()
+    try:
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.owner_id == current_user.id
+        ).first()
 
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
 
-    db.delete(project)
-    db.commit()
-    return {"detail": "Project deleted"}
+        # Delete associated tasks first (cascade should handle this, but let's be explicit)
+        db.query(Task).filter(Task.project_id == project_id).delete()
+        
+        # Delete the project
+        db.delete(project)
+        db.commit()
+        return {"detail": "Project deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Project deletion error: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete project: {str(e)}")
 
 
 @router.get("/{project_id}/members")

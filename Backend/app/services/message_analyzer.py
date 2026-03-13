@@ -17,7 +17,8 @@ class MessageAnalyzer:
         'add', 'remove', 'delete', 'setup', 'configure', 'install',
         'debug', 'optimize', 'improve', 'enhance', 'develop', 'release',
         'ship', 'send', 'mail', 'contact', 'call', 'meeting', 'sync',
-        'prepare', 'finalize', 'submit', 'verify', 'validate', 'check'
+        'prepare', 'finalize', 'submit', 'verify', 'validate', 'check',
+        'make', 'do', 'change', 'work'
     }
     
     # Task indicators
@@ -70,9 +71,11 @@ class MessageAnalyzer:
         has_action_verb = MessageAnalyzer._has_action_verb(message_lower)
         has_task_indicator = MessageAnalyzer._has_task_indicator(message_lower)
         has_mention = MessageAnalyzer._has_mention(message_text)
+        due_date = MessageAnalyzer._extract_due_date(message_lower)
+        has_deadline = bool(due_date)
         
         # Calculate task probability
-        is_task = has_action_verb or has_task_indicator
+        is_task = has_action_verb or has_task_indicator or (has_mention and has_deadline)
         
         if not is_task:
             return {"isTask": False}
@@ -80,7 +83,6 @@ class MessageAnalyzer:
         # Extract task details
         title = MessageAnalyzer._extract_title(message_text)
         assignee = MessageAnalyzer._extract_assignee(message_text, team_members)
-        due_date = MessageAnalyzer._extract_due_date(message_lower)
         
         return {
             "isTask": True,

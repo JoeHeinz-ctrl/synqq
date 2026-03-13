@@ -607,7 +607,7 @@ export default function ProjectBoard() {
         
         *::-webkit-scrollbar { display: none; }
         * { scrollbar-width: none; }
-      `}
+      `}</style>
 
       {/* ── Top bar ── */}
       <div style={s.topBar}>

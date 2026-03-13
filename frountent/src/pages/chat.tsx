@@ -499,23 +499,22 @@ export default function Chat() {
   };
 
   // AI Task Suggestion handlers
-  const handleCreateTask = async (messageId: string, taskData: any) => {
+  const handleCreateTask = async (taskData: any) => {
     try {
-      await createTaskFromChat({
-        title: taskData.title,
-        project_id: Number(projectId),
-        assigned_user_id: taskData.assignedUserId,
-        description: taskData.description || `Created from chat message`,
-        due_date: taskData.dueDate,
-        chat_message_id: Number(messageId),
-      });
+      await createTaskFromChat(
+        taskData.title,
+        Number(projectId),
+        taskData.status || "TODO"
+      );
 
       // Remove suggestion after creating task
-      setAiSuggestions((prev) => {
-        const newMap = new Map(prev);
-        newMap.delete(messageId);
-        return newMap;
-      });
+      if (editingTask?.messageId) {
+        setAiSuggestions((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(editingTask.messageId);
+          return newMap;
+        });
+      }
 
       console.log("✅ Task created successfully");
     } catch (error) {
@@ -539,9 +538,27 @@ export default function Chat() {
   const handleSaveEditedTask = async (taskData: any) => {
     if (!editingTask) return;
 
-    await handleCreateTask(editingTask.messageId, taskData);
-    setShowEditModal(false);
-    setEditingTask(null);
+    try {
+      await createTaskFromChat(
+        taskData.title,
+        Number(projectId),
+        "TODO"
+      );
+
+      // Remove suggestion after creating task
+      setAiSuggestions((prev) => {
+        const newMap = new Map(prev);
+        newMap.delete(editingTask.messageId);
+        return newMap;
+      });
+
+      setShowEditModal(false);
+      setEditingTask(null);
+      console.log("✅ Task created successfully");
+    } catch (error) {
+      console.error("❌ Failed to create task:", error);
+      alert("Failed to create task. Please try again.");
+    }
   };
 
   const handleIgnoreSuggestion = (messageId: string) => {
@@ -761,9 +778,10 @@ export default function Chat() {
                       {/* AI Task Suggestion */}
                       {isOwn && aiSuggestions.has(msg.id) && !ignoredSuggestions.has(msg.id) && (
                         <AiTaskSuggestion
+                          messageId={msg.id}
                           suggestion={aiSuggestions.get(msg.id)}
-                          onCreateTask={() => handleCreateTask(msg.id, aiSuggestions.get(msg.id))}
-                          onEditTask={() => handleEditTask(msg.id, aiSuggestions.get(msg.id))}
+                          onCreateTask={() => handleCreateTask(aiSuggestions.get(msg.id))}
+                          onEdit={() => handleEditTask(msg.id, aiSuggestions.get(msg.id))}
                           onIgnore={() => handleIgnoreSuggestion(msg.id)}
                         />
                       )}
@@ -997,9 +1015,17 @@ export default function Chat() {
       {/* Edit Task Modal */}
       {showEditModal && (
         <EditTaskModal
-          task={editingTask}
+          isOpen={showEditModal}
+          initialData={{
+            title: editingTask?.title || "",
+            assignedUserId: editingTask?.assignedUserId,
+            assignedUserName: editingTask?.assignedUserName,
+            dueDate: editingTask?.dueDate,
+            description: editingTask?.description || "",
+          }}
+          teamMembers={users.map(u => ({ id: u.id, name: u.name }))}
           onSave={handleSaveEditedTask}
-          onClose={() => {
+          onCancel={() => {
             setShowEditModal(false);
             setEditingTask(null);
           }}

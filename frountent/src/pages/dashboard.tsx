@@ -470,10 +470,10 @@ export default function Dashboard() {
     try {
       const created = await createTask(title, parseInt(projectId), createPromptCol.toLowerCase());
       setTasks((prev) => [...prev, created]);
-    } catch { 
-      setAlertMessage("Failed to create task"); 
-    } finally { 
-      setCreatePromptCol(null); 
+      setCreatePromptCol(null);
+    } catch (err: any) { 
+      console.error("Task creation error:", err);
+      setAlertMessage(err.message || "Failed to create task"); 
     }
   };
 

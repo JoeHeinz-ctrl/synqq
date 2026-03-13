@@ -167,7 +167,14 @@ export async function updateTask(taskId: number, updates: any) {
   return handleResponse(res);
 }
 
-export async function createTaskFromChat(title: string, projectId: number, status: string = "TODO") {
+export async function createTaskFromChat(
+  title: string, 
+  projectId: number, 
+  status: string = "TODO",
+  description?: string,
+  dueDate?: string,
+  assignedUserId?: number
+) {
   const res = await fetch(`${API_URL}/tasks/from-chat`, {
     method: "POST",
     headers: getAuthHeaders(),
@@ -175,6 +182,9 @@ export async function createTaskFromChat(title: string, projectId: number, statu
       title,
       status,
       project_id: projectId,
+      description: description || null,
+      due_date: dueDate || null,
+      assigned_user_id: assignedUserId || null,
     }),
   });
 

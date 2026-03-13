@@ -504,7 +504,10 @@ export default function Chat() {
       await createTaskFromChat(
         taskData.title,
         Number(projectId),
-        taskData.status || "TODO"
+        taskData.status || "TODO",
+        taskData.description,
+        taskData.dueDate,
+        taskData.assignee?.id
       );
 
       // Remove suggestion after creating task
@@ -542,7 +545,10 @@ export default function Chat() {
       await createTaskFromChat(
         taskData.title,
         Number(projectId),
-        "TODO"
+        "TODO",
+        taskData.description,
+        taskData.dueDate,
+        taskData.assignedUserId
       );
 
       // Remove suggestion after creating task

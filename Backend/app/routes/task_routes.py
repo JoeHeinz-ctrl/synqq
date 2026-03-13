@@ -63,12 +63,16 @@ def create_task(
             project_id=task.project_id,
             status=task.status,
             position=next_position,
+            description=task.description,
+            due_date=task.due_date,
+            assigned_user_id=task.assigned_user_id,
         )
     except HTTPException:
         raise
     except Exception as e:
         print(f"❌ Task creation error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to create task: {str(e)}")
+
 
 
 # GET TASKS (User Isolated, sorted by position)
@@ -219,10 +223,9 @@ def create_task_from_chat(
             project_id=task.project_id,
             status=task.status,
             position=next_position,
+            description=task.description,
+            due_date=task.due_date,
+            assigned_user_id=task.assigned_user_id,
         )
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"❌ Task from chat creation error: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to create task: {str(e)}")
 

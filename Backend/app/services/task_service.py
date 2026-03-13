@@ -1,13 +1,31 @@
 from sqlalchemy.orm import Session
 from app.models.task import Task
 from app.models.project import Project
+from typing import Optional
 
 
 class TaskService:
 
     @staticmethod
-    def create_task(db: Session, title: str, project_id: int, status: str, position: float = 0.0):
-        task = Task(title=title, project_id=project_id, status=status, position=position)
+    def create_task(
+        db: Session, 
+        title: str, 
+        project_id: int, 
+        status: str, 
+        position: float = 0.0,
+        description: Optional[str] = None,
+        due_date: Optional[str] = None,
+        assigned_user_id: Optional[int] = None
+    ):
+        task = Task(
+            title=title, 
+            project_id=project_id, 
+            status=status, 
+            position=position,
+            description=description,
+            due_date=due_date,
+            assigned_user_id=assigned_user_id
+        )
         db.add(task)
         db.commit()
         db.refresh(task)

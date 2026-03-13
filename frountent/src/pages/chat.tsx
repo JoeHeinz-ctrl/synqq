@@ -494,16 +494,6 @@ export default function Chat() {
     });
   };
 
-  // AI Task Suggestion handlers (DISABLED - waiting for database migration)
-  const handleIgnoreSuggestion = (messageId: string) => {
-    setIgnoredSuggestions((prev) => new Set(prev).add(messageId));
-    setAiSuggestions((prev) => {
-      const newMap = new Map(prev);
-      newMap.delete(messageId);
-      return newMap;
-    });
-  };
-
   return (
     <div style={styles.container}>
       <div style={styles.topBar}>

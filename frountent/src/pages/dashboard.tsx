@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchTasks, createTask, moveTask, deleteTask, reorderTasks, getCurrentUser, updateTask, fetchTeamMembers } from "../services/api";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import BottomNav from "../components/BottomNav";
 import TaskDetailModal from "../components/TaskDetailModal";

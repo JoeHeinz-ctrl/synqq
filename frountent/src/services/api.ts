@@ -157,6 +157,23 @@ export async function renameTask(taskId: number, title: string) {
   return handleResponse(res);
 }
 
+export async function createTaskFromChat(taskData: {
+  title: string;
+  project_id: number;
+  assigned_user_id?: number | null;
+  description?: string;
+  due_date?: string | null;
+  chat_message_id?: number;
+}) {
+  const res = await fetch(`${API_URL}/tasks/from-chat`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(taskData),
+  });
+
+  return handleResponse(res);
+}
+
 /* ---------------- PROJECTS ---------------- */
 
 export async function createProject(title: string, teamId?: number) {

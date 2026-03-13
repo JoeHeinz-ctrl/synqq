@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks, getCurrentUser } from "../services/api";
+import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks, getCurrentUser, updateTask } from "../services/api";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "../components/BottomNav";
@@ -366,7 +366,7 @@ export default function Dashboard() {
   
   const [project, setProject] = useState<any>(location.state?.project || null);
   const [tasks, setTasks] = useState<any[]>([]);
-  const [, setCurrentUser] = useState<any | null>(null);
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [greeting, setGreeting] = useState<string | null>(null);
 
   const [draggedTask, setDraggedTask] = useState<any | null>(null);
@@ -723,9 +723,9 @@ export default function Dashboard() {
             }}
             onUpdate={async (taskId, updates) => {
               try {
-                if (updates.title) {
-                  await renameTask(taskId, updates.title);
-                }
+                // Save all updates to backend
+                await updateTask(taskId, updates);
+                
                 // Refresh tasks
                 if (projectId) {
                   const updated = await fetchTasks(parseInt(projectId));
@@ -735,7 +735,7 @@ export default function Dashboard() {
                 console.error("Failed to update task:", err);
               }
             }}
-            teamMembers={[]}
+            teamMembers={currentUser ? [{ id: currentUser.id, name: currentUser.name }] : []}
           />
         )}
       </div>

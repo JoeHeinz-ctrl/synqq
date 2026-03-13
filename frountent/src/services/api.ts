@@ -157,6 +157,16 @@ export async function renameTask(taskId: number, title: string) {
   return handleResponse(res);
 }
 
+export async function updateTask(taskId: number, updates: any) {
+  const res = await fetch(`${API_URL}/tasks/${taskId}`, {
+    method: "PATCH",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(updates),
+  });
+
+  return handleResponse(res);
+}
+
 export async function createTaskFromChat(title: string, projectId: number, status: string = "TODO") {
   const res = await fetch(`${API_URL}/tasks/from-chat`, {
     method: "POST",

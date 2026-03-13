@@ -549,6 +549,12 @@ export default function Dashboard() {
   const onDragStart = (e: React.DragEvent, task: any) => {
     setDraggedTask(task);
     e.dataTransfer.effectAllowed = "move";
+    // Fix ghost clone: use a transparent 1x1 image as drag image
+    const ghost = document.createElement("div");
+    ghost.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;";
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, 0, 0);
+    setTimeout(() => document.body.removeChild(ghost), 0);
   };
 
   const onDragEnd = () => {
@@ -800,9 +806,20 @@ export default function Dashboard() {
           >
             ← Back
           </button>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={styles.projectTitle}>{project ? project.title : "Project Board"}</div>
-            <div style={styles.taskCount}>· {tasks.length} tasks</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={styles.projectTitle}>{project ? project.title : "Project Board"}</div>
+              <div style={styles.taskCount}>· {tasks.length} tasks</div>
+            </div>
+            {teamMembers.length > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+                {teamMembers.map((m: any, i: number) => (
+                  <span key={m.id} style={{ fontSize: "11px", color: "#666", fontWeight: "500" }}>
+                    {m.name}{i < teamMembers.length - 1 ? "," : ""}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

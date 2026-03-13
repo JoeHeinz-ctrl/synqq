@@ -64,12 +64,14 @@ const styles: any = {
   },
 
   sidebar: {
-    width: "280px",
-    background: "#242424",
+    width: "260px",
+    background: "#1e1e1e",
     borderRight: "1px solid rgba(255,255,255,0.05)",
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
+    // The sidebar itself does NOT scroll — it is a fixed column
+    overflow: "hidden",
   },
 
   sidebarMobile: {
@@ -101,8 +103,9 @@ const styles: any = {
 
   userList: {
     flex: 1,
-    overflowY: "auto",
+    overflowY: "auto" as const,
     padding: "8px",
+    // Only userList scrolls, not the whole sidebar
   },
 
   userItem: {
@@ -168,8 +171,9 @@ const styles: any = {
   chatArea: {
     flex: 1,
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column" as const,
     background: "#1a1a1a",
+    overflow: "hidden",   // chat area itself clips
   },
 
   messagesContainer: {
@@ -447,7 +451,7 @@ export default function Chat() {
     currentUser?.name
   );
 
-  const { callState, localVideoRef, remoteVideoRef, startCall, answerCall, rejectCall, endCall, toggleMute, toggleSpeaker, isMuted, isSpeakerOn, callDuration, formatCallDuration } = useWebRTC(socket, currentUser?.id);
+  const { callState, answerCall, rejectCall, endCall, toggleMute, isMuted } = useWebRTC(socket, currentUser?.id);
 
   // Listen for AI task suggestions
   useEffect(() => {
@@ -501,9 +505,6 @@ export default function Chat() {
     }
   };
 
-  const handleCallClick = (userId: number, callType: "audio" | "video") => {
-    startCall(userId, callType);
-  };
 
   const getInitials = (name: string) => {
     return name
@@ -712,33 +713,6 @@ export default function Chat() {
                       {isOnline ? "In project" : "Offline"}
                     </div>
                   </div>
-                  {!isSelf && isOnline && (
-                    <div style={styles.callButtons}>
-                      <button
-                        style={styles.callBtn}
-                        title="Audio call"
-                        onClick={() => handleCallClick(member.id, "audio")}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.2)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.1)"; }}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M23 16.92c-.012-.039-.08-.12-.145-.182a2.918 2.918 0 0 0-.465-.344 15.447 15.447 0 0 0-1.898-1.029c-.769-.345-1.591-.672-2.426-.961a1.993 1.993 0 0 0-2.394.885l-.667 1.154a13.988 13.988 0 0 1-5.01-5.01l1.154-.667a1.993 1.993 0 0 0 .885-2.394 23.447 23.447 0 0 0-.961-2.426 15.447 15.447 0 0 0-1.029-1.898 2.918 2.918 0 0 0-.344-.465c-.062-.065-.143-.133-.182-.145a1.994 1.994 0 0 0-2.267.485L3.935 5.271a1.993 1.993 0 0 0-.485 1.913c.214.844.529 1.656.93 2.426.398.765.875 1.5 1.414 2.192a20.964 20.964 0 0 0 2.192 2.192c.692.539 1.427 1.016 2.192 1.414.77.401 1.582.716 2.426.93a1.993 1.993 0 0 0 1.913-.485l1.315-1.315a1.994 1.994 0 0 0 .485-2.267z"/>
-                        </svg>
-                      </button>
-                      <button
-                        style={styles.callBtn}
-                        title="Video call"
-                        onClick={() => handleCallClick(member.id, "video")}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.2)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.1)"; }}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M23 7l-7 5 7 5V7z"/>
-                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                        </svg>
-                      </button>
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -868,176 +842,65 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Call Modal */}
-      {(callState.isInCall || callState.isCalling || callState.isReceivingCall) && (
-        <div style={styles.callModal}>
-          <div style={styles.callContent}>
-            {callState.isReceivingCall && (
-              <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                <h3 style={{ color: "#fff", marginBottom: "8px" }}>
-                  Incoming {callState.callType} call
-                </h3>
-                <p style={{ color: "#888" }}>
-                  {callState.caller?.name} is calling...
-                </p>
-                <div style={{ display: "flex", gap: "12px", justifyContent: "center", marginTop: "20px" }}>
-                  <button
-                    style={{ ...styles.controlBtn, background: "#10b981" }}
-                    onClick={answerCall}
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M23 16.92c-.012-.039-.08-.12-.145-.182a2.918 2.918 0 0 0-.465-.344 15.447 15.447 0 0 0-1.898-1.029c-.769-.345-1.591-.672-2.426-.961a1.993 1.993 0 0 0-2.394.885l-.667 1.154a13.988 13.988 0 0 1-5.01-5.01l1.154-.667a1.993 1.993 0 0 0 .885-2.394 23.447 23.447 0 0 0-.961-2.426 15.447 15.447 0 0 0-1.029-1.898 2.918 2.918 0 0 0-.344-.465c-.062-.065-.143-.133-.182-.145a1.994 1.994 0 0 0-2.267.485L3.935 5.271a1.993 1.993 0 0 0-.485 1.913c.214.844.529 1.656.93 2.426.398.765.875 1.5 1.414 2.192a20.964 20.964 0 0 0 2.192 2.192c.692.539 1.427 1.016 2.192 1.414.77.401 1.582.716 2.426.93a1.993 1.993 0 0 0 1.913-.485l1.315-1.315a1.994 1.994 0 0 0 .485-2.267z"/>
-                    </svg>
-                  </button>
-                  <button
-                    style={{ ...styles.controlBtn, background: "#ef4444" }}
-                    onClick={rejectCall}
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {(callState.isInCall || callState.isCalling) && (
-              <>
-                <div style={styles.videoContainer}>
-                  {callState.callType === "video" ? (
-                    <>
-                      <video
-                        ref={remoteVideoRef}
-                        autoPlay
-                        playsInline
-                        style={styles.video}
-                      />
-                      <video
-                        ref={localVideoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        style={styles.localVideo}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <audio 
-                        ref={remoteVideoRef} 
-                        autoPlay 
-                        playsInline
-                        style={{ display: 'none' }}
-                      />
-                      <audio 
-                        ref={localVideoRef} 
-                        autoPlay 
-                        playsInline 
-                        muted
-                        style={{ display: 'none' }}
-                      />
-                      <div style={styles.audioCallView}>
-                        <div style={styles.audioAvatar}>
-                          {callState.caller ? getInitials(callState.caller.name) : getInitials(currentUser?.name || "U")}
-                        </div>
-                        <div style={{ color: "#fff", fontSize: "20px", marginTop: "16px" }}>
-                          {callState.caller?.name || currentUser?.name || "Audio Call"}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {callState.isCalling && (
-                  <p style={{ textAlign: "center", color: "#888", marginBottom: "16px", fontSize: "14px" }}>
-                    Calling...
-                  </p>
-                )}
-
-                {callState.isInCall && (
-                  <p style={{ textAlign: "center", color: "#10b981", marginBottom: "16px", fontSize: "16px", fontWeight: "600" }}>
-                    ● {formatCallDuration(callDuration)}
-                  </p>
-                )}
-
-                <div style={styles.callControls}>
-                  {callState.isInCall && (
-                    <>
-                      <button
-                        style={{
-                          ...styles.controlBtn,
-                          background: isMuted ? "#ef4444" : "rgba(255,255,255,0.1)",
-                          width: "56px",
-                          height: "56px",
-                        }}
-                        onClick={toggleMute}
-                        title={isMuted ? "Unmute" : "Mute"}
-                      >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          {isMuted ? (
-                            <>
-                              <line x1="1" y1="1" x2="23" y2="23" />
-                              <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
-                              <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
-                              <line x1="12" y1="19" x2="12" y2="23" />
-                              <line x1="8" y1="23" x2="16" y2="23" />
-                            </>
-                          ) : (
-                            <>
-                              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                              <line x1="12" y1="19" x2="12" y2="23" />
-                              <line x1="8" y1="23" x2="16" y2="23" />
-                            </>
-                          )}
-                        </svg>
-                      </button>
-                      
-                      {isMobile && (
-                        <button
-                          style={{
-                            ...styles.controlBtn,
-                            background: isSpeakerOn ? "#10b981" : "rgba(255,255,255,0.1)",
-                            width: "56px",
-                            height: "56px",
-                          }}
-                          onClick={toggleSpeaker}
-                          title={isSpeakerOn ? "Speaker on" : "Speaker off"}
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            {isSpeakerOn ? (
-                              <>
-                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-                              </>
-                            ) : (
-                              <>
-                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                                <line x1="23" y1="9" x2="17" y2="15" />
-                                <line x1="17" y1="9" x2="23" y2="15" />
-                              </>
-                            )}
-                          </svg>
-                        </button>
-                      )}
-                    </>
-                  )}
-                  
-                  <button
-                    style={{ ...styles.controlBtn, background: "#ef4444", width: "56px", height: "56px" }}
-                    onClick={endCall}
-                    title="End call"
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M23 16.92c-.012-.039-.08-.12-.145-.182a2.918 2.918 0 0 0-.465-.344 15.447 15.447 0 0 0-1.898-1.029c-.769-.345-1.591-.672-2.426-.961a1.993 1.993 0 0 0-2.394.885l-.667 1.154a13.988 13.988 0 0 1-5.01-5.01l1.154-.667a1.993 1.993 0 0 0 .885-2.394 23.447 23.447 0 0 0-.961-2.426 15.447 15.447 0 0 0-1.029-1.898 2.918 2.918 0 0 0-.344-.465c-.062-.065-.143-.133-.182-.145a1.994 1.994 0 0 0-2.267.485L3.935 5.271a1.993 1.993 0 0 0-.485 1.913c.214.844.529 1.656.93 2.426.398.765.875 1.5 1.414 2.192a20.964 20.964 0 0 0 2.192 2.192c.692.539 1.427 1.016 2.192 1.414.77.401 1.582.716 2.426.93a1.993 1.993 0 0 0 1.913-.485l1.315-1.315a1.994 1.994 0 0 0 .485-2.267z" transform="rotate(135 12 12)"/>
-                    </svg>
-                  </button>
-                </div>
-              </>
-            )}
+      {/* Incoming call notification (audio only) */}
+      {callState.isReceivingCall && (
+        <div style={{
+          position: "fixed", bottom: "90px", right: "20px",
+          background: "rgba(20, 20, 20, 0.95)",
+          backdropFilter: "blur(16px)",
+          border: "1px solid rgba(16,185,129,0.3)",
+          borderRadius: "16px", padding: "16px 20px",
+          display: "flex", alignItems: "center", gap: "14px",
+          zIndex: 9999, boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+          minWidth: "260px",
+        }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#fff", marginBottom: "2px" }}>
+              {callState.caller?.name} is calling
+            </div>
+            <div style={{ fontSize: "11px", color: "#888" }}>Audio call</div>
           </div>
+          <button
+            onClick={answerCall}
+            style={{ padding: "8px 14px", borderRadius: "10px", border: "none",
+              background: "#10b981", color: "#fff", fontWeight: "700", fontSize: "13px", cursor: "pointer" }}
+          >Accept</button>
+          <button
+            onClick={rejectCall}
+            style={{ padding: "8px 14px", borderRadius: "10px", border: "none",
+              background: "#ef4444", color: "#fff", fontWeight: "700", fontSize: "13px", cursor: "pointer" }}
+          >Decline</button>
         </div>
       )}
+
+      {/* Active call bar */}
+      {callState.isInCall && (
+        <div style={{
+          position: "fixed", bottom: "90px", left: "50%", transform: "translateX(-50%)",
+          background: "rgba(16,185,129,0.15)",
+          backdropFilter: "blur(16px)",
+          border: "1px solid rgba(16,185,129,0.4)",
+          borderRadius: "50px", padding: "10px 20px",
+          display: "flex", alignItems: "center", gap: "12px",
+          zIndex: 9999, boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+        }}>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981",
+            boxShadow: "0 0 8px #10b981", animation: "pulse 1.5s infinite" }} />
+          <span style={{ color: "#10b981", fontSize: "13px", fontWeight: "700" }}>In call</span>
+          <button
+            onClick={toggleMute}
+            style={{ padding: "6px 12px", borderRadius: "8px", border: "none",
+              background: isMuted ? "#ef4444" : "rgba(255,255,255,0.1)",
+              color: "#fff", fontWeight: "600", fontSize: "12px", cursor: "pointer" }}
+          >{isMuted ? "Unmute" : "Mute"}</button>
+          <button
+            onClick={endCall}
+            style={{ padding: "6px 12px", borderRadius: "8px", border: "none",
+              background: "#ef4444", color: "#fff", fontWeight: "600", fontSize: "12px", cursor: "pointer" }}
+          >End</button>
+        </div>
+      )}
+
 
       <BottomNav projectId={projectId} />
       
@@ -1052,7 +915,7 @@ export default function Chat() {
             dueDate: editingTask?.dueDate,
             description: editingTask?.description || "",
           }}
-          teamMembers={users.map(u => ({ id: u.id, name: u.name }))}
+          teamMembers={allMembers.map((u: any) => ({ id: u.id, name: u.name }))}
           onSave={handleSaveEditedTask}
           onCancel={() => {
             setShowEditModal(false);

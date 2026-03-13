@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getCurrentUser, createTaskFromChat } from "../services/api";
+import { getCurrentUser, createTaskFromChat, fetchTeamMembers, fetchProjects } from "../services/api";
 import BottomNav from "../components/BottomNav";
 import { useChat } from "../hooks/useChat";
 import { useWebRTC } from "../hooks/useWebRTC";
@@ -400,6 +400,7 @@ export default function Chat() {
   const { logout } = useAuth();
   const { projectId } = useParams();
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [allMembers, setAllMembers] = useState<any[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -418,7 +419,29 @@ export default function Chat() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { messages, users, isConnected, sendMessage, sendFile, socket } = useChat(
+  // Fetch all team members for the project (show regardless of online status)
+  useEffect(() => {
+    if (!projectId || !currentUser) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const projects = await fetchProjects();
+        const proj = projects.find((p: any) => p.id === parseInt(projectId));
+        if (proj?.team_id) {
+          const members = await fetchTeamMembers(proj.team_id);
+          if (mounted) setAllMembers(members);
+        } else if (currentUser) {
+          // Personal project — just show self
+          if (mounted) setAllMembers([{ id: currentUser.id, name: currentUser.name }]);
+        }
+      } catch {
+        if (currentUser) setAllMembers([{ id: currentUser.id, name: currentUser.name }]);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [projectId, currentUser]);
+
+  const { messages, users, isConnected, joinNotification, sendMessage, sendFile, socket } = useChat(
     projectId,
     currentUser?.id,
     currentUser?.name
@@ -624,7 +647,7 @@ export default function Chat() {
           }}
         >
           <div style={styles.sidebarHeader}>
-            Team Members ({users.length})
+            Members · {allMembers.length}
             {isMobile && (
               <button
                 onClick={() => setShowSidebar(false)}
@@ -641,84 +664,84 @@ export default function Chat() {
               </button>
             )}
           </div>
-          {users.length === 0 && (
-            <div style={{ padding: "16px", color: "#666", fontSize: "13px", textAlign: "center" }}>
-              This is a personal project. You can still use chat to organize your thoughts and notes!
-            </div>
-          )}
           <div style={styles.userList}>
-            {users.map((user) => (
-              <div
-                key={user.id}
-                style={{
-                  ...styles.userItem,
-                  background:
-                    user.id === currentUser?.id
-                      ? "rgba(11,125,224,0.1)"
-                      : "transparent",
-                }}
-                onMouseEnter={(e) => {
-                  if (user.id !== currentUser?.id) {
-                    e.currentTarget.style.background = "#2a2a2a";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (user.id !== currentUser?.id) {
-                    e.currentTarget.style.background = "transparent";
-                  }
-                }}
-              >
-                <div style={styles.userAvatar}>{getInitials(user.name)}</div>
-                <div style={styles.userInfo}>
-                  <div style={styles.userName}>
-                    {user.name}
-                    {user.id === currentUser?.id && " (You)"}
+            {allMembers.map((member) => {
+              const isOnline = users.some((u) => u.id === member.id);
+              const isSelf = member.id === currentUser?.id;
+              return (
+                <div
+                  key={member.id}
+                  style={{
+                    ...styles.userItem,
+                    background: isSelf ? "rgba(11,125,224,0.08)" : "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelf) e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelf) e.currentTarget.style.background = "transparent";
+                  }}
+                >
+                  {/* Avatar with online indicator */}
+                  <div style={{ position: "relative" }}>
+                    <div style={{
+                      ...styles.userAvatar,
+                      opacity: isOnline ? 1 : 0.5,
+                    }}>
+                      {getInitials(member.name)}
+                    </div>
+                    {isOnline && (
+                      <div style={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                        background: "#10b981",
+                        border: "2px solid #242424",
+                        boxShadow: "0 0 6px rgba(16,185,129,0.8), 0 0 12px rgba(16,185,129,0.4)",
+                      }} />
+                    )}
                   </div>
-                  <div style={styles.userStatus}>
-                    {user.online ? "🟢 Online" : "⚫ Offline"}
+                  <div style={styles.userInfo}>
+                    <div style={{ ...styles.userName, opacity: isOnline ? 1 : 0.6 }}>
+                      {member.name}{isSelf && " (You)"}
+                    </div>
+                    <div style={{ ...styles.userStatus, color: isOnline ? "#10b981" : "#555" }}>
+                      {isOnline ? "In project" : "Offline"}
+                    </div>
                   </div>
+                  {!isSelf && isOnline && (
+                    <div style={styles.callButtons}>
+                      <button
+                        style={styles.callBtn}
+                        title="Audio call"
+                        onClick={() => handleCallClick(member.id, "audio")}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.2)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.1)"; }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M23 16.92c-.012-.039-.08-.12-.145-.182a2.918 2.918 0 0 0-.465-.344 15.447 15.447 0 0 0-1.898-1.029c-.769-.345-1.591-.672-2.426-.961a1.993 1.993 0 0 0-2.394.885l-.667 1.154a13.988 13.988 0 0 1-5.01-5.01l1.154-.667a1.993 1.993 0 0 0 .885-2.394 23.447 23.447 0 0 0-.961-2.426 15.447 15.447 0 0 0-1.029-1.898 2.918 2.918 0 0 0-.344-.465c-.062-.065-.143-.133-.182-.145a1.994 1.994 0 0 0-2.267.485L3.935 5.271a1.993 1.993 0 0 0-.485 1.913c.214.844.529 1.656.93 2.426.398.765.875 1.5 1.414 2.192a20.964 20.964 0 0 0 2.192 2.192c.692.539 1.427 1.016 2.192 1.414.77.401 1.582.716 2.426.93a1.993 1.993 0 0 0 1.913-.485l1.315-1.315a1.994 1.994 0 0 0 .485-2.267z"/>
+                        </svg>
+                      </button>
+                      <button
+                        style={styles.callBtn}
+                        title="Video call"
+                        onClick={() => handleCallClick(member.id, "video")}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.2)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.1)"; }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M23 7l-7 5 7 5V7z"/>
+                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {user.id !== currentUser?.id && user.online && (
-                  <div style={styles.callButtons}>
-                    <button
-                      style={styles.callBtn}
-                      title="Audio call"
-                      onClick={() => handleCallClick(user.id, "audio")}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "rgba(11,125,224,0.2)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background =
-                          "rgba(11,125,224,0.1)";
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M23 16.92c-.012-.039-.08-.12-.145-.182a2.918 2.918 0 0 0-.465-.344 15.447 15.447 0 0 0-1.898-1.029c-.769-.345-1.591-.672-2.426-.961a1.993 1.993 0 0 0-2.394.885l-.667 1.154a13.988 13.988 0 0 1-5.01-5.01l1.154-.667a1.993 1.993 0 0 0 .885-2.394 23.447 23.447 0 0 0-.961-2.426 15.447 15.447 0 0 0-1.029-1.898 2.918 2.918 0 0 0-.344-.465c-.062-.065-.143-.133-.182-.145a1.994 1.994 0 0 0-2.267.485L3.935 5.271a1.993 1.993 0 0 0-.485 1.913c.214.844.529 1.656.93 2.426.398.765.875 1.5 1.414 2.192a20.964 20.964 0 0 0 2.192 2.192c.692.539 1.427 1.016 2.192 1.414.77.401 1.582.716 2.426.93a1.993 1.993 0 0 0 1.913-.485l1.315-1.315a1.994 1.994 0 0 0 .485-2.267z"/>
-                      </svg>
-                    </button>
-                    <button
-                      style={styles.callBtn}
-                      title="Video call"
-                      onClick={() => handleCallClick(user.id, "video")}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "rgba(11,125,224,0.2)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background =
-                          "rgba(11,125,224,0.1)";
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M23 7l-7 5 7 5V7z"/>
-                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -1036,6 +1059,66 @@ export default function Chat() {
             setEditingTask(null);
           }}
         />
+      )}
+
+      {/* Join notification popup */}
+      {joinNotification && (
+        <div style={{
+          position: "fixed",
+          bottom: "88px",
+          right: "20px",
+          background: "rgba(30, 30, 30, 0.95)",
+          backdropFilter: "blur(16px)",
+          border: "1px solid rgba(16,185,129,0.3)",
+          borderRadius: "14px",
+          padding: "14px 18px",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          zIndex: 9999,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(16,185,129,0.15)",
+          animation: "slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+          maxWidth: "280px",
+        }}>
+          <div style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #10b981, #059669)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "16px",
+            fontWeight: "700",
+            color: "#fff",
+            boxShadow: "0 0 12px rgba(16,185,129,0.5)",
+            flexShrink: 0,
+          }}>
+            {joinNotification.name[0].toUpperCase()}
+          </div>
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: "600", color: "#fff" }}>
+              {joinNotification.name} joined
+            </div>
+            <div style={{ fontSize: "11px", color: "#10b981", marginTop: "2px" }}>
+              Now in this project
+            </div>
+          </div>
+          <div style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: "#10b981",
+            boxShadow: "0 0 8px rgba(16,185,129,0.8)",
+            flexShrink: 0,
+          }} />
+          <style>{`
+            @keyframes slideInRight {
+              from { opacity: 0; transform: translateX(40px); }
+              to { opacity: 1; transform: translateX(0); }
+            }
+          `}</style>
+        </div>
       )}
     </div>
   );

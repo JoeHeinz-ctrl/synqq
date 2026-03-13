@@ -120,6 +120,15 @@ async def join_project(sid, data):
     finally:
         db.close()
     
+    # Notify existing members that this user joined
+    if project_id in project_rooms:
+        for existing_sid in project_rooms[project_id]:
+            if existing_sid != sid:
+                await sio.emit('user_joined', {
+                    'userId': user_id,
+                    'name': user_name
+                }, room=existing_sid)
+    
     # Update users list for everyone in the room
     await update_users_list(project_id)
     

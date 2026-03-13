@@ -15,13 +15,17 @@ class MessageAnalyzer:
         'fix', 'build', 'deploy', 'update', 'create', 'finish', 
         'implement', 'design', 'test', 'write', 'review', 'refactor',
         'add', 'remove', 'delete', 'setup', 'configure', 'install',
-        'debug', 'optimize', 'improve', 'enhance', 'develop'
+        'debug', 'optimize', 'improve', 'enhance', 'develop', 'release',
+        'ship', 'send', 'mail', 'contact', 'call', 'meeting', 'sync',
+        'prepare', 'finalize', 'submit', 'verify', 'validate', 'check'
     }
     
     # Task indicators
     TASK_INDICATORS = {
         'task', 'todo', 'action item', 'please', 'need to', 
-        'should', 'must', 'have to', 'can you', 'could you'
+        'should', 'must', 'have to', 'can you', 'could you',
+        "let's", "i will", "gonna", 'going to', 'scheduled',
+        'assigned', 'requesting', 'reminder', 'urgent', 'priority'
     }
     
     # Deadline keywords
@@ -32,7 +36,16 @@ class MessageAnalyzer:
         'next week': 7,
         'this week': 3,
         'asap': 0,
-        'urgent': 0
+        'urgent': 0,
+        'monday': 1, # Simple offset for keyword match
+        'tuesday': 2,
+        'wednesday': 3,
+        'thursday': 4,
+        'friday': 5,
+        'saturday': 6,
+        'sunday': 7,
+        'by end of day': 0,
+        'eod': 0
     }
     
     @staticmethod
@@ -104,12 +117,16 @@ class MessageAnalyzer:
         # Remove mentions
         text = re.sub(r'@\w+', '', message_text).strip()
         
-        # Remove common task prefixes
-        text = re.sub(r'^(task:|todo:|action item:)\s*', '', text, flags=re.IGNORECASE)
-        text = re.sub(r'^(create task|add task)\s+', '', text, flags=re.IGNORECASE)
+        # Remove politeness and task indicators
+        removals = [
+            r'^(please|can you|could you|could someone|i need someone to|i need to|need to|we should|should|must|have to|let\'s|task:|todo:|action item:)\s*',
+            r'^(create|add|implement)\s+(task|todo|action item)',
+            r'^(create|add|implement)\s+',
+            r'\s+(today|tomorrow|tonight|next week|this week|asap|urgent|by eod|eod)$'
+        ]
         
-        # Remove deadline phrases at the end
-        text = re.sub(r'\s+(today|tomorrow|tonight|next week|this week|asap|urgent)$', '', text, flags=re.IGNORECASE)
+        for pattern in removals:
+            text = re.sub(pattern, '', text, flags=re.IGNORECASE).strip()
         
         # Capitalize first letter
         text = text.strip()

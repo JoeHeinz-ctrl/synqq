@@ -811,6 +811,56 @@ export default function Dashboard() {
         </div>
 
         <div style={styles.topBarRight}>
+          {/* Member avatars strip */}
+          {teamMembers.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
+              {teamMembers.slice(0, 5).map((m, i) => (
+                <div
+                  key={m.id}
+                  title={m.name}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    background: `hsl(${(m.id * 67) % 360}, 60%, 45%)`,
+                    border: "2px solid #1a1a1a",
+                    marginLeft: i === 0 ? "0" : "-8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    color: "#fff",
+                    cursor: "default",
+                    zIndex: teamMembers.slice(0, 5).length - i,
+                    position: "relative",
+                    boxShadow: "0 0 0 1px rgba(255,255,255,0.05)",
+                  }}
+                >
+                  {m.name[0].toUpperCase()}
+                </div>
+              ))}
+              {teamMembers.length > 5 && (
+                <div style={{
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  background: "#333",
+                  border: "2px solid #1a1a1a",
+                  marginLeft: "-8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "10px",
+                  fontWeight: "700",
+                  color: "#888",
+                  position: "relative",
+                }}>
+                  +{teamMembers.length - 5}
+                </div>
+              )}
+            </div>
+          )}
           <button 
             style={styles.chatBtn} 
             onClick={() => projectId && navigate(`/chat/${projectId}`)}

@@ -26,22 +26,15 @@ export function useChat(projectId: string | undefined, userId: number | null, us
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [joinNotification, setJoinNotification] = useState<{ name: string; userId: number } | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    if (!projectId || !userId || !userName) {
-      console.log("❌ Missing required data:", { projectId, userId, userName });
-      return;
-    }
+    if (!projectId || !userId || !userName) return;
 
-    console.log("🔌 Connecting to socket...", SOCKET_URL);
-
-    // Initialize socket connection
     const socket = io(SOCKET_URL, {
       path: "/socket.io/",
-      auth: {
-        token: localStorage.getItem("token"),
-      },
+      auth: { token: localStorage.getItem("token") },
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
@@ -51,93 +44,55 @@ export function useChat(projectId: string | undefined, userId: number | null, us
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      console.log("✅ Socket connected:", socket.id);
-      console.log("🔗 Socket transport:", socket.io.engine.transport.name);
       setIsConnected(true);
-      
-      const joinData = { projectId, userId, userName };
-      console.log("📤 Emitting join_project:", joinData);
-      socket.emit("join_project", joinData);
+      socket.emit("join_project", { projectId, userId, userName });
     });
 
-    socket.on("disconnect", () => {
-      console.log("❌ Socket disconnected");
-      setIsConnected(false);
-    });
+    socket.on("disconnect", () => setIsConnected(false));
+    socket.on("connect_error", () => setIsConnected(false));
 
-    socket.on("connect_error", (error) => {
-      console.error("❌ Connection error:", error);
-      setIsConnected(false);
-    });
-
-    // Listen for messages
     socket.on("new_message", (message: Message) => {
-      console.log("📨 New message received:", message);
-      setMessages((prev) => {
-        console.log("📝 Current messages:", prev.length);
-        const updated = [...prev, message];
-        console.log("📝 Updated messages:", updated.length);
-        return updated;
-      });
+      setMessages((prev) => [...prev, message]);
     });
 
-    // Listen for user list updates
     socket.on("users_update", (userList: User[]) => {
-      console.log("👥 Users updated:", userList);
       setUsers(userList);
     });
 
-    // Listen for message history
     socket.on("message_history", (history: Message[]) => {
-      console.log("📜 Message history:", history);
       setMessages(history);
     });
 
+    // Notification when another user joins this project
+    socket.on("user_joined", (data: { name: string; userId: number }) => {
+      if (data.userId !== userId) {
+        setJoinNotification(data);
+        setTimeout(() => setJoinNotification(null), 4000);
+      }
+    });
+
     return () => {
-      console.log("🔌 Disconnecting socket");
       socket.emit("leave_project", { projectId });
       socket.disconnect();
     };
   }, [projectId, userId, userName]);
 
   const sendMessage = (content: string) => {
-    if (!socketRef.current || !content.trim()) {
-      console.log("❌ Cannot send message:", { 
-        hasSocket: !!socketRef.current, 
-        content: content.trim(),
-        isConnected: socketRef.current?.connected
-      });
-      return;
-    }
-
-    console.log("📤 Sending message:", { projectId, content: content.trim() });
-    socketRef.current.emit("send_message", {
-      projectId: projectId,
-      content: content.trim(),
-    });
-    console.log("✅ Message emitted");
+    if (!socketRef.current || !content.trim()) return;
+    socketRef.current.emit("send_message", { projectId, content: content.trim() });
   };
 
   const sendFile = async (file: File) => {
-    if (!socketRef.current) {
-      console.log("❌ Cannot send file: no socket connection");
-      return;
-    }
-
-    // Convert file to base64
+    if (!socketRef.current) return;
     const reader = new FileReader();
     reader.onload = () => {
-      const base64 = reader.result as string;
-      console.log("📤 Sending file:", { projectId, fileName: file.name, fileSize: file.size });
-      
       socketRef.current?.emit("send_file", {
-        projectId: projectId,
+        projectId,
         fileName: file.name,
-        fileData: base64,
+        fileData: reader.result as string,
         fileType: file.type,
         fileSize: file.size,
       });
-      console.log("✅ File emitted");
     };
     reader.readAsDataURL(file);
   };
@@ -146,6 +101,7 @@ export function useChat(projectId: string | undefined, userId: number | null, us
     messages,
     users,
     isConnected,
+    joinNotification,
     sendMessage,
     sendFile,
     socket: socketRef.current,

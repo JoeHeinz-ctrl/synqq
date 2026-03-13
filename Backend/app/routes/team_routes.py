@@ -114,3 +114,23 @@ def get_team_projects(
 
     projects = db.query(Project).filter(Project.team_id == team_id).all()
     return [{"id": p.id, "title": p.title, "owner_id": p.owner_id, "team_id": p.team_id} for p in projects]
+
+
+# ── List members of a specific team ───────────────────────────────────────────
+@router.get("/{team_id}/members")
+def get_team_members(
+    team_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Verify membership
+    membership = db.query(TeamMember).filter(
+        TeamMember.team_id == team_id,
+        TeamMember.user_id == current_user.id,
+    ).first()
+    if not membership:
+        raise HTTPException(status_code=403, detail="You are not a member of this team")
+
+    members = db.query(TeamMember).filter(TeamMember.team_id == team_id).all()
+    users = db.query(User).filter(User.id.in_([m.user_id for m in members])).all()
+    return [{"id": u.id, "name": u.name, "email": u.email} for u in users]

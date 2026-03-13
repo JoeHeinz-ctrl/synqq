@@ -5,6 +5,11 @@ Run this to add new columns to the tasks table in production
 import os
 import psycopg2
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+load_dotenv('../.env')  # Also try root .env
 
 def get_database_url():
     """Get database URL from environment variables"""
@@ -16,10 +21,22 @@ def get_database_url():
         os.getenv('RAILWAY_DATABASE_URL')
     )
     
+    # If no full URL, construct from individual components
     if not database_url:
-        print("❌ No database URL found in environment variables")
-        print("Please set one of: DATABASE_URL, POSTGRES_URL, DB_URL, RAILWAY_DATABASE_URL")
-        return None
+        db_user = os.getenv('DB_USER')
+        db_password = os.getenv('DB_PASSWORD')
+        db_host = os.getenv('DB_HOST')
+        db_port = os.getenv('DB_PORT', '5432')
+        db_name = os.getenv('DB_NAME')
+        
+        if all([db_user, db_password, db_host, db_name]):
+            database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+            print(f"✅ Constructed database URL from environment variables")
+        else:
+            print("❌ No database URL found in environment variables")
+            print("Please set one of: DATABASE_URL, POSTGRES_URL, DB_URL, RAILWAY_DATABASE_URL")
+            print("Or set: DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME")
+            return None
     
     return database_url
 

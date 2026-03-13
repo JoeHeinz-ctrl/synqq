@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks, getCurrentUser, updateTask } from "../services/api";
+import { fetchTasks, createTask, moveTask, deleteTask, renameTask, reorderTasks, getCurrentUser, updateTask, fetchTeamMembers } from "../services/api";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import BottomNav from "../components/BottomNav";
@@ -367,6 +367,7 @@ export default function Dashboard() {
   const [project, setProject] = useState<any>(location.state?.project || null);
   const [tasks, setTasks] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [greeting, setGreeting] = useState<string | null>(null);
 
   const [draggedTask, setDraggedTask] = useState<any | null>(null);
@@ -437,6 +438,25 @@ export default function Dashboard() {
     })();
     return () => { mounted = false; };
   }, []);
+
+  // Load team members if project has a team
+  useEffect(() => {
+    if (!project?.team_id) {
+      setTeamMembers(currentUser ? [{ id: currentUser.id, name: currentUser.name }] : []);
+      return;
+    }
+
+    let mounted = true;
+    (async () => {
+      try {
+        const members = await fetchTeamMembers(project.team_id);
+        if (mounted) setTeamMembers(members);
+      } catch {
+        if (mounted) setTeamMembers(currentUser ? [{ id: currentUser.id, name: currentUser.name }] : []);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [project?.team_id, currentUser]);
 
   const promptCreateTask = (status: string) => { 
     setCreatePromptCol(status); 
@@ -735,7 +755,7 @@ export default function Dashboard() {
                 console.error("Failed to update task:", err);
               }
             }}
-            teamMembers={currentUser ? [{ id: currentUser.id, name: currentUser.name }] : []}
+            teamMembers={teamMembers}
           />
         )}
       </div>

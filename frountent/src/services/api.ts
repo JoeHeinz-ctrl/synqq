@@ -259,3 +259,10 @@ export async function fetchTeamProjects(teamId: number) {
   });
   return handleResponse(res);
 }
+
+export async function fetchTeamMembers(teamId: number) {
+  const res = await fetch(`${API_URL}/teams/${teamId}/members`, {
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}

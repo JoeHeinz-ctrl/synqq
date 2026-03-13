@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getCurrentUser, createTaskFromChat, fetchTeamMembers, fetchProjects } from "../services/api";
+import { getCurrentUser, createTaskFromChat, fetchProjectMembers } from "../services/api";
 import BottomNav from "../components/BottomNav";
 import { useChat } from "../hooks/useChat";
 import { useWebRTC } from "../hooks/useWebRTC";
@@ -11,7 +11,10 @@ import EditTaskModal from "../components/EditTaskModal";
 const styles: any = {
   container: {
     background: "#1a1a1a",
-    minHeight: "100vh",
+    height: "100vh",
+    width: "100vw",
+    overflow: "hidden",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -429,17 +432,12 @@ export default function Chat() {
     let mounted = true;
     (async () => {
       try {
-        const projects = await fetchProjects();
-        const proj = projects.find((p: any) => p.id === parseInt(projectId));
-        if (proj?.team_id) {
-          const members = await fetchTeamMembers(proj.team_id);
-          if (mounted) setAllMembers(members);
-        } else if (currentUser) {
-          // Personal project — just show self
-          if (mounted) setAllMembers([{ id: currentUser.id, name: currentUser.name }]);
-        }
+        const members = await fetchProjectMembers(parseInt(projectId));
+        if (mounted) setAllMembers(members);
       } catch {
-        if (currentUser) setAllMembers([{ id: currentUser.id, name: currentUser.name }]);
+        if (mounted && currentUser) {
+          setAllMembers([{ id: currentUser.id, name: currentUser.name }]);
+        }
       }
     })();
     return () => { mounted = false; };

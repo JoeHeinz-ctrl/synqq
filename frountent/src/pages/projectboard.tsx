@@ -10,6 +10,7 @@ import {
   createTeam,
   joinTeam,
   getCurrentUser,
+  fetchTeamMembers,
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -223,6 +224,7 @@ export default function ProjectBoard() {
   const [personalProjects, setPersonalProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [teamProjects, setTeamProjects] = useState<Record<number, any[]>>({});
+  const [teamMembers, setTeamMembers] = useState<Record<number, any[]>>({});
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [greeting, setGreeting] = useState<string | null>(null);
 
@@ -268,9 +270,17 @@ export default function ProjectBoard() {
         const results = await Promise.all(
           myTeams.map((t: any) => fetchTeamProjects(t.id).catch(() => []))
         );
+        const memberResults = await Promise.all(
+          myTeams.map((t: any) => fetchTeamMembers(t.id).catch(() => []))
+        );
         const map: Record<number, any[]> = {};
-        myTeams.forEach((t: any, i: number) => { map[t.id] = results[i]; });
+        const membersMap: Record<number, any[]> = {};
+        myTeams.forEach((t: any, i: number) => { 
+          map[t.id] = results[i]; 
+          membersMap[t.id] = memberResults[i];
+        });
         setTeamProjects(map);
+        setTeamMembers(membersMap);
       }
     } catch (err) {
       console.error("Failed to load projects/teams", err);
@@ -572,7 +582,39 @@ export default function ProjectBoard() {
           <div style={s.divider} />
 
           <div style={s.sectionHeader}>
-            <h3 style={{ ...s.sectionTitle }}>👥 {team.name}</h3>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <h3 style={{ ...s.sectionTitle }}>👥 {team.name}</h3>
+              {teamMembers[team.id] && teamMembers[team.id].length > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
+                  {teamMembers[team.id].slice(0, 5).map((m: any, i: number) => (
+                    <div
+                      key={m.id}
+                      title={m.name}
+                      style={{
+                        width: "28px", height: "28px", borderRadius: "50%",
+                        background: `hsl(${(m.id * 67) % 360}, 60%, 45%)`,
+                        border: "2px solid #1a1a1a", marginLeft: i === 0 ? "0" : "-8px",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: "11px", fontWeight: "700", color: "#fff",
+                        cursor: "default", zIndex: 10 - i, position: "relative",
+                        boxShadow: "0 0 0 1px rgba(255,255,255,0.05)",
+                      }}
+                    >
+                      {m.name[0].toUpperCase()}
+                    </div>
+                  ))}
+                  {teamMembers[team.id].length > 5 && (
+                    <div style={{
+                      width: "28px", height: "28px", borderRadius: "50%",
+                      background: "#333", border: "2px solid #1a1a1a",
+                      marginLeft: "-8px", display: "flex", alignItems: "center",
+                      justifyContent: "center", fontSize: "10px", fontWeight: "700",
+                      color: "#888", position: "relative",
+                    }}>+{teamMembers[team.id].length - 5}</div>
+                  )}
+                </div>
+              )}
+            </div>
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <div
                 style={{

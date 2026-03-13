@@ -211,6 +211,13 @@ export async function fetchProjects() {
   return handleResponse(res);
 }
 
+export async function fetchProjectMembers(projectId: number) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/members`, {
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+
 export async function renameProject(projectId: number, title: string) {
   const res = await fetch(`${API_URL}/projects/${projectId}`, {
     method: "PATCH",

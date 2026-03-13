@@ -4,7 +4,7 @@ from sqlalchemy import or_
 from typing import List
 
 from app.db.session import get_db
-from app.schemas.schema import TaskCreate, TaskReorder
+from app.schemas.schema import TaskCreate, TaskReorder, TaskFromChat
 from app.services.task_service import TaskService
 
 from app.core.dependencies import get_current_user
@@ -185,4 +185,39 @@ def rename_task(
     db.refresh(task)
 
     return task
+
+
+# CREATE TASK FROM CHAT (AI Suggestion)
+@router.post("/from-chat")
+def create_task_from_chat(
+    task: TaskFromChat,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        # Check if user has access to the project (owner or team member)
+        if not user_has_project_access(db, task.project_id, current_user.id):
+            raise HTTPException(status_code=404, detail="Project not found or not authorized")
+
+        # Assign position at the end of the column
+        max_task = (
+            db.query(Task)
+            .filter(Task.project_id == task.project_id, Task.status == task.status)
+            .order_by(Task.position.desc())
+            .first()
+        )
+        next_position = (max_task.position + 1.0) if max_task else 0.0
+
+        return TaskService.create_task(
+            db=db,
+            title=task.title,
+            project_id=task.project_id,
+            status=task.status,
+            position=next_position,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Task from chat creation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create task: {str(e)}")
 

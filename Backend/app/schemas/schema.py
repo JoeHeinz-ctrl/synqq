@@ -12,6 +12,11 @@ class TaskCreate(BaseModel):
     status: str = "todo"
     project_id: int
 
+class TaskFromChat(BaseModel):
+    title: str
+    project_id: int
+    status: str = "todo"
+
 class TaskReorder(BaseModel):
     task_ids: List[int]
 

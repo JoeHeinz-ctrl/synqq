@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getCurrentUser } from "../services/api";
+import { getCurrentUser, createTaskFromChat } from "../services/api";
 import BottomNav from "../components/BottomNav";
 import { useChat } from "../hooks/useChat";
 import { useWebRTC } from "../hooks/useWebRTC";
+import AiTaskSuggestion from "../components/AiTaskSuggestion";
+import EditTaskModal from "../components/EditTaskModal";
 
 const styles: any = {
   container: {
@@ -403,6 +405,12 @@ export default function Chat() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // AI Task Suggestion state
+  const [aiSuggestions, setAiSuggestions] = useState<Map<string, any>>(new Map());
+  const [ignoredSuggestions, setIgnoredSuggestions] = useState<Set<string>>(new Set());
+  const [editingTask, setEditingTask] = useState<any>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -418,11 +426,8 @@ export default function Chat() {
 
   const { callState, localVideoRef, remoteVideoRef, startCall, answerCall, rejectCall, endCall, toggleMute, toggleSpeaker, isMuted, isSpeakerOn, callDuration, formatCallDuration } = useWebRTC(socket, currentUser?.id);
 
-  // Listen for AI task suggestions (DISABLED - waiting for database migration)
+  // Listen for AI task suggestions
   useEffect(() => {
-    // AI features temporarily disabled until PostgreSQL migration is complete
-    // Uncomment after running: python migrate_postgresql.py
-    /*
     if (!socket) return;
 
     const handleAiSuggestion = (data: any) => {
@@ -439,7 +444,6 @@ export default function Chat() {
     return () => {
       socket.off("ai_task_suggestion", handleAiSuggestion);
     };
-    */
   }, [socket]);
 
   useEffect(() => {
@@ -491,6 +495,61 @@ export default function Chat() {
     return new Date(date).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
+    });
+  };
+
+  // AI Task Suggestion handlers
+  const handleCreateTask = async (messageId: string, taskData: any) => {
+    try {
+      await createTaskFromChat({
+        title: taskData.title,
+        project_id: Number(projectId),
+        assigned_user_id: taskData.assignedUserId,
+        description: taskData.description || `Created from chat message`,
+        due_date: taskData.dueDate,
+        chat_message_id: Number(messageId),
+      });
+
+      // Remove suggestion after creating task
+      setAiSuggestions((prev) => {
+        const newMap = new Map(prev);
+        newMap.delete(messageId);
+        return newMap;
+      });
+
+      console.log("✅ Task created successfully");
+    } catch (error) {
+      console.error("❌ Failed to create task:", error);
+      alert("Failed to create task. Please try again.");
+    }
+  };
+
+  const handleEditTask = (messageId: string, suggestion: any) => {
+    setEditingTask({
+      messageId,
+      title: suggestion.title,
+      assignedUserId: suggestion.assignee?.id,
+      assignedUserName: suggestion.assignee?.name,
+      dueDate: suggestion.dueDate,
+      description: "",
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditedTask = async (taskData: any) => {
+    if (!editingTask) return;
+
+    await handleCreateTask(editingTask.messageId, taskData);
+    setShowEditModal(false);
+    setEditingTask(null);
+  };
+
+  const handleIgnoreSuggestion = (messageId: string) => {
+    setIgnoredSuggestions((prev) => new Set(prev).add(messageId));
+    setAiSuggestions((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(messageId);
+      return newMap;
     });
   };
 
@@ -698,6 +757,16 @@ export default function Chat() {
                       <div style={styles.messageTime}>
                         {formatTime(msg.timestamp)}
                       </div>
+                      
+                      {/* AI Task Suggestion */}
+                      {isOwn && aiSuggestions.has(msg.id) && !ignoredSuggestions.has(msg.id) && (
+                        <AiTaskSuggestion
+                          suggestion={aiSuggestions.get(msg.id)}
+                          onCreateTask={() => handleCreateTask(msg.id, aiSuggestions.get(msg.id))}
+                          onEditTask={() => handleEditTask(msg.id, aiSuggestions.get(msg.id))}
+                          onIgnore={() => handleIgnoreSuggestion(msg.id)}
+                        />
+                      )}
                     </div>
                   </div>
                 );
@@ -924,6 +993,18 @@ export default function Chat() {
       )}
 
       <BottomNav projectId={projectId} />
+      
+      {/* Edit Task Modal */}
+      {showEditModal && (
+        <EditTaskModal
+          task={editingTask}
+          onSave={handleSaveEditedTask}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingTask(null);
+          }}
+        />
+      )}
     </div>
   );
 }

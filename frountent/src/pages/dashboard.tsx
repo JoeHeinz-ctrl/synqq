@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { fetchTasks, createTask, moveTask, deleteTask, reorderTasks, getCurrentUser, updateTask, fetchTeamMembers } from "../services/api";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import BottomNav from "../components/BottomNav";
 import TaskDetailModal from "../components/TaskDetailModal";
+import ThemeToggle from "../components/ThemeToggle";
 
 const styles: any = {
   container: {
@@ -115,7 +117,7 @@ const styles: any = {
   // Main content
   mainContent: {
     flex: 1,
-    padding: "12px",
+    padding: "20px 12px 12px 12px", // Added top padding to prevent column header cutoff
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -365,6 +367,8 @@ export default function Dashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const theme = useTheme();
+  const colors = theme.getThemeColors();
   
   const [project, setProject] = useState<any>(location.state?.project || null);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -686,8 +690,11 @@ export default function Dashboard() {
           className="task-card"
           style={{
             ...styles.card,
+            background: colors.surface,
+            color: colors.text,
+            border: `1px solid ${colors.border}`,
             opacity: draggedTask?.id === t.id ? 0.4 : 1,
-            outline: selectedTaskId === t.id ? "2px solid #0b7de0" : "none",
+            outline: selectedTaskId === t.id ? `2px solid ${colors.primary}` : "none",
           }}
           draggable
           onClick={(e) => { e.stopPropagation(); selectTask(t.id); }}
@@ -744,12 +751,12 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={styles.container} onClick={() => selectTask(null)}>
+    <div style={{...styles.container, background: colors.background}} onClick={() => selectTask(null)}>
       <style>{`
         *::-webkit-scrollbar { width: 6px; height: 6px; }
-        *::-webkit-scrollbar-track { background: #1a1a1a; }
-        *::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
-        *::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+        *::-webkit-scrollbar-track { background: ${colors.background}; }
+        *::-webkit-scrollbar-thumb { background: ${colors.surfaceHover}; border-radius: 3px; }
+        *::-webkit-scrollbar-thumb:hover { background: ${colors.textSecondary}; }
         
         /* Hide scrollbar in task lists */
         .task-list::-webkit-scrollbar { display: none; }
@@ -836,12 +843,12 @@ export default function Dashboard() {
         
         /* 6. Add Button Hover Glow */
         .add-btn:hover {
-          box-shadow: 0 0 12px rgba(11,125,224,0.4);
+          box-shadow: 0 0 12px ${colors.primaryLight};
         }
         
         /* 7. Chat Button Glow */
         .chat-btn-animated:hover {
-          box-shadow: 0 0 10px rgba(80,140,255,0.6);
+          box-shadow: 0 0 10px ${colors.primaryLight};
         }
         
         /* 8. Task Completion Checkmark Animation */
@@ -996,7 +1003,7 @@ export default function Dashboard() {
       `}</style>
 
       {/* Top Bar with Header Info */}
-      <div style={styles.topBar} className="top-bar">
+      <div style={{...styles.topBar, background: colors.surface, borderBottom: `1px solid ${colors.border}`}} className="top-bar">
         <div style={styles.topBarLeft}>
           <button 
             style={styles.backBtn} 
@@ -1028,6 +1035,9 @@ export default function Dashboard() {
         </div>
 
         <div style={styles.topBarRight}>
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {/* Member avatars strip */}
           {teamMembers.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
@@ -1110,7 +1120,9 @@ export default function Dashboard() {
               key={col}
               style={{
                 ...styles.column,
-                outline: dragOverCol === col ? `2px solid ${getColumnConfig(col).color}` : "none",
+                background: colors.surface,
+                border: `1px solid ${colors.border}`,
+                outline: dragOverCol === col ? `2px solid ${colors.primary}` : "none",
               }}
               className={`column-${col}`}
               onDragOver={(e) => onDragOverColumn(e, col)}

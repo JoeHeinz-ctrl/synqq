@@ -13,7 +13,9 @@ import {
   fetchTeamMembers,
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle";
 
 /* ─────────────────────────── styles ─────────────────────────── */
 const s: any = {
@@ -220,6 +222,8 @@ const s: any = {
 export default function ProjectBoard() {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const colors = theme.getThemeColors();
   
   const [personalProjects, setPersonalProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
@@ -509,7 +513,7 @@ export default function ProjectBoard() {
 
   /* ── JSX ─────────────────────────────────────────────────────── */
   return (
-    <div style={s.page}>
+    <div style={{...s.page, background: colors.background}}>
       <style>{`
         input::placeholder { color: #555; }
         
@@ -616,6 +620,8 @@ export default function ProjectBoard() {
           <h2 style={s.pageTitle}>🗂️ Projects</h2>
         </div>
         <div style={s.topActions}>
+          <ThemeToggle />
+          
           <button
             style={{ ...s.btnOutline, borderColor: "rgba(255,68,68,0.3)", color: "#ff6b6b" }}
             onClick={() => {

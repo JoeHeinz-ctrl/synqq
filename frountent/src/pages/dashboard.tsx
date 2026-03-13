@@ -378,7 +378,6 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<any | null>(null);
 
   const tasksRef = useRef(tasks);
   useEffect(() => { tasksRef.current = tasks; }, [tasks]);
@@ -685,7 +684,7 @@ export default function Dashboard() {
           onClick={(e) => { e.stopPropagation(); selectTask(t.id); }}
           onDoubleClick={(e) => {
             e.stopPropagation();
-            setSelectedTask(t);
+            setSelectedTaskId(t.id);
             setShowTaskDetail(true);
           }}
           onDragStart={(e) => onDragStart(e, t)}
@@ -718,7 +717,6 @@ export default function Dashboard() {
             task={t}
             onClose={() => {
               setShowTaskDetail(false);
-              setSelectedTask(null);
               setSelectedTaskId(null);
             }}
             onUpdate={async (taskId, updates) => {
@@ -730,7 +728,6 @@ export default function Dashboard() {
                 if (projectId) {
                   const updated = await fetchTasks(parseInt(projectId));
                   setTasks(updated);
-                  setSelectedTask({ ...t, ...updates });
                 }
               } catch (err) {
                 console.error("Failed to update task:", err);

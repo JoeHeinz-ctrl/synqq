@@ -82,7 +82,11 @@ def delete_project(
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
 
-        # Delete associated tasks first (cascade should handle this, but let's be explicit)
+        # Delete messages first (they reference projects)
+        from app.models.message import Message
+        db.query(Message).filter(Message.project_id == project_id).delete()
+        
+        # Delete associated tasks
         db.query(Task).filter(Task.project_id == project_id).delete()
         
         # Delete the project
@@ -173,8 +177,12 @@ def delete_team(
         # Get all projects in this team
         projects = db.query(Project).filter(Project.team_id == team_id).all()
         
-        # Delete all tasks in all projects
+        # Import Message model
+        from app.models.message import Message
+        
+        # Delete all messages, tasks, and projects
         for project in projects:
+            db.query(Message).filter(Message.project_id == project.id).delete()
             db.query(Task).filter(Task.project_id == project.id).delete()
         
         # Delete all projects

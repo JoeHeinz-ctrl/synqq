@@ -220,7 +220,6 @@ const s: any = {
 
 /* ─────────────────────────── component ─────────────────────── */
 export default function ProjectBoard() {
-  const { logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const colors = theme.getThemeColors();

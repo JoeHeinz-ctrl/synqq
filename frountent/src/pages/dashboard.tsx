@@ -370,7 +370,6 @@ export default function Dashboard() {
   const { projectId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
   const theme = useTheme();
   const colors = theme.getThemeColors();
   

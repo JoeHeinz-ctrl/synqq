@@ -39,6 +39,7 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
         marginTop: "12px",
         animation: "slideDown 0.3s ease-out",
       }}
+      onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>

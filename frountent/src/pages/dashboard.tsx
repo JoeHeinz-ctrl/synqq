@@ -185,6 +185,8 @@ const styles: any = {
     flexDirection: "column",
     gap: "8px",
     padding: "4px",
+    scrollbarWidth: "none",
+    msOverflowStyle: "none",
   },
 
   card: {
@@ -747,6 +749,10 @@ export default function Dashboard() {
         *::-webkit-scrollbar-track { background: #1a1a1a; }
         *::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
         *::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+        
+        /* Hide scrollbar in task lists */
+        .task-list::-webkit-scrollbar { display: none; }
+        
         input::placeholder { color: #666666; }
         kbd { 
           background: #2a2a2a; 
@@ -857,7 +863,7 @@ export default function Dashboard() {
                   >+</button>
                 </div>
               </div>
-              <div style={styles.taskList}>
+              <div style={styles.taskList} className="task-list">
                 {renderTasks(col)}
               </div>
             </div>

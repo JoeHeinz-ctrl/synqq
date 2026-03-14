@@ -785,7 +785,7 @@ export default function Dashboard() {
 
     return (
       <>
-        {colTasks.map((t, index) => (
+        {colTasks.map((t) => (
           <div key={t.id}>
             {/* Drag placeholder */}
             {dragOverTaskId === t.id && draggedTask?.id !== t.id && (

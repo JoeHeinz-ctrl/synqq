@@ -235,7 +235,7 @@ const styles: any = {
     padding: "12px",
     borderRadius: "12px",
     cursor: "grab",
-    transition: "all 120ms ease, transform 150ms ease",
+    transition: "transform 120ms ease, box-shadow 120ms ease",
     color: "#ffffff",
     fontSize: "13px",
     userSelect: "none",
@@ -249,8 +249,8 @@ const styles: any = {
   },
 
   cardDragging: {
-    transform: "rotate(1deg) scale(1.03)",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+    transform: "scale(1.02)",
+    boxShadow: "0 20px 40px rgba(0,0,0,0.45)",
     cursor: "grabbing",
     opacity: 0.95,
     zIndex: 999,
@@ -956,7 +956,7 @@ export default function Dashboard() {
         
         /* Task card improvements */
         .task-card {
-          transition: all 120ms ease, transform 150ms ease;
+          transition: transform 120ms ease, box-shadow 120ms ease;
           position: relative;
           z-index: 3;
           will-change: transform;
@@ -970,8 +970,8 @@ export default function Dashboard() {
         }
         
         .task-card.dragging {
-          transform: rotate(1deg) scale(1.03) !important;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+          transform: scale(1.02) !important;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.45) !important;
           cursor: grabbing !important;
           opacity: 0.95 !important;
           z-index: 999 !important;

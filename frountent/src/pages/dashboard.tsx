@@ -84,23 +84,18 @@ const styles: any = {
   },
 
   greeting: (colors: any) => ({
-    fontSize: "13px",
-    color: colors.textSecondary,
-    fontWeight: "500",
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
+    fontSize: "15px",
+    color: colors.text,
+    fontWeight: "600",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    letterSpacing: "-0.2px",
   }),
 
-  greetingIcon: {
-    fontSize: "16px",
-  },
-
   projectTitle: (colors: any) => ({
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "700",
     color: colors.text,
-    letterSpacing: "-0.5px",
+    letterSpacing: "-0.3px",
     background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
@@ -111,8 +106,8 @@ const styles: any = {
   projectMeta: (colors: any) => ({
     display: "flex",
     alignItems: "center",
-    gap: "10px",
-    fontSize: "12px",
+    gap: "8px",
+    fontSize: "11px",
     color: colors.textSecondary,
     fontWeight: "500",
   }),
@@ -121,11 +116,11 @@ const styles: any = {
     display: "flex",
     alignItems: "center",
     gap: "4px",
-    padding: "3px 10px",
-    borderRadius: "12px",
+    padding: "2px 8px",
+    borderRadius: "10px",
     background: colors.primaryLight,
     color: colors.primary,
-    fontSize: "11px",
+    fontSize: "10px",
     fontWeight: "600",
   }),
 
@@ -164,11 +159,12 @@ const styles: any = {
   shortcuts: (colors: any) => ({
     fontSize: "10px",
     color: colors.textSecondary,
-    opacity: 0.7,
+    opacity: 0.8,
     display: "flex",
     gap: "6px",
     alignItems: "center",
     whiteSpace: "nowrap",
+    fontWeight: "500",
   }),
 
   board: {
@@ -1205,7 +1201,7 @@ export default function Dashboard() {
 
       {/* Compact Header */}
       <div style={styles.topBar(colors, isDark)} className="top-bar">
-        {/* Left Section - Back Button */}
+        {/* Left Section - Back Button + Project Info */}
         <div style={styles.headerLeft} className="header-left">
           <button 
             style={styles.backBtn(colors)} 
@@ -1215,40 +1211,37 @@ export default function Dashboard() {
           >
             ← Back
           </button>
-        </div>
-
-        {/* Center Section - Project Info & Meta */}
-        <div style={styles.headerCenter} className="header-center">
+          
           <div style={styles.projectTitle(colors)}>
             {project ? project.title : "Loading..."}
           </div>
           
           <div style={styles.projectMeta(colors)}>
             <div style={styles.metaBadge(colors)}>
-              <span>📋</span>
               <span>{tasks.length}</span>
             </div>
             <div style={styles.metaBadge(colors)}>
-              <span>👥</span>
               <span>{teamMembers.length}</span>
             </div>
           </div>
+        </div>
 
+        {/* Center Section - Welcome Message */}
+        <div style={styles.headerCenter} className="header-center">
+          {greeting && (
+            <div style={styles.greeting(colors)}>
+              {greeting}
+            </div>
+          )}
+        </div>
+
+        {/* Right Section - Shortcuts + Avatars + Actions */}
+        <div style={styles.headerRight} className="header-right">
           {/* Keyboard shortcuts */}
           <div style={styles.shortcuts(colors)} className="shortcuts-badge">
             <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
           </div>
 
-          {greeting && (
-            <div style={styles.greeting(colors)}>
-              <span style={styles.greetingIcon}>👋</span>
-              <span>{greeting}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Right Section - Actions */}
-        <div style={styles.headerRight} className="header-right">
           {/* Member avatars */}
           {teamMembers.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0" }}>

@@ -120,7 +120,7 @@ const styles: any = {
   // Main content
   mainContent: {
     flex: 1,
-    padding: "20px 12px 12px 12px",
+    padding: "12px",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -130,13 +130,11 @@ const styles: any = {
 
   shortcuts: {
     fontSize: "11px",
-    color: "#555",
-    marginBottom: "12px",
-    padding: "6px 10px",
-    background: "#242424",
-    borderRadius: "8px",
-    display: "inline-block",
-    alignSelf: "flex-start",
+    color: "#666",
+    opacity: 0.6,
+    display: "flex",
+    gap: "12px",
+    alignItems: "center",
   },
 
   board: {
@@ -1122,13 +1120,27 @@ export default function Dashboard() {
         
         /* 14. Keyboard Shortcut Highlight */
         kbd {
+          background: rgba(255,255,255,0.06);
+          padding: 2px 6px; 
+          border-radius: 4px; 
+          font-size: 10px; 
+          font-family: monospace;
+          border: 1px solid rgba(255,255,255,0.08);
           transition: all 0.2s ease;
         }
         
+        .shortcuts-badge {
+          font-size: 11px;
+          opacity: 0.6;
+        }
+        
+        .shortcuts-badge:hover {
+          opacity: 0.8;
+        }
+        
         .shortcuts-badge:hover kbd {
-          background: #3a3a3a;
-          box-shadow: 0 0 8px rgba(11,125,224,0.3);
-          transform: scale(1.05);
+          background: rgba(255,255,255,0.1);
+          box-shadow: 0 0 8px rgba(11,125,224,0.2);
         }
 
         .task-card .delete-btn {
@@ -1140,14 +1152,6 @@ export default function Dashboard() {
         }
         
         input::placeholder { color: #666666; }
-        kbd { 
-          background: #2a2a2a; 
-          padding: 2px 6px; 
-          border-radius: 4px; 
-          font-size: 10px; 
-          font-family: monospace;
-          border: 1px solid #3a3a3a;
-        }
         @media (max-width: 768px) {
           .top-bar { 
             flex-direction: column; 
@@ -1168,8 +1172,7 @@ export default function Dashboard() {
           }
           .shortcuts-badge {
             font-size: 10px !important;
-            padding: 5px 8px !important;
-            margin-bottom: 8px !important;
+            margin-top: 4px;
           }
         }
       `}</style>
@@ -1199,6 +1202,10 @@ export default function Dashboard() {
                 ))}
               </div>
             )}
+            {/* Hotkey hints */}
+            <div style={styles.shortcuts} className="shortcuts-badge">
+              <kbd>N</kbd> new task · <kbd>E</kbd> edit · <kbd>D</kbd> mark done
+            </div>
           </div>
         </div>
 
@@ -1274,10 +1281,6 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div style={styles.mainContent}>
-        <div style={styles.shortcuts} className="shortcuts-badge">
-          <kbd>N</kbd> new task · <kbd>E</kbd> edit · <kbd>D</kbd> mark done
-        </div>
-
         <div style={styles.board} className="board-grid">
           {(["todo", "doing", "done"] as const).map((col) => {
             const config = getColumnConfig(col);

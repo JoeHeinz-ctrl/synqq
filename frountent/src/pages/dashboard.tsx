@@ -120,10 +120,11 @@ const styles: any = {
   // Main content
   mainContent: {
     flex: 1,
-    padding: "20px 12px 12px 12px",
+    padding: "24px 16px 12px 16px",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
+    marginTop: "0",
   },
 
   shortcuts: {
@@ -141,6 +142,7 @@ const styles: any = {
     gap: "12px",
     flex: 1,
     overflow: "auto",
+    paddingTop: "4px",
   },
 
   column: {

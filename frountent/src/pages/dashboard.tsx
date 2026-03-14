@@ -30,7 +30,6 @@ const styles: any = {
     zIndex: 50,
     flexShrink: 0,
     boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)",
-    position: "relative",
   }),
 
   headerLeft: {
@@ -45,9 +44,7 @@ const styles: any = {
     alignItems: "center",
     justifyContent: "center",
     flex: "1 1 auto",
-    position: "absolute",
-    left: "50%",
-    transform: "translateX(-50%)",
+    minWidth: 0,
   },
 
   headerRight: {

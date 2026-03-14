@@ -164,11 +164,10 @@ const styles: any = {
     borderRadius: "inherit",
     pointerEvents: "none",
     opacity: 0,
-    transition: "opacity 120ms ease, background 120ms ease",
+    transition: "opacity 120ms ease",
     background: "rgba(99,102,241,0.08)",
     border: "1px solid rgba(99,102,241,0.25)",
-    zIndex: 0,
-    boxShadow: "inset 0 0 0 1px rgba(99,102,241,0.25)",
+    zIndex: 1,
   },
 
   columnHighlightActive: {
@@ -179,6 +178,8 @@ const styles: any = {
     height: "1px",
     background: "rgba(255,255,255,0.05)",
     margin: "0 -12px 12px -12px",
+    position: "relative",
+    zIndex: 2,
   },
 
   columnHeader: {
@@ -189,7 +190,7 @@ const styles: any = {
     paddingBottom: "12px",
     borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
     position: "relative",
-    zIndex: 1,
+    zIndex: 2,
   },
 
   columnTitle: {
@@ -220,7 +221,7 @@ const styles: any = {
     scrollbarWidth: "none",
     msOverflowStyle: "none",
     position: "relative",
-    zIndex: 1,
+    zIndex: 2,
   },
 
   card: {
@@ -237,6 +238,8 @@ const styles: any = {
     alignItems: "center",
     gap: "8px",
     border: "1px solid rgba(255,255,255,0.06)",
+    position: "relative",
+    zIndex: 3,
   },
 
   cardDragging: {
@@ -244,6 +247,7 @@ const styles: any = {
     boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
     cursor: "grabbing",
     opacity: 0.9,
+    zIndex: 100,
   },
 
   dragPlaceholder: {
@@ -897,6 +901,7 @@ export default function Dashboard() {
         /* Column highlight layer animation */
         .column-highlight {
           animation: highlightFadeIn 120ms ease-out;
+          z-index: 1;
         }
         
         @keyframes highlightFadeIn {
@@ -924,13 +929,14 @@ export default function Dashboard() {
         .task-card {
           transition: all 120ms ease;
           position: relative;
-          z-index: 2;
+          z-index: 3;
         }
         
         .task-card:hover {
           border-color: rgba(255,255,255,0.12) !important;
           background: rgba(255,255,255,0.04) !important;
           transform: translateY(-1px);
+          z-index: 4;
         }
         
         .task-card.dragging {
@@ -938,16 +944,12 @@ export default function Dashboard() {
           box-shadow: 0 10px 25px rgba(0,0,0,0.4);
           cursor: grabbing;
           opacity: 0.5;
+          z-index: 100 !important;
         }
         
-        /* Ensure proper z-index stacking */
-        .column-highlight {
-          z-index: 0;
-        }
-        
-        .task-list {
-          position: relative;
-          z-index: 1;
+        /* Z-index layering for proper stacking */
+        .board-grid > div {
+          isolation: isolate;
         }
 
         /* ─────────────────── ANIMATIONS ─────────────────── */

@@ -14,6 +14,7 @@ const styles: any = {
     display: "flex",
     flexDirection: "column",
     paddingBottom: "70px",
+    position: "relative",
   },
 
   // Header styles
@@ -26,7 +27,8 @@ const styles: any = {
     justifyContent: "space-between",
     gap: "12px",
     flexWrap: "wrap",
-    position: "relative",
+    position: "sticky",
+    top: 0,
     zIndex: 50,
   },
 
@@ -118,10 +120,12 @@ const styles: any = {
   // Main content
   mainContent: {
     flex: 1,
-    padding: "20px 12px 12px 12px", // Added top padding to prevent column header cutoff
+    padding: "20px 12px 12px 12px",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
+    position: "relative",
+    zIndex: 1,
   },
 
   shortcuts: {
@@ -141,6 +145,8 @@ const styles: any = {
     gap: "12px",
     flex: 1,
     overflow: "auto",
+    position: "relative",
+    zIndex: 1,
   },
 
   column: {
@@ -154,7 +160,7 @@ const styles: any = {
     transition: "all 0.25s ease",
     border: "1px solid rgba(255,255,255,0.05)",
     position: "relative",
-    zIndex: 1,
+    zIndex: 2,
     overflow: "hidden",
   },
 
@@ -897,6 +903,28 @@ export default function Dashboard() {
         /* Hide scrollbar in task lists */
         .task-list::-webkit-scrollbar { display: none; }
 
+        /* ─────────────────── LAYOUT & Z-INDEX ─────────────────── */
+        
+        /* Ensure header stays on top */
+        .top-bar {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+        }
+        
+        /* Board container below header */
+        .board-grid {
+          position: relative;
+          z-index: 1;
+        }
+        
+        /* Columns should not overlap header */
+        .board-grid > div {
+          isolation: isolate;
+          position: relative;
+          z-index: 2;
+        }
+
         /* ─────────────────── DRAG & DROP IMPROVEMENTS ─────────────────── */
         
         /* Column highlight layer animation */
@@ -953,6 +981,8 @@ export default function Dashboard() {
         /* Z-index layering for proper stacking */
         .board-grid > div {
           isolation: isolate;
+          position: relative;
+          z-index: 2;
         }
         
         /* Smooth task reordering */

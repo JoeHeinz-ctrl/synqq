@@ -7,10 +7,11 @@ import { useChat } from "../hooks/useChat";
 import { useWebRTC } from "../hooks/useWebRTC";
 import AiTaskSuggestion from "../components/AiTaskSuggestion";
 import EditTaskModal from "../components/EditTaskModal";
+import { useTheme } from "../context/ThemeContext";
 
 const styles: any = {
-  container: {
-    background: "#1a1a1a",
+  container: (colors: any) => ({
+    background: colors.background,
     height: "100vh",
     width: "100vw",
     overflow: "hidden",
@@ -19,26 +20,26 @@ const styles: any = {
     flexDirection: "column",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     paddingBottom: "70px",
-  },
+  }),
 
-  topBar: {
-    background: "#242424",
-    borderBottom: "1px solid rgba(255,255,255,0.05)",
+  topBar: (colors: any) => ({
+    background: colors.surface,
+    borderBottom: `1px solid ${colors.border}`,
     padding: "12px 16px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     flexShrink: 0,
-  },
+  }),
 
-  title: {
+  title: (colors: any) => ({
     fontSize: "18px",
     fontWeight: "600",
-    color: "#fff",
+    color: colors.text,
     display: "flex",
     alignItems: "center",
     gap: "8px",
-  },
+  }),
 
   statusDot: {
     width: "8px",
@@ -66,49 +67,47 @@ const styles: any = {
     position: "relative",
   },
 
-  sidebar: {
+  sidebar: (colors: any) => ({
     width: "260px",
-    background: "#1e1e1e",
-    borderRight: "1px solid rgba(255,255,255,0.05)",
+    background: colors.surface,
+    borderRight: `1px solid ${colors.border}`,
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
-    // The sidebar itself does NOT scroll — it is a fixed column
     overflow: "hidden",
-  },
+  }),
 
-  sidebarMobile: {
+  sidebarMobile: (colors: any) => ({
     position: "absolute",
     top: 0,
     left: 0,
     bottom: 0,
     width: "100%",
     maxWidth: "300px",
-    background: "#242424",
+    background: colors.surface,
     zIndex: 100,
     transform: "translateX(-100%)",
     transition: "transform 0.3s ease",
-  },
+  }),
 
   sidebarMobileOpen: {
     transform: "translateX(0)",
   },
 
-  sidebarHeader: {
+  sidebarHeader: (colors: any) => ({
     padding: "16px",
-    borderBottom: "1px solid rgba(255,255,255,0.05)",
+    borderBottom: `1px solid ${colors.border}`,
     fontSize: "13px",
     fontWeight: "600",
-    color: "#888",
+    color: colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: "0.5px",
-  },
+  }),
 
   userList: {
     flex: 1,
     overflowY: "auto" as const,
     padding: "8px",
-    // Only userList scrolls, not the whole sidebar
   },
 
   userItem: {
@@ -139,45 +138,45 @@ const styles: any = {
     flex: 1,
   },
 
-  userName: {
+  userName: (colors: any) => ({
     fontSize: "14px",
     fontWeight: "500",
-    color: "#fff",
+    color: colors.text,
     marginBottom: "2px",
-  },
+  }),
 
-  userStatus: {
+  userStatus: (colors: any) => ({
     fontSize: "11px",
-    color: "#888",
-  },
+    color: colors.textSecondary,
+  }),
 
   callButtons: {
     display: "flex",
     gap: "4px",
   },
 
-  callBtn: {
+  callBtn: (colors: any) => ({
     width: "32px",
     height: "32px",
     borderRadius: "8px",
     border: "none",
-    background: "rgba(11,125,224,0.1)",
-    color: "#0b7de0",
+    background: colors.primaryLight,
+    color: colors.primary,
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "14px",
     transition: "all 0.2s ease",
-  },
+  }),
 
-  chatArea: {
+  chatArea: (colors: any) => ({
     flex: 1,
     display: "flex",
     flexDirection: "column" as const,
-    background: "#1a1a1a",
-    overflow: "hidden",   // chat area itself clips
-  },
+    background: colors.background,
+    overflow: "hidden",
+  }),
 
   messagesContainer: {
     flex: 1,
@@ -217,59 +216,60 @@ const styles: any = {
     flex: 1,
   },
 
-  messageName: {
+  messageName: (colors: any) => ({
     fontSize: "12px",
     fontWeight: "600",
-    color: "#888",
+    color: colors.textSecondary,
     marginBottom: "4px",
-  },
+  }),
 
-  messageBubble: {
+  messageBubble: (colors: any) => ({
     padding: "10px 14px",
     borderRadius: "12px",
-    background: "#242424",
-    color: "#fff",
+    background: colors.surface,
+    color: colors.text,
     fontSize: "14px",
     lineHeight: "1.5",
     wordWrap: "break-word",
-  },
+  }),
 
-  messageBubbleOwn: {
-    background: "#0b7de0",
-  },
+  messageBubbleOwn: (colors: any) => ({
+    background: colors.primary,
+    color: "#ffffff",
+  }),
 
-  messageTime: {
+  messageTime: (colors: any) => ({
     fontSize: "11px",
-    color: "#666",
+    color: colors.textSecondary,
     marginTop: "4px",
-  },
+  }),
 
-  inputArea: {
+  inputArea: (colors: any) => ({
     padding: "16px",
-    background: "#242424",
-    borderTop: "1px solid rgba(255,255,255,0.05)",
+    background: colors.surface,
+    borderTop: `1px solid ${colors.border}`,
     display: "flex",
     gap: "12px",
     alignItems: "center",
-  },
+  }),
 
-  input: {
+  input: (colors: any) => ({
     flex: 1,
     padding: "12px 16px",
     borderRadius: "24px",
-    border: "1px solid rgba(255,255,255,0.1)",
-    background: "#1a1a1a",
-    color: "#fff",
+    border: `1px solid ${colors.inputBorder}`,
+    background: colors.input,
+    color: colors.text,
     fontSize: "14px",
     outline: "none",
-  },
+  }),
 
-  sendBtn: {
+  sendBtn: (colors: any) => ({
     width: "44px",
     height: "44px",
     borderRadius: "50%",
     border: "none",
-    background: "#0b7de0",
+    background: colors.primary,
     color: "#fff",
     cursor: "pointer",
     display: "flex",
@@ -277,26 +277,26 @@ const styles: any = {
     justifyContent: "center",
     fontSize: "18px",
     transition: "all 0.2s ease",
-  },
+  }),
 
   fileInput: {
     display: "none",
   },
 
-  attachBtn: {
+  attachBtn: (colors: any) => ({
     width: "44px",
     height: "44px",
     borderRadius: "50%",
-    border: "1px solid rgba(255,255,255,0.1)",
+    border: `1px solid ${colors.border}`,
     background: "transparent",
-    color: "#888",
+    color: colors.textSecondary,
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "18px",
     transition: "all 0.2s ease",
-  },
+  }),
 
   callModal: {
     position: "fixed",
@@ -392,20 +392,23 @@ const styles: any = {
     fontWeight: "600",
   },
 
-  emptyState: {
+  emptyState: (colors: any) => ({
     flex: 1,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    color: "#666",
+    color: colors.textSecondary,
     gap: "12px",
-  },
+  }),
 };
 
 export default function Chat() {
   const { logout } = useAuth();
   const { projectId } = useParams();
+  const theme = useTheme();
+  const colors = theme.getThemeColors();
+  
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [allMembers, setAllMembers] = useState<any[]>([]);
   const [messageInput, setMessageInput] = useState("");
@@ -599,8 +602,8 @@ export default function Chat() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.topBar}>
+    <div style={styles.container(colors)}>
+      <div style={styles.topBar(colors)}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {isMobile && (
             <button
@@ -608,7 +611,7 @@ export default function Chat() {
               style={{
                 background: "transparent",
                 border: "none",
-                color: "#fff",
+                color: colors.text,
                 fontSize: "20px",
                 cursor: "pointer",
                 padding: "4px",
@@ -617,7 +620,7 @@ export default function Chat() {
               👥
             </button>
           )}
-          <div style={styles.title}>
+          <div style={styles.title(colors)}>
             💬 Team Chat
             {isConnected && <div style={styles.statusDot} title="Connected" />}
           </div>
@@ -640,12 +643,12 @@ export default function Chat() {
         {/* Sidebar with users */}
         <div
           style={{
-            ...styles.sidebar,
-            ...(isMobile ? styles.sidebarMobile : {}),
+            ...styles.sidebar(colors),
+            ...(isMobile ? styles.sidebarMobile(colors) : {}),
             ...(isMobile && showSidebar ? styles.sidebarMobileOpen : {}),
           }}
         >
-          <div style={styles.sidebarHeader}>
+          <div style={styles.sidebarHeader(colors)}>
             Members · {allMembers.length}
             {isMobile && (
               <button
@@ -654,7 +657,7 @@ export default function Chat() {
                   float: "right",
                   background: "transparent",
                   border: "none",
-                  color: "#888",
+                  color: colors.textSecondary,
                   cursor: "pointer",
                   fontSize: "18px",
                 }}
@@ -672,10 +675,10 @@ export default function Chat() {
                   key={member.id}
                   style={{
                     ...styles.userItem,
-                    background: isSelf ? "rgba(11,125,224,0.08)" : "transparent",
+                    background: isSelf ? colors.primaryLight : "transparent",
                   }}
                   onMouseEnter={(e) => {
-                    if (!isSelf) e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                    if (!isSelf) e.currentTarget.style.background = colors.surfaceHover;
                   }}
                   onMouseLeave={(e) => {
                     if (!isSelf) e.currentTarget.style.background = "transparent";
@@ -698,16 +701,16 @@ export default function Chat() {
                         height: "10px",
                         borderRadius: "50%",
                         background: "#10b981",
-                        border: "2px solid #242424",
+                        border: `2px solid ${colors.surface}`,
                         boxShadow: "0 0 6px rgba(16,185,129,0.8), 0 0 12px rgba(16,185,129,0.4)",
                       }} />
                     )}
                   </div>
                   <div style={styles.userInfo}>
-                    <div style={{ ...styles.userName, opacity: isOnline ? 1 : 0.6 }}>
+                    <div style={{ ...styles.userName(colors), opacity: isOnline ? 1 : 0.6 }}>
                       {member.name}{isSelf && " (You)"}
                     </div>
-                    <div style={{ ...styles.userStatus, color: isOnline ? "#10b981" : "#555" }}>
+                    <div style={{ ...styles.userStatus(colors), color: isOnline ? "#10b981" : colors.textSecondary }}>
                       {isOnline ? "In project" : "Offline"}
                     </div>
                   </div>
@@ -718,10 +721,10 @@ export default function Chat() {
         </div>
 
         {/* Chat area */}
-        <div style={styles.chatArea}>
+        <div style={styles.chatArea(colors)}>
           <div style={styles.messagesContainer}>
             {messages.length === 0 ? (
-              <div style={styles.emptyState}>
+              <div style={styles.emptyState(colors)}>
                 <div style={{ fontSize: "48px" }}>💬</div>
                 <div style={{ fontSize: "16px" }}>No messages yet</div>
                 <div style={{ fontSize: "13px" }}>
@@ -746,12 +749,12 @@ export default function Chat() {
                     </div>
                     <div style={styles.messageContent}>
                       {!isOwn && (
-                        <div style={styles.messageName}>{msg.userName}</div>
+                        <div style={styles.messageName(colors)}>{msg.userName}</div>
                       )}
                       <div
                         style={{
-                          ...styles.messageBubble,
-                          ...(isOwn ? styles.messageBubbleOwn : {}),
+                          ...styles.messageBubble(colors),
+                          ...(isOwn ? styles.messageBubbleOwn(colors) : {}),
                         }}
                       >
                         {isFile ? (
@@ -759,7 +762,7 @@ export default function Chat() {
                             href={msg.fileUrl}
                             download={msg.fileName}
                             style={{
-                              color: isOwn ? "#fff" : "#0b7de0",
+                              color: isOwn ? "#fff" : colors.primary,
                               textDecoration: "none",
                               display: "flex",
                               alignItems: "center",
@@ -772,7 +775,7 @@ export default function Chat() {
                           msg.content
                         )}
                       </div>
-                      <div style={styles.messageTime}>
+                      <div style={styles.messageTime(colors)}>
                         {formatTime(msg.timestamp)}
                       </div>
                       
@@ -794,7 +797,7 @@ export default function Chat() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div style={styles.inputArea}>
+          <div style={styles.inputArea(colors)}>
             <input
               ref={fileInputRef}
               type="file"
@@ -802,36 +805,36 @@ export default function Chat() {
               onChange={handleFileSelect}
             />
             <button
-              style={styles.attachBtn}
+              style={styles.attachBtn(colors)}
               onClick={() => fileInputRef.current?.click()}
               title="Attach file"
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                e.currentTarget.style.color = "#fff";
+                e.currentTarget.style.background = colors.surfaceHover;
+                e.currentTarget.style.color = colors.text;
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#888";
+                e.currentTarget.style.color = colors.textSecondary;
               }}
             >
               📎
             </button>
             <input
-              style={styles.input}
+              style={styles.input(colors)}
               placeholder="Type a message..."
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
               onKeyPress={handleKeyPress}
             />
             <button
-              style={styles.sendBtn}
+              style={styles.sendBtn(colors)}
               onClick={handleSend}
               disabled={!messageInput.trim()}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#1a8cf0";
+                e.currentTarget.style.background = colors.primaryHover;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#0b7de0";
+                e.currentTarget.style.background = colors.primary;
               }}
             >
               ➤

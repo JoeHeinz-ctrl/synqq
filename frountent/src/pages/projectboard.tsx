@@ -18,15 +18,15 @@ import SettingsDropdown from "../components/SettingsDropdown";
 
 /* ─────────────────────────── styles ─────────────────────────── */
 const s: any = {
-  page: {
+  page: (colors: any) => ({
     padding: "40px",
     minHeight: "100vh",
-    background: "#1a1a1a",
+    background: colors.background,
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    color: "#fff",
+    color: colors.text,
     boxSizing: "border-box",
     overflowY: "auto",
-  },
+  }),
 
   /* top bar */
   topBar: {
@@ -37,12 +37,13 @@ const s: any = {
     flexWrap: "wrap" as const,
     gap: "16px",
   },
-  pageTitle: {
+  pageTitle: (colors: any) => ({
     fontSize: "28px",
     fontWeight: "700",
     letterSpacing: "-0.5px",
     margin: 0,
-  },
+    color: colors.text,
+  }),
   topActions: { display: "flex", gap: "10px", flexWrap: "wrap" as const },
 
   /* section headers */
@@ -53,21 +54,21 @@ const s: any = {
     marginBottom: "16px",
     marginTop: "32px",
   },
-  sectionTitle: {
+  sectionTitle: (colors: any) => ({
     fontSize: "13px",
     fontWeight: "700",
     letterSpacing: "2px",
     textTransform: "uppercase" as const,
-    color: "#b3b3b3",
+    color: colors.textSecondary,
     margin: 0,
-  },
-  teamCodeBadge: {
+  }),
+  teamCodeBadge: (colors: any) => ({
     fontSize: "11px",
     fontWeight: "700",
     letterSpacing: "2px",
-    background: "rgba(11,125,224,0.15)",
-    color: "#0b7de0",
-    border: "1px solid rgba(11,125,224,0.25)",
+    background: colors.primaryLight,
+    color: colors.primary,
+    border: `1px solid ${colors.primary}40`,
     borderRadius: "8px",
     padding: "4px 10px",
     cursor: "pointer",
@@ -75,22 +76,21 @@ const s: any = {
     alignItems: "center",
     gap: "6px",
     transition: "all 0.2s",
-  },
+  }),
 
   /* create bar */
   createBar: { display: "flex", gap: "12px", marginBottom: "20px" },
-  input: {
+  input: (colors: any) => ({
     flex: 1,
     padding: "14px 18px",
     borderRadius: "12px",
-    border: "none",
-    background: "#242424",
-    color: "#fff",
+    border: `1px solid ${colors.inputBorder}`,
+    background: colors.input,
+    color: colors.text,
     fontSize: "15px",
     outline: "none",
-    boxShadow: "inset 5px 5px 10px rgba(0,0,0,0.4), inset -5px -5px 10px rgba(60,60,60,0.08)",
     minWidth: 0,
-  },
+  }),
 
   /* project list */
   list: {
@@ -99,29 +99,30 @@ const s: any = {
     gap: "12px",
     marginBottom: "8px",
   },
-  card: {
+  card: (colors: any) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "18px 20px",
     borderRadius: "16px",
-    background: "#242424",
+    background: colors.cardBg,
     transition: "background 0.2s, box-shadow 0.2s",
     userSelect: "none" as const,
     cursor: "pointer",
-  },
+    border: `1px solid ${colors.border}`,
+  }),
   cardLeft: { display: "flex", alignItems: "center", gap: "12px", flex: 1, minWidth: 0 },
   projectEmoji: { fontSize: "20px", flexShrink: 0 },
-  projectTitle: {
-    fontSize: "15px", fontWeight: "500", color: "#f0f0f0",
+  projectTitle: (colors: any) => ({
+    fontSize: "15px", fontWeight: "500", color: colors.text,
     whiteSpace: "nowrap" as const, overflow: "hidden", textOverflow: "ellipsis",
-  },
-  renameInput: {
-    flex: 1, background: "#1a1a1a", border: "1px solid #0b7de0",
-    borderRadius: "8px", color: "#fff", fontSize: "15px",
+  }),
+  renameInput: (colors: any) => ({
+    flex: 1, background: colors.input, border: `1px solid ${colors.primary}`,
+    borderRadius: "8px", color: colors.text, fontSize: "15px",
     fontWeight: "500", padding: "6px 10px", outline: "none",
-    boxShadow: "0 0 0 3px rgba(11,125,224,0.15)",
-  },
+    boxShadow: `0 0 0 3px ${colors.primaryLight}`,
+  }),
   actions: {
     display: "flex", gap: "8px", flexShrink: 0,
     marginLeft: "16px", transition: "opacity 0.15s ease",
@@ -134,13 +135,13 @@ const s: any = {
   },
 
   /* buttons */
-  btnPrimary: {
+  btnPrimary: (colors: any) => ({
     padding: "12px 20px", borderRadius: "12px", border: "none",
-    background: "#0b7de0", color: "white", cursor: "pointer",
+    background: colors.primary, color: "white", cursor: "pointer",
     fontWeight: "600", fontSize: "14px", whiteSpace: "nowrap" as const,
     boxShadow: "4px 4px 8px rgba(0,0,0,0.4)",
     transition: "all 0.2s ease",
-  },
+  }),
   btnSuccess: {
     padding: "12px 20px", borderRadius: "12px", border: "none",
     background: "rgba(16,185,129,0.15)", color: "#10b981", cursor: "pointer",
@@ -149,13 +150,13 @@ const s: any = {
     boxShadow: "4px 4px 8px rgba(0,0,0,0.3)",
     transition: "all 0.2s ease",
   },
-  btnOutline: {
+  btnOutline: (colors: any) => ({
     padding: "12px 20px", borderRadius: "12px",
-    border: "1px solid rgba(255,255,255,0.12)",
-    background: "transparent", color: "#b3b3b3", cursor: "pointer",
+    border: `1px solid ${colors.border}`,
+    background: "transparent", color: colors.textSecondary, cursor: "pointer",
     fontWeight: "600", fontSize: "14px", whiteSpace: "nowrap" as const,
     transition: "all 0.2s ease",
-  },
+  }),
   btnDanger: {
     padding: "12px 24px", borderRadius: "10px", border: "none",
     background: "#ff4444", color: "white", cursor: "pointer",
@@ -170,11 +171,11 @@ const s: any = {
   },
 
   /* empty state */
-  empty: {
-    padding: "28px 20px", borderRadius: "16px", background: "#1f1f1f",
-    color: "#555", fontSize: "14px", textAlign: "center" as const,
-    border: "1px dashed #333",
-  },
+  empty: (colors: any) => ({
+    padding: "28px 20px", borderRadius: "16px", background: colors.surface,
+    color: colors.textSecondary, fontSize: "14px", textAlign: "center" as const,
+    border: `1px dashed ${colors.border}`,
+  }),
 
   /* modal */
   modalOverlay: {
@@ -183,38 +184,37 @@ const s: any = {
     display: "flex", alignItems: "center", justifyContent: "center",
     zIndex: 1000, animation: "fadeIn 0.2s ease",
   },
-  modalContent: {
-    background: "#242424", padding: "32px", borderRadius: "20px",
+  modalContent: (colors: any) => ({
+    background: colors.surface, padding: "32px", borderRadius: "20px",
     width: "420px", maxWidth: "92vw",
     boxShadow: "0 24px 48px rgba(0,0,0,0.6), inset 1px 1px 0 rgba(255,255,255,0.05)",
     display: "flex", flexDirection: "column" as const, gap: "20px",
-  },
-  modalTitle: { fontSize: "20px", fontWeight: "700", color: "#fff", margin: 0 },
-  modalText: { fontSize: "14px", color: "#b3b3b3", margin: 0, lineHeight: "1.6" },
-  modalInput: {
-    width: "100%", padding: "16px 18px", borderRadius: "12px", border: "none",
-    background: "#1a1a1a", color: "#ffffff", outline: "none", fontSize: "15px",
-    boxShadow: "inset 4px 4px 8px rgba(0,0,0,0.4), inset -4px -4px 8px rgba(60,60,60,0.05)",
+  }),
+  modalTitle: (colors: any) => ({ fontSize: "20px", fontWeight: "700", color: colors.text, margin: 0 }),
+  modalText: (colors: any) => ({ fontSize: "14px", color: colors.textSecondary, margin: 0, lineHeight: "1.6" }),
+  modalInput: (colors: any) => ({
+    width: "100%", padding: "16px 18px", borderRadius: "12px", border: `1px solid ${colors.inputBorder}`,
+    background: colors.input, color: colors.text, outline: "none", fontSize: "15px",
     boxSizing: "border-box" as const,
-  },
+  }),
   modalButtons: { display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "4px" },
 
   /* team code display */
-  codeDisplay: {
-    background: "#1a1a1a", borderRadius: "12px", padding: "20px",
+  codeDisplay: (colors: any) => ({
+    background: colors.input, borderRadius: "12px", padding: "20px",
     textAlign: "center" as const,
-    boxShadow: "inset 4px 4px 8px rgba(0,0,0,0.4)",
-  },
-  codeValue: {
+    border: `1px solid ${colors.border}`,
+  }),
+  codeValue: (colors: any) => ({
     fontSize: "28px", fontWeight: "800", letterSpacing: "6px",
-    color: "#0b7de0", fontFamily: "monospace",
-  },
-  codeHint: { fontSize: "12px", color: "#666", marginTop: "8px" },
+    color: colors.primary, fontFamily: "monospace",
+  }),
+  codeHint: (colors: any) => ({ fontSize: "12px", color: colors.textSecondary, marginTop: "8px" }),
 
   /* divider */
-  divider: {
-    height: "1px", background: "rgba(255,255,255,0.06)", margin: "8px 0 24px 0",
-  },
+  divider: (colors: any) => ({
+    height: "1px", background: colors.border, margin: "8px 0 24px 0",
+  }),
 };
 
 /* ─────────────────────────── component ─────────────────────── */
@@ -450,10 +450,10 @@ export default function ProjectBoard() {
         key={p.id}
         className="project-card"
         style={{
-          ...s.card,
-          background: isHovered ? "#2c2c2c" : "#242424",
+          ...s.card(colors),
+          background: isHovered ? colors.surfaceHover : colors.cardBg,
           boxShadow: isHovered
-            ? "8px 8px 20px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(11,125,224,0.2)"
+            ? `8px 8px 20px rgba(0,0,0,0.6), inset 0 0 0 1px ${colors.primary}33`
             : "6px 6px 14px rgba(0,0,0,0.5)",
           cursor: editingId === p.id ? "default" : "pointer",
         }}
@@ -470,7 +470,7 @@ export default function ProjectBoard() {
           {editingId === p.id ? (
             <input
               ref={editInputRef}
-              style={s.renameInput}
+              style={s.renameInput(colors)}
               value={editingTitle}
               onChange={(e) => setEditingTitle(e.target.value)}
               onKeyDown={(e) => {
@@ -480,7 +480,7 @@ export default function ProjectBoard() {
               onBlur={() => commitRename(p.id)}
             />
           ) : (
-            <span style={s.projectTitle}>{p.title}</span>
+            <span style={s.projectTitle(colors)}>{p.title}</span>
           )}
         </div>
 
@@ -489,12 +489,12 @@ export default function ProjectBoard() {
             title={editingId === p.id ? "Confirm rename" : "Rename"}
             style={{
               ...s.iconBtn,
-              background: editingId === p.id ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)",
-              color: editingId === p.id ? "#10b981" : "#0b7de0",
+              background: editingId === p.id ? "rgba(16,185,129,0.15)" : colors.primaryLight,
+              color: editingId === p.id ? "#10b981" : colors.primary,
             }}
             onClick={(e) => editingId === p.id ? commitRename(p.id) : startEdit(e, p)}
-            onMouseEnter={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.28)" : "rgba(11,125,224,0.25)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.28)" : `${colors.primary}40`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.15)" : colors.primaryLight; }}
           >{editingId === p.id ? "✓" : "✏️"}</button>
 
           <button
@@ -511,9 +511,9 @@ export default function ProjectBoard() {
 
   /* ── JSX ─────────────────────────────────────────────────────── */
   return (
-    <div style={{...s.page, background: colors.background}}>
+    <div style={s.page(colors)}>
       <style>{`
-        input::placeholder { color: #555; }
+        input::placeholder { color: ${colors.textSecondary}; }
         
         /* ─────────────────── ANIMATIONS ─────────────────── */
         
@@ -614,17 +614,17 @@ export default function ProjectBoard() {
       {/* ── Top bar ── */}
       <div style={s.topBar}>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          {greeting && <div style={{ color: "#b3b3b3", fontSize: 14, marginBottom: 6 }}>{greeting}</div>}
-          <h2 style={s.pageTitle}>🗂️ Projects</h2>
+          {greeting && <div style={{ color: colors.textSecondary, fontSize: 14, marginBottom: 6 }}>{greeting}</div>}
+          <h2 style={s.pageTitle(colors)}>🗂️ Projects</h2>
         </div>
         <div style={s.topActions}>
           <SettingsDropdown />
 
           <button
-            style={s.btnOutline}
+            style={s.btnOutline(colors)}
             onClick={() => { setShowJoinTeam(true); setJoinCode(""); }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; e.currentTarget.style.borderColor = colors.border; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; e.currentTarget.style.borderColor = colors.border; }}
           >🔗 Join Team</button>
 
           <button
@@ -639,29 +639,29 @@ export default function ProjectBoard() {
 
       {/* ── Personal Projects ── */}
       <div style={s.sectionHeader}>
-        <h3 style={s.sectionTitle}>👤 My Projects</h3>
+        <h3 style={s.sectionTitle(colors)}>👤 My Projects</h3>
       </div>
 
       <div style={s.createBar}>
         <input
-          style={s.input}
+          style={s.input(colors)}
           placeholder="New personal project…"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleCreatePersonal()}
         />
         <button
-          style={s.btnPrimary}
+          style={s.btnPrimary(colors)}
           className="btn-primary"
           onClick={handleCreatePersonal}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
         >+ New Project</button>
       </div>
 
       <div style={s.list}>
         {personalProjects.length === 0
-          ? <div style={s.empty} className="empty-state">No personal projects yet. Create one above!</div>
+          ? <div style={s.empty(colors)} className="empty-state">No personal projects yet. Create one above!</div>
           : personalProjects.map(renderCard)
         }
       </div>
@@ -669,11 +669,11 @@ export default function ProjectBoard() {
       {/* ── Team Sections ── */}
       {teams.map((team) => (
         <div key={team.id}>
-          <div style={s.divider} />
+          <div style={s.divider(colors)} />
 
           <div style={s.sectionHeader}>
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <h3 style={{ ...s.sectionTitle }}>👥 {team.name}</h3>
+              <h3 style={s.sectionTitle(colors)}>👥 {team.name}</h3>
               {teamMembers[team.id] && teamMembers[team.id].length > 0 && (
                 <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
                   {teamMembers[team.id].slice(0, 5).map((m: any, i: number) => (
@@ -709,15 +709,15 @@ export default function ProjectBoard() {
               <div
                 className="team-code-badge"
                 style={{
-                  ...s.teamCodeBadge,
-                  background: copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)",
-                  color: copiedCode === team.team_code ? "#10b981" : "#0b7de0",
-                  borderColor: copiedCode === team.team_code ? "rgba(16,185,129,0.3)" : "rgba(11,125,224,0.25)",
+                  ...s.teamCodeBadge(colors),
+                  background: copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : colors.primaryLight,
+                  color: copiedCode === team.team_code ? "#10b981" : colors.primary,
+                  borderColor: copiedCode === team.team_code ? "rgba(16,185,129,0.3)" : `${colors.primary}40`,
                 }}
                 title="Click to copy team code"
                 onClick={() => copyCode(team.team_code)}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(11,125,224,0.22)"; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : "rgba(11,125,224,0.12)"; }}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = `${colors.primary}30`; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : colors.primaryLight; }}
               >
                 {copiedCode === team.team_code ? "✓ Copied!" : `# ${team.team_code}`}
               </div>
@@ -747,24 +747,24 @@ export default function ProjectBoard() {
 
           <div style={s.createBar}>
             <input
-              style={s.input}
+              style={s.input(colors)}
               placeholder={`New project in ${team.name}…`}
               value={teamNewTitle[team.id] || ""}
               onChange={(e) => setTeamNewTitle((prev) => ({ ...prev, [team.id]: e.target.value }))}
               onKeyDown={(e) => e.key === "Enter" && handleCreateTeamProject(team.id)}
             />
             <button
-              style={s.btnPrimary}
+              style={s.btnPrimary(colors)}
               className="btn-primary"
               onClick={() => handleCreateTeamProject(team.id)}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
             >+ Add Project</button>
           </div>
 
           <div style={s.list}>
             {(teamProjects[team.id] || []).length === 0
-              ? <div style={s.empty} className="empty-state">No projects in this team yet. Add one above!</div>
+              ? <div style={s.empty(colors)} className="empty-state">No projects in this team yet. Add one above!</div>
               : (teamProjects[team.id] || []).map(renderCard)
             }
           </div>
@@ -776,13 +776,13 @@ export default function ProjectBoard() {
       {/* Delete Confirmation */}
       {deleteConfirmId !== null && (
         <div style={s.modalOverlay} className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>
-          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3 style={s.modalTitle}>Delete Project</h3>
-            <p style={s.modalText}>Are you sure? This will delete the project and all its tasks. This cannot be undone.</p>
+          <div style={s.modalContent(colors)} onClick={(e) => e.stopPropagation()}>
+            <h3 style={s.modalTitle(colors)}>Delete Project</h3>
+            <p style={s.modalText(colors)}>Are you sure? This will delete the project and all its tasks. This cannot be undone.</p>
             <div style={s.modalButtons}>
               <button style={s.btnSecondary} onClick={() => setDeleteConfirmId(null)}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; }}>Cancel</button>
+                onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; }}>Cancel</button>
               <button style={s.btnDanger} onClick={handleDeleteProject}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#ff6b6b"; e.currentTarget.style.transform = "translateY(-1px)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "#ff4444"; e.currentTarget.style.transform = "none"; }}>Delete</button>
@@ -794,13 +794,13 @@ export default function ProjectBoard() {
       {/* Delete Team Confirmation */}
       {deleteTeamConfirmId !== null && (
         <div style={s.modalOverlay} className="modal-overlay" onClick={() => setDeleteTeamConfirmId(null)}>
-          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3 style={s.modalTitle}>Delete Team</h3>
-            <p style={s.modalText}>⚠️ This will delete the entire team and ALL projects within it. This cannot be undone.</p>
+          <div style={s.modalContent(colors)} onClick={(e) => e.stopPropagation()}>
+            <h3 style={s.modalTitle(colors)}>Delete Team</h3>
+            <p style={s.modalText(colors)}>⚠️ This will delete the entire team and ALL projects within it. This cannot be undone.</p>
             <div style={s.modalButtons}>
               <button style={s.btnSecondary} onClick={() => setDeleteTeamConfirmId(null)}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; }}>Cancel</button>
+                onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; }}>Cancel</button>
               <button style={s.btnDanger} onClick={handleDeleteTeam}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#ff6b6b"; e.currentTarget.style.transform = "translateY(-1px)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "#ff4444"; e.currentTarget.style.transform = "none"; }}>Delete Team</button>
@@ -812,30 +812,30 @@ export default function ProjectBoard() {
       {/* Create Team Modal */}
       {showCreateTeam && (
         <div style={s.modalOverlay} className="modal-overlay" onClick={() => { if (!createdTeamCode) setShowCreateTeam(false); }}>
-          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div style={s.modalContent(colors)} onClick={(e) => e.stopPropagation()}>
             {createdTeamCode ? (
               <>
-                <h3 style={s.modalTitle}>✅ Team Created!</h3>
-                <p style={s.modalText}>Share this code with your teammates so they can join:</p>
-                <div style={s.codeDisplay}>
-                  <div style={s.codeValue}>{createdTeamCode}</div>
-                  <div style={s.codeHint}>Click the code badge on your team section to copy anytime</div>
+                <h3 style={s.modalTitle(colors)}>✅ Team Created!</h3>
+                <p style={s.modalText(colors)}>Share this code with your teammates so they can join:</p>
+                <div style={s.codeDisplay(colors)}>
+                  <div style={s.codeValue(colors)}>{createdTeamCode}</div>
+                  <div style={s.codeHint(colors)}>Click the code badge on your team section to copy anytime</div>
                 </div>
                 <div style={s.modalButtons}>
                   <button
-                    style={s.btnPrimary}
+                    style={s.btnPrimary(colors)}
                     onClick={() => { copyCode(createdTeamCode); setShowCreateTeam(false); setCreatedTeamCode(null); setCreateTeamName(""); }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
                   >📋 Copy & Close</button>
                 </div>
               </>
             ) : (
               <>
-                <h3 style={s.modalTitle}>Create a Team</h3>
-                <p style={s.modalText}>Give your team a name. A unique join code will be generated automatically.</p>
+                <h3 style={s.modalTitle(colors)}>Create a Team</h3>
+                <p style={s.modalText(colors)}>Give your team a name. A unique join code will be generated automatically.</p>
                 <input
-                  style={s.modalInput}
+                  style={s.modalInput(colors)}
                   autoFocus
                   placeholder="Team name…"
                   value={createTeamName}
@@ -844,14 +844,14 @@ export default function ProjectBoard() {
                 />
                 <div style={s.modalButtons}>
                   <button style={s.btnSecondary} onClick={() => setShowCreateTeam(false)}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; }}>Cancel</button>
+                    onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; }}>Cancel</button>
                   <button
-                    style={{ ...s.btnPrimary, opacity: createTeamLoading ? 0.6 : 1 }}
+                    style={{ ...s.btnPrimary(colors), opacity: createTeamLoading ? 0.6 : 1 }}
                     onClick={handleCreateTeam}
                     disabled={createTeamLoading}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
                   >{createTeamLoading ? "Creating…" : "Create Team"}</button>
                 </div>
               </>
@@ -863,11 +863,11 @@ export default function ProjectBoard() {
       {/* Join Team Modal */}
       {showJoinTeam && (
         <div style={s.modalOverlay} className="modal-overlay" onClick={() => setShowJoinTeam(false)}>
-          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3 style={s.modalTitle}>Join a Team</h3>
-            <p style={s.modalText}>Enter the team code shared by your teammate (case-insensitive).</p>
+          <div style={s.modalContent(colors)} onClick={(e) => e.stopPropagation()}>
+            <h3 style={s.modalTitle(colors)}>Join a Team</h3>
+            <p style={s.modalText(colors)}>Enter the team code shared by your teammate (case-insensitive).</p>
             <input
-              style={{ ...s.modalInput, letterSpacing: "4px", textTransform: "uppercase", fontFamily: "monospace", fontSize: "18px" }}
+              style={{ ...s.modalInput(colors), letterSpacing: "4px", textTransform: "uppercase", fontFamily: "monospace", fontSize: "18px" }}
               autoFocus
               placeholder="XXXXXXXX"
               value={joinCode}
@@ -877,14 +877,14 @@ export default function ProjectBoard() {
             />
             <div style={s.modalButtons}>
               <button style={s.btnSecondary} onClick={() => setShowJoinTeam(false)}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; }}>Cancel</button>
+                onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; }}>Cancel</button>
               <button
-                style={{ ...s.btnPrimary, opacity: joinLoading ? 0.6 : 1 }}
+                style={{ ...s.btnPrimary(colors), opacity: joinLoading ? 0.6 : 1 }}
                 onClick={handleJoinTeam}
                 disabled={joinLoading}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
               >{joinLoading ? "Joining…" : "🔗 Join Team"}</button>
             </div>
           </div>
@@ -894,13 +894,13 @@ export default function ProjectBoard() {
       {/* Alert Modal */}
       {alertMessage !== null && (
         <div style={s.modalOverlay} className="modal-overlay" onClick={() => setAlertMessage(null)}>
-          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3 style={s.modalTitle}>Notice</h3>
-            <p style={s.modalText}>{alertMessage}</p>
+          <div style={s.modalContent(colors)} onClick={(e) => e.stopPropagation()}>
+            <h3 style={s.modalTitle(colors)}>Notice</h3>
+            <p style={s.modalText(colors)}>{alertMessage}</p>
             <div style={s.modalButtons}>
-              <button style={s.btnPrimary} onClick={() => setAlertMessage(null)}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#1a8cf0"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "#0b7de0"; }}>OK</button>
+              <button style={s.btnPrimary(colors)} onClick={() => setAlertMessage(null)}
+                onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}>OK</button>
             </div>
           </div>
         </div>

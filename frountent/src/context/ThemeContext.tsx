@@ -22,6 +22,10 @@ interface ThemeColors {
   primary: string;
   primaryHover: string;
   primaryLight: string;
+  input: string;
+  inputBorder: string;
+  cardBg: string;
+  headerBg: string;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -82,16 +86,24 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         text: '#ffffff',
         textSecondary: '#b3b3b3',
         border: 'rgba(255,255,255,0.05)',
+        input: '#1a1a1a',
+        inputBorder: 'rgba(255,255,255,0.1)',
+        cardBg: 'rgba(255,255,255,0.02)',
+        headerBg: '#242424',
         ...palette,
       };
     } else {
       return {
-        background: '#ffffff',
-        surface: '#f5f5f5',
-        surfaceHover: '#e5e5e5',
+        background: '#f8f9fa',
+        surface: '#ffffff',
+        surfaceHover: '#f1f3f5',
         text: '#1a1a1a',
-        textSecondary: '#666666',
-        border: 'rgba(0,0,0,0.1)',
+        textSecondary: '#6c757d',
+        border: 'rgba(0,0,0,0.08)',
+        input: '#ffffff',
+        inputBorder: 'rgba(0,0,0,0.15)',
+        cardBg: '#ffffff',
+        headerBg: '#ffffff',
         ...palette,
       };
     }

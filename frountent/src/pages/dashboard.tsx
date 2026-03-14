@@ -14,7 +14,6 @@ const styles: any = {
     display: "flex",
     flexDirection: "column",
     paddingBottom: "70px",
-    position: "relative",
   },
 
   // Header styles
@@ -30,6 +29,7 @@ const styles: any = {
     position: "sticky",
     top: 0,
     zIndex: 50,
+    flexShrink: 0,
   },
 
   topBarLeft: {
@@ -120,12 +120,10 @@ const styles: any = {
   // Main content
   mainContent: {
     flex: 1,
-    padding: "12px",
+    padding: "20px 12px 12px 12px",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
-    position: "relative",
-    zIndex: 1,
   },
 
   shortcuts: {
@@ -143,8 +141,6 @@ const styles: any = {
     gap: "12px",
     flex: 1,
     overflow: "auto",
-    position: "relative",
-    zIndex: 1,
   },
 
   column: {
@@ -158,7 +154,6 @@ const styles: any = {
     transition: "all 0.25s ease",
     border: "1px solid rgba(255,255,255,0.05)",
     position: "relative",
-    zIndex: 2,
     overflow: "hidden",
   },
 
@@ -903,24 +898,14 @@ export default function Dashboard() {
 
         /* ─────────────────── LAYOUT & Z-INDEX ─────────────────── */
         
-        /* Ensure header stays on top */
+        /* Proper vertical layout structure */
         .top-bar {
-          position: sticky;
-          top: 0;
-          z-index: 50;
+          flex-shrink: 0;
         }
         
         /* Board container below header */
         .board-grid {
-          position: relative;
-          z-index: 1;
-        }
-        
-        /* Columns should not overlap header */
-        .board-grid > div {
           isolation: isolate;
-          position: relative;
-          z-index: 2;
         }
 
         /* ─────────────────── DRAG & DROP IMPROVEMENTS ─────────────────── */
@@ -979,8 +964,6 @@ export default function Dashboard() {
         /* Z-index layering for proper stacking */
         .board-grid > div {
           isolation: isolate;
-          position: relative;
-          z-index: 2;
         }
         
         /* Smooth task reordering */

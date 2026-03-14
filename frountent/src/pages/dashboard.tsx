@@ -20,11 +20,11 @@ const styles: any = {
   topBar: (colors: any, isDark: boolean) => ({
     background: colors.headerBg,
     borderBottom: `1px solid ${colors.border}`,
-    padding: "16px 24px",
+    padding: "12px 24px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: "24px",
+    gap: "20px",
     position: "sticky",
     top: 0,
     zIndex: 50,
@@ -35,17 +35,16 @@ const styles: any = {
   headerLeft: {
     display: "flex",
     alignItems: "center",
-    gap: "20px",
+    gap: "16px",
     flex: "0 0 auto",
   },
 
   headerCenter: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
-    gap: "8px",
+    gap: "16px",
     flex: "1 1 auto",
-    maxWidth: "600px",
+    justifyContent: "center",
   },
 
   headerRight: {
@@ -59,13 +58,13 @@ const styles: any = {
     display: "inline-flex",
     alignItems: "center",
     gap: "6px",
-    padding: "8px 16px",
-    borderRadius: "10px",
+    padding: "6px 12px",
+    borderRadius: "8px",
     border: `1px solid ${colors.border}`,
     background: colors.surface,
     color: colors.textSecondary,
     fontWeight: "600",
-    fontSize: "13px",
+    fontSize: "12px",
     cursor: "pointer",
     transition: "all 0.2s ease",
     whiteSpace: "nowrap",
@@ -98,22 +97,22 @@ const styles: any = {
   },
 
   projectTitle: (colors: any) => ({
-    fontSize: "24px",
+    fontSize: "18px",
     fontWeight: "700",
     color: colors.text,
     letterSpacing: "-0.5px",
-    textAlign: "center",
     background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
+    whiteSpace: "nowrap",
   }),
 
   projectMeta: (colors: any) => ({
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    fontSize: "13px",
+    gap: "10px",
+    fontSize: "12px",
     color: colors.textSecondary,
     fontWeight: "500",
   }),
@@ -121,12 +120,12 @@ const styles: any = {
   metaBadge: (colors: any) => ({
     display: "flex",
     alignItems: "center",
-    gap: "6px",
-    padding: "4px 12px",
-    borderRadius: "20px",
+    gap: "4px",
+    padding: "3px 10px",
+    borderRadius: "12px",
     background: colors.primaryLight,
     color: colors.primary,
-    fontSize: "12px",
+    fontSize: "11px",
     fontWeight: "600",
   }),
 
@@ -163,12 +162,13 @@ const styles: any = {
   },
 
   shortcuts: (colors: any) => ({
-    fontSize: "11px",
+    fontSize: "10px",
     color: colors.textSecondary,
     opacity: 0.7,
     display: "flex",
-    gap: "8px",
+    gap: "6px",
     alignItems: "center",
+    whiteSpace: "nowrap",
   }),
 
   board: {
@@ -1146,28 +1146,13 @@ export default function Dashboard() {
         }
         
         /* 14. Keyboard Shortcut Highlight */
-        kbd {
-          background: rgba(255,255,255,0.06);
-          padding: 2px 6px; 
-          border-radius: 4px; 
-          font-size: 10px; 
-          font-family: monospace;
-          border: 1px solid rgba(255,255,255,0.08);
-          transition: all 0.2s ease;
-        }
-        
         .shortcuts-badge {
-          font-size: 11px;
-          opacity: 0.6;
+          opacity: 0.7;
+          transition: opacity 0.2s ease;
         }
         
         .shortcuts-badge:hover {
-          opacity: 0.8;
-        }
-        
-        .shortcuts-badge:hover kbd {
-          background: rgba(255,255,255,0.1);
-          box-shadow: 0 0 8px rgba(11,125,224,0.2);
+          opacity: 0.9;
         }
 
         .task-card .delete-btn {
@@ -1179,35 +1164,46 @@ export default function Dashboard() {
         }
         
         input::placeholder { color: #666666; }
+        
+        kbd {
+          background: ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'};
+          padding: 2px 5px; 
+          border-radius: 3px; 
+          font-size: 9px; 
+          font-family: monospace;
+          border: 1px solid ${colors.border};
+        }
+        
         @media (max-width: 768px) {
           .top-bar { 
             flex-direction: column; 
             align-items: stretch !important; 
-            padding: 12px 16px !important;
-            gap: 12px !important;
+            padding: 10px 16px !important;
+            gap: 10px !important;
           }
           .header-left {
             order: 1;
           }
           .header-center { 
             order: 0;
-            max-width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
           }
           .header-right {
             order: 2;
             justify-content: space-between;
           }
+          .shortcuts-badge {
+            font-size: 9px !important;
+          }
           .board-grid { 
             grid-template-columns: 1fr !important; 
             gap: 10px !important;
           }
-          .shortcuts-badge {
-            font-size: 10px !important;
-          }
         }
       `}</style>
 
-      {/* Top Bar with Modern Royal Header */}
+      {/* Compact Header */}
       <div style={styles.topBar(colors, isDark)} className="top-bar">
         {/* Left Section - Back Button */}
         <div style={styles.headerLeft} className="header-left">
@@ -1221,33 +1217,34 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Center Section - Project Info */}
+        {/* Center Section - Project Info & Meta */}
         <div style={styles.headerCenter} className="header-center">
           <div style={styles.projectTitle(colors)}>
             {project ? project.title : "Loading..."}
           </div>
+          
           <div style={styles.projectMeta(colors)}>
             <div style={styles.metaBadge(colors)}>
               <span>📋</span>
-              <span>{tasks.length} tasks</span>
+              <span>{tasks.length}</span>
             </div>
-            {teamMembers.length > 0 && (
-              <div style={styles.metaBadge(colors)}>
-                <span>👥</span>
-                <span>{teamMembers.length} {teamMembers.length === 1 ? 'member' : 'members'}</span>
-              </div>
-            )}
-            {greeting && (
-              <div style={styles.greeting(colors)}>
-                <span style={styles.greetingIcon}>👋</span>
-                <span>{greeting}</span>
-              </div>
-            )}
+            <div style={styles.metaBadge(colors)}>
+              <span>👥</span>
+              <span>{teamMembers.length}</span>
+            </div>
           </div>
-          {/* Hotkey hints */}
+
+          {/* Keyboard shortcuts */}
           <div style={styles.shortcuts(colors)} className="shortcuts-badge">
             <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
           </div>
+
+          {greeting && (
+            <div style={styles.greeting(colors)}>
+              <span style={styles.greetingIcon}>👋</span>
+              <span>{greeting}</span>
+            </div>
+          )}
         </div>
 
         {/* Right Section - Actions */}
@@ -1260,22 +1257,22 @@ export default function Dashboard() {
                   key={m.id}
                   title={m.name}
                   style={{
-                    width: "36px",
-                    height: "36px",
+                    width: "32px",
+                    height: "32px",
                     borderRadius: "50%",
                     background: `linear-gradient(135deg, hsl(${(m.id * 67) % 360}, 65%, 50%), hsl(${(m.id * 67 + 30) % 360}, 65%, 45%))`,
                     border: `2px solid ${colors.surface}`,
-                    marginLeft: i === 0 ? "0" : "-12px",
+                    marginLeft: i === 0 ? "0" : "-10px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "13px",
+                    fontSize: "12px",
                     fontWeight: "700",
                     color: "#fff",
                     cursor: "default",
                     zIndex: teamMembers.slice(0, 3).length - i,
                     position: "relative",
-                    boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
+                    boxShadow: isDark ? "0 2px 6px rgba(0,0,0,0.3)" : "0 2px 6px rgba(0,0,0,0.12)",
                     transition: "transform 0.2s ease",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px) scale(1.05)"; }}
@@ -1286,20 +1283,20 @@ export default function Dashboard() {
               ))}
               {teamMembers.length > 3 && (
                 <div style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "32px",
+                  height: "32px",
                   borderRadius: "50%",
                   background: colors.primaryLight,
                   border: `2px solid ${colors.surface}`,
-                  marginLeft: "-12px",
+                  marginLeft: "-10px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "11px",
+                  fontSize: "10px",
                   fontWeight: "700",
                   color: colors.primary,
                   position: "relative",
-                  boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
+                  boxShadow: isDark ? "0 2px 6px rgba(0,0,0,0.3)" : "0 2px 6px rgba(0,0,0,0.12)",
                 }}>
                   +{teamMembers.length - 3}
                 </div>

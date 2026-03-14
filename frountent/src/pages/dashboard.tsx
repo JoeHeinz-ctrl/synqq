@@ -155,6 +155,30 @@ const styles: any = {
     border: "1px solid rgba(255,255,255,0.05)",
     position: "relative",
     zIndex: 1,
+    overflow: "hidden",
+  },
+
+  columnHighlight: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: "inherit",
+    pointerEvents: "none",
+    opacity: 0,
+    transition: "opacity 120ms ease, background 120ms ease",
+    background: "rgba(99,102,241,0.08)",
+    border: "1px solid rgba(99,102,241,0.25)",
+    zIndex: 0,
+    boxShadow: "inset 0 0 0 1px rgba(99,102,241,0.25)",
+  },
+
+  columnHighlightActive: {
+    opacity: 1,
+  },
+
+  columnHeaderDivider: {
+    height: "1px",
+    background: "rgba(255,255,255,0.05)",
+    margin: "0 -12px 12px -12px",
   },
 
   columnHeader: {
@@ -164,6 +188,8 @@ const styles: any = {
     marginBottom: "12px",
     paddingBottom: "12px",
     borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+    position: "relative",
+    zIndex: 1,
   },
 
   columnTitle: {
@@ -193,14 +219,16 @@ const styles: any = {
     padding: "4px",
     scrollbarWidth: "none",
     msOverflowStyle: "none",
+    position: "relative",
+    zIndex: 1,
   },
 
   card: {
-    background: "#2a2a2a",
+    background: "rgba(255,255,255,0.02)",
     padding: "12px",
-    borderRadius: "10px",
+    borderRadius: "12px",
     cursor: "grab",
-    transition: "all 0.2s ease",
+    transition: "all 120ms ease",
     color: "#ffffff",
     fontSize: "13px",
     userSelect: "none",
@@ -208,7 +236,36 @@ const styles: any = {
     justifyContent: "space-between",
     alignItems: "center",
     gap: "8px",
-    border: "1px solid rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
+  },
+
+  cardDragging: {
+    transform: "scale(1.02)",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
+    cursor: "grabbing",
+    opacity: 0.9,
+  },
+
+  dragPlaceholder: {
+    height: "44px",
+    border: "1px dashed rgba(255,255,255,0.15)",
+    background: "rgba(255,255,255,0.03)",
+    borderRadius: "10px",
+    transition: "all 150ms ease",
+    animation: "placeholderFadeIn 150ms ease",
+  },
+
+  inlineInput: {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "12px",
+    border: "1px solid rgba(99,102,241,0.3)",
+    background: "rgba(255,255,255,0.02)",
+    color: "#ffffff",
+    fontSize: "13px",
+    outline: "none",
+    boxShadow: "0 0 0 3px rgba(99,102,241,0.1)",
+    transition: "all 120ms ease",
   },
 
   addBtn: {
@@ -260,15 +317,21 @@ const styles: any = {
     justifyContent: "center",
     padding: "40px 20px",
     color: "#666666",
-    fontSize: "13px",
+    fontSize: "12px",
     textAlign: "center",
     flex: 1,
   },
 
   emptyIcon: {
-    fontSize: "40px",
-    marginBottom: "12px",
-    opacity: 0.3,
+    fontSize: "32px",
+    marginBottom: "8px",
+    opacity: 0.25,
+  },
+
+  emptyText: {
+    fontSize: "12px",
+    color: "#666",
+    fontWeight: "400",
   },
 
   // Modal styles
@@ -381,6 +444,8 @@ export default function Dashboard() {
   const [draggedTask, setDraggedTask] = useState<any | null>(null);
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null);
+  const [inlineCreateCol, setInlineCreateCol] = useState<string | null>(null);
+  const [inlineTaskTitle, setInlineTaskTitle] = useState("");
 
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [createPromptCol, setCreatePromptCol] = useState<string | null>(null);
@@ -466,8 +531,28 @@ export default function Dashboard() {
   }, [project?.team_id, currentUser]);
 
   const promptCreateTask = (status: string) => { 
-    setCreatePromptCol(status); 
-    setCreateTaskTitle(""); 
+    setInlineCreateCol(status);
+    setInlineTaskTitle("");
+  };
+
+  const confirmInlineCreate = async () => {
+    if (!inlineCreateCol || !projectId) return;
+    const title = inlineTaskTitle.trim();
+    if (!title) { 
+      setInlineCreateCol(null); 
+      setInlineTaskTitle("");
+      return; 
+    }
+    try {
+      const created = await createTask(title, parseInt(projectId), inlineCreateCol.toLowerCase());
+      setTasks((prev) => [...prev, created]);
+      setInlineTaskTitle("");
+      // Keep inline input open for quick task creation
+    } catch (err: any) { 
+      console.error("Task creation error:", err);
+      setAlertMessage(err.message || "Failed to create task"); 
+      setInlineCreateCol(null);
+    }
   };
 
   const confirmCreateTask = async () => {
@@ -538,7 +623,7 @@ export default function Dashboard() {
         const col = selectedTaskId
           ? normalizeStatus(tasks.find((x) => x.id === selectedTaskId)?.status || "")
           : "todo";
-        promptCreateTask(col.toUpperCase());
+        promptCreateTask(col);
       } else if (key === "e") {
         const t = selectedTaskId !== null && tasks.find((x) => x.id === selectedTaskId);
         if (t) {
@@ -551,7 +636,7 @@ export default function Dashboard() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [selectedTaskId, tasks]);
+  }, [selectedTaskId, tasks, deleteConfirmId, createPromptCol, alertMessage]);
 
   // Drag and drop handlers
   const onDragStart = (e: React.DragEvent, task: any) => {
@@ -660,9 +745,24 @@ export default function Dashboard() {
 
   const getColumnConfig = (status: string) => {
     const configs: any = {
-      todo: { emoji: "📋", color: "#0b7de0" },
-      doing: { emoji: "⚡", color: "#f59e0b" },
-      done: { emoji: "✓", color: "#10b981" },
+      todo: { 
+        emoji: "📋", 
+        color: "#0b7de0",
+        title: "Todo",
+        emptyText: "Drag tasks here to get started"
+      },
+      doing: { 
+        emoji: "⚡", 
+        color: "#f59e0b",
+        title: "In Progress",
+        emptyText: "Drag tasks here to start working"
+      },
+      done: { 
+        emoji: "✓", 
+        color: "#10b981",
+        title: "Done",
+        emptyText: "Completed tasks will appear here"
+      },
     };
     return configs[status] || configs.todo;
   };
@@ -672,84 +772,113 @@ export default function Dashboard() {
 
   const renderTasks = (status: string) => {
     const colTasks = getColumnTasks(status);
+    const config = getColumnConfig(status);
 
-    if (colTasks.length === 0) {
+    if (colTasks.length === 0 && inlineCreateCol !== status) {
       return (
         <div style={styles.emptyState} className="empty-state">
-          <div style={styles.emptyIcon}>{getColumnConfig(status).emoji}</div>
-          <div>No tasks yet</div>
+          <div style={styles.emptyIcon}>{config.emoji}</div>
+          <div style={styles.emptyText}>{config.emptyText}</div>
         </div>
       );
     }
 
-    return colTasks.map((t) => (
-      <div key={t.id}>
-        {dragOverTaskId === t.id && draggedTask?.id !== t.id && (
-          <div style={styles.dropIndicator} className="drop-indicator" />
-        )}
+    return (
+      <>
+        {colTasks.map((t, index) => (
+          <div key={t.id}>
+            {/* Drag placeholder */}
+            {dragOverTaskId === t.id && draggedTask?.id !== t.id && (
+              <div style={styles.dragPlaceholder} className="drag-placeholder" />
+            )}
 
-        <div
-          className="task-card"
-          style={{
-            ...styles.card,
-            background: colors.surface,
-            color: colors.text,
-            border: `1px solid ${colors.border}`,
-            opacity: draggedTask?.id === t.id ? 0.4 : 1,
-            outline: selectedTaskId === t.id ? `2px solid ${colors.primary}` : "none",
-          }}
-          draggable
-          onClick={(e) => { e.stopPropagation(); selectTask(t.id); }}
-          onDoubleClick={(e) => {
-            e.stopPropagation();
-            setSelectedTaskId(t.id);
-            setShowTaskDetail(true);
-          }}
-          onDragStart={(e) => onDragStart(e, t)}
-          onDragEnd={onDragEnd}
-          onDragOver={(e) => onDragOverTask(e, t)}
-          onDrop={(e) => onDropOnTask(e, t)}
-        >
-          <span style={{ flex: 1, paddingRight: "8px" }}>{t.title}</span>
-          <div style={{ display: "flex", gap: "2px" }}>
-            <button
-              className="delete-btn"
-              style={styles.taskDeleteBtn}
-              title="Delete task"
-              onClick={(e) => onClickDeleteTask(e, t.id)}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#ff6b6b"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#666666"; }}
-            >🗑️</button>
+            <div
+              className={`task-card ${draggedTask?.id === t.id ? 'dragging' : ''}`}
+              style={{
+                ...styles.card,
+                ...(draggedTask?.id === t.id ? styles.cardDragging : {}),
+                background: "rgba(255,255,255,0.02)",
+                color: colors.text,
+                border: `1px solid rgba(255,255,255,0.06)`,
+                opacity: draggedTask?.id === t.id ? 0.5 : 1,
+                outline: selectedTaskId === t.id ? `2px solid ${colors.primary}` : "none",
+              }}
+              draggable
+              onClick={(e) => { e.stopPropagation(); selectTask(t.id); }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                setSelectedTaskId(t.id);
+                setShowTaskDetail(true);
+              }}
+              onDragStart={(e) => onDragStart(e, t)}
+              onDragEnd={onDragEnd}
+              onDragOver={(e) => onDragOverTask(e, t)}
+              onDrop={(e) => onDropOnTask(e, t)}
+            >
+              <span style={{ flex: 1, paddingRight: "8px" }}>{t.title}</span>
+              <div style={{ display: "flex", gap: "2px" }}>
+                <button
+                  className="delete-btn"
+                  style={styles.taskDeleteBtn}
+                  title="Delete task"
+                  onClick={(e) => onClickDeleteTask(e, t.id)}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "#ff6b6b"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "#666666"; }}
+                >🗑️</button>
+              </div>
+            </div>
+
+            {/* Show detail panel if this task is selected */}
+            {selectedTaskId === t.id && showTaskDetail && (
+              <TaskDetailModal
+                task={t}
+                onClose={() => {
+                  setShowTaskDetail(false);
+                  setSelectedTaskId(null);
+                }}
+                onUpdate={async (taskId, updates) => {
+                  try {
+                    await updateTask(taskId, updates);
+                    if (projectId) {
+                      const updated = await fetchTasks(parseInt(projectId));
+                      setTasks(updated);
+                    }
+                  } catch (err) {
+                    console.error("Failed to update task:", err);
+                  }
+                }}
+                teamMembers={teamMembers}
+              />
+            )}
           </div>
-        </div>
+        ))}
 
-        {/* Show detail panel if this task is selected */}
-        {selectedTaskId === t.id && showTaskDetail && (
-          <TaskDetailModal
-            task={t}
-            onClose={() => {
-              setShowTaskDetail(false);
-              setSelectedTaskId(null);
-            }}
-            onUpdate={async (taskId, updates) => {
-              try {
-                // Save all updates to backend
-                await updateTask(taskId, updates);
-                
-                // Refresh tasks
-                if (projectId) {
-                  const updated = await fetchTasks(parseInt(projectId));
-                  setTasks(updated);
+        {/* Inline task creation */}
+        {inlineCreateCol === status && (
+          <div style={{ animation: "taskSlideIn 150ms ease-out" }}>
+            <input
+              autoFocus
+              style={styles.inlineInput}
+              placeholder="Write a task..."
+              value={inlineTaskTitle}
+              onChange={(e) => setInlineTaskTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") confirmInlineCreate();
+                if (e.key === "Escape") {
+                  setInlineCreateCol(null);
+                  setInlineTaskTitle("");
                 }
-              } catch (err) {
-                console.error("Failed to update task:", err);
-              }
-            }}
-            teamMembers={teamMembers}
-          />
+              }}
+              onBlur={() => {
+                if (!inlineTaskTitle.trim()) {
+                  setInlineCreateCol(null);
+                }
+              }}
+            />
+          </div>
         )}
-      </div>
-    ));
+      </>
+    );
   };
 
   return (
@@ -762,6 +891,64 @@ export default function Dashboard() {
         
         /* Hide scrollbar in task lists */
         .task-list::-webkit-scrollbar { display: none; }
+
+        /* ─────────────────── DRAG & DROP IMPROVEMENTS ─────────────────── */
+        
+        /* Column highlight layer animation */
+        .column-highlight {
+          animation: highlightFadeIn 120ms ease-out;
+        }
+        
+        @keyframes highlightFadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        /* Drag placeholder animation */
+        @keyframes placeholderFadeIn {
+          from {
+            opacity: 0;
+            transform: scaleY(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scaleY(1);
+          }
+        }
+        
+        /* Task card improvements */
+        .task-card {
+          transition: all 120ms ease;
+          position: relative;
+          z-index: 2;
+        }
+        
+        .task-card:hover {
+          border-color: rgba(255,255,255,0.12) !important;
+          background: rgba(255,255,255,0.04) !important;
+          transform: translateY(-1px);
+        }
+        
+        .task-card.dragging {
+          transform: scale(1.02);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+          cursor: grabbing;
+          opacity: 0.5;
+        }
+        
+        /* Ensure proper z-index stacking */
+        .column-highlight {
+          z-index: 0;
+        }
+        
+        .task-list {
+          position: relative;
+          z-index: 1;
+        }
 
         /* ─────────────────── ANIMATIONS ─────────────────── */
         
@@ -791,23 +978,7 @@ export default function Dashboard() {
           z-index: 10;
         }
         
-        /* 2. Task Card Hover Animation */
-        .task-card {
-          transition: all 0.2s ease;
-        }
-        
-        .task-card:hover {
-          transform: scale(1.02);
-          background: rgba(255,255,255,0.05);
-          box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-          border-color: rgba(255,255,255,0.1);
-        }
-        
         /* 3. Task Card Slide In Animation */
-        .task-card {
-          animation: taskSlideIn 0.25s ease-out;
-        }
-        
         @keyframes taskSlideIn {
           from {
             opacity: 0;
@@ -845,6 +1016,10 @@ export default function Dashboard() {
         }
         
         /* 6. Add Button Hover Glow */
+        .add-btn {
+          transition: all 120ms ease;
+        }
+        
         .add-btn:hover {
           box-shadow: 0 0 12px ${colors.primaryLight};
         }
@@ -852,25 +1027,6 @@ export default function Dashboard() {
         /* 7. Chat Button Glow */
         .chat-btn-animated:hover {
           box-shadow: 0 0 10px ${colors.primaryLight};
-        }
-        
-        /* 8. Task Completion Checkmark Animation */
-        .task-done-check {
-          animation: checkmarkPulse 0.4s ease-out;
-        }
-        
-        @keyframes checkmarkPulse {
-          0% {
-            transform: scale(0) rotate(-45deg);
-            opacity: 0;
-          }
-          50% {
-            transform: scale(1.2);
-          }
-          100% {
-            transform: scale(1) rotate(0deg);
-            opacity: 1;
-          }
         }
         
         /* 9. Empty State Fade In */
@@ -908,22 +1064,6 @@ export default function Dashboard() {
           scroll-behavior: smooth;
         }
         
-        /* 12. Drag Physics - Task being dragged */
-        .task-card.dragging {
-          animation: dragLift 0.2s ease-out forwards;
-        }
-        
-        @keyframes dragLift {
-          from {
-            transform: scale(1) rotate(0deg);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-          }
-          to {
-            transform: scale(1.05) rotate(2deg);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
-          }
-        }
-        
         /* 13. Drop Indicator Pulse */
         .drop-indicator {
           animation: dropPulse 1.5s ease-in-out infinite;
@@ -950,21 +1090,10 @@ export default function Dashboard() {
           box-shadow: 0 0 8px rgba(11,125,224,0.3);
           transform: scale(1.05);
         }
-        
-        /* 15. Glassmorphism Effect for Cards */
-        .task-card {
-          backdrop-filter: blur(2px);
-          background: rgba(42, 42, 42, 0.7);
-        }
-        
-        .task-card:hover {
-          backdrop-filter: blur(4px);
-          background: rgba(255, 255, 255, 0.08);
-        }
 
         .task-card .delete-btn {
           opacity: 0;
-          transition: opacity 0.2s ease;
+          transition: opacity 120ms ease;
         }
         .task-card:hover .delete-btn {
           opacity: 1;
@@ -1110,42 +1239,59 @@ export default function Dashboard() {
         </div>
 
         <div style={styles.board} className="board-grid">
-          {(["todo", "doing", "done"] as const).map((col) => (
-            <div
-              key={col}
-              style={{
-                ...styles.column,
-                background: colors.surface,
-                border: `1px solid ${colors.border}`,
-                outline: dragOverCol === col ? `2px solid ${colors.primary}` : "none",
-              }}
-              className={`column-${col}`}
-              onDragOver={(e) => onDragOverColumn(e, col)}
-              onDragLeave={onDragLeaveColumn}
-              onDrop={() => onDropColumn(col)}
-            >
-              <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "16px" }}>{getColumnConfig(col).emoji}</span>
-                  <div style={styles.columnTitle}>{col}</div>
+          {(["todo", "doing", "done"] as const).map((col) => {
+            const config = getColumnConfig(col);
+            return (
+              <div
+                key={col}
+                style={{
+                  ...styles.column,
+                  background: colors.surface,
+                  border: dragOverCol === col 
+                    ? `1px solid ${colors.primary}` 
+                    : `1px solid ${colors.border}`,
+                }}
+                className={`column-${col}`}
+                onDragOver={(e) => onDragOverColumn(e, col)}
+                onDragLeave={onDragLeaveColumn}
+                onDrop={() => onDropColumn(col)}
+              >
+                {/* Drag-over highlight layer */}
+                <div 
+                  style={{
+                    ...styles.columnHighlight,
+                    ...(dragOverCol === col ? styles.columnHighlightActive : {}),
+                  }}
+                  className="column-highlight"
+                />
+                
+                <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "16px" }}>{config.emoji}</span>
+                    <div style={styles.columnTitle}>{config.title}</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={styles.columnCount} className="column-count">{getColumnTasks(col).length}</div>
+                    <button
+                      style={styles.addBtn}
+                      className="add-btn"
+                      title={`Add to ${config.title}`}
+                      onClick={() => promptCreateTask(col)}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#3a3a3a"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "transparent"; }}
+                    >+</button>
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <div style={styles.columnCount} className="column-count">{getColumnTasks(col).length}</div>
-                  <button
-                    style={styles.addBtn}
-                    className="add-btn"
-                    title={`Add to ${col.toUpperCase()}`}
-                    onClick={() => promptCreateTask(col.toUpperCase())}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#3a3a3a"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "transparent"; }}
-                  >+</button>
+                
+                {/* Column header divider */}
+                <div style={styles.columnHeaderDivider} />
+                
+                <div style={styles.taskList} className="task-list">
+                  {renderTasks(col)}
                 </div>
               </div>
-              <div style={styles.taskList} className="task-list">
-                {renderTasks(col)}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

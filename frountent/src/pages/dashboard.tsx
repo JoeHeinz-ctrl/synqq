@@ -30,6 +30,7 @@ const styles: any = {
     zIndex: 50,
     flexShrink: 0,
     boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)",
+    position: "relative",
   }),
 
   headerLeft: {
@@ -42,9 +43,11 @@ const styles: any = {
   headerCenter: {
     display: "flex",
     alignItems: "center",
-    gap: "16px",
-    flex: "1 1 auto",
     justifyContent: "center",
+    flex: "1 1 auto",
+    position: "absolute",
+    left: "50%",
+    transform: "translateX(-50%)",
   },
 
   headerRight: {
@@ -1218,15 +1221,15 @@ export default function Dashboard() {
           
           <div style={styles.projectMeta(colors)}>
             <div style={styles.metaBadge(colors)}>
-              <span>{tasks.length}</span>
+              <span>{tasks.length} tasks</span>
             </div>
             <div style={styles.metaBadge(colors)}>
-              <span>{teamMembers.length}</span>
+              <span>{teamMembers.map(m => m.name.split(' ')[0]).join(', ')}</span>
             </div>
           </div>
         </div>
 
-        {/* Center Section - Welcome Message */}
+        {/* Center Section - Welcome Message (Absolutely Centered) */}
         <div style={styles.headerCenter} className="header-center">
           {greeting && (
             <div style={styles.greeting(colors)}>

@@ -94,14 +94,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       };
     } else {
       return {
-        background: '#f8f9fa',
+        background: '#f8fafc',
         surface: '#ffffff',
-        surfaceHover: '#f1f3f5',
-        text: '#1a1a1a',
-        textSecondary: '#6c757d',
-        border: 'rgba(0,0,0,0.08)',
+        surfaceHover: '#f1f5f9',
+        text: '#0f172a',
+        textSecondary: '#64748b',
+        border: '#e2e8f0',
         input: '#ffffff',
-        inputBorder: 'rgba(0,0,0,0.15)',
+        inputBorder: '#cbd5e1',
         cardBg: '#ffffff',
         headerBg: '#ffffff',
         ...palette,

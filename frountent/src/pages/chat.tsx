@@ -22,7 +22,7 @@ const styles: any = {
     paddingBottom: "70px",
   }),
 
-  topBar: (colors: any) => ({
+  topBar: (colors: any, isDark: boolean) => ({
     background: colors.surface,
     borderBottom: `1px solid ${colors.border}`,
     padding: "12px 16px",
@@ -30,6 +30,7 @@ const styles: any = {
     alignItems: "center",
     justifyContent: "space-between",
     flexShrink: 0,
+    boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)",
   }),
 
   title: (colors: any) => ({
@@ -223,7 +224,7 @@ const styles: any = {
     marginBottom: "4px",
   }),
 
-  messageBubble: (colors: any) => ({
+  messageBubble: (colors: any, isDark: boolean) => ({
     padding: "10px 14px",
     borderRadius: "12px",
     background: colors.surface,
@@ -231,6 +232,7 @@ const styles: any = {
     fontSize: "14px",
     lineHeight: "1.5",
     wordWrap: "break-word",
+    boxShadow: isDark ? "none" : "0 1px 2px rgba(0,0,0,0.05)",
   }),
 
   messageBubbleOwn: (colors: any) => ({
@@ -244,13 +246,14 @@ const styles: any = {
     marginTop: "4px",
   }),
 
-  inputArea: (colors: any) => ({
+  inputArea: (colors: any, isDark: boolean) => ({
     padding: "16px",
     background: colors.surface,
     borderTop: `1px solid ${colors.border}`,
     display: "flex",
     gap: "12px",
     alignItems: "center",
+    boxShadow: isDark ? "none" : "0 -1px 3px rgba(0,0,0,0.06)",
   }),
 
   input: (colors: any) => ({
@@ -408,6 +411,7 @@ export default function Chat() {
   const { projectId } = useParams();
   const theme = useTheme();
   const colors = theme.getThemeColors();
+  const isDark = theme.mode === 'dark';
   
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [allMembers, setAllMembers] = useState<any[]>([]);
@@ -603,7 +607,7 @@ export default function Chat() {
 
   return (
     <div style={styles.container(colors)}>
-      <div style={styles.topBar(colors)}>
+      <div style={styles.topBar(colors, isDark)}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {isMobile && (
             <button
@@ -753,7 +757,7 @@ export default function Chat() {
                       )}
                       <div
                         style={{
-                          ...styles.messageBubble(colors),
+                          ...styles.messageBubble(colors, isDark),
                           ...(isOwn ? styles.messageBubbleOwn(colors) : {}),
                         }}
                       >
@@ -797,7 +801,7 @@ export default function Chat() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div style={styles.inputArea(colors)}>
+          <div style={styles.inputArea(colors, isDark)}>
             <input
               ref={fileInputRef}
               type="file"

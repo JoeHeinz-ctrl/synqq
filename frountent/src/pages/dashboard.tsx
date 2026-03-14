@@ -17,9 +17,9 @@ const styles: any = {
   },
 
   // Header styles
-  topBar: {
-    background: "#242424",
-    borderBottom: "1px solid rgba(255,255,255,0.05)",
+  topBar: (colors: any, isDark: boolean) => ({
+    background: colors.headerBg,
+    borderBottom: `1px solid ${colors.border}`,
     padding: "12px 16px",
     display: "flex",
     alignItems: "center",
@@ -30,7 +30,8 @@ const styles: any = {
     top: 0,
     zIndex: 50,
     flexShrink: 0,
-  },
+    boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)",
+  }),
 
   topBarLeft: {
     display: "flex",
@@ -53,21 +54,21 @@ const styles: any = {
     gap: "12px",
   },
 
-  backBtn: {
+  backBtn: (colors: any) => ({
     display: "inline-flex",
     alignItems: "center",
     gap: "6px",
     padding: "8px 16px",
     borderRadius: "10px",
-    border: "none",
-    background: "#1a1a1a",
-    color: "#b3b3b3",
+    border: `1px solid ${colors.border}`,
+    background: colors.surface,
+    color: colors.textSecondary,
     fontWeight: "600",
     fontSize: "13px",
     cursor: "pointer",
     transition: "all 0.2s ease",
     whiteSpace: "nowrap",
-  },
+  }),
 
   logoutBtn: {
     padding: "8px 16px",
@@ -82,31 +83,31 @@ const styles: any = {
     whiteSpace: "nowrap",
   },
 
-  greeting: {
+  greeting: (colors: any) => ({
     fontSize: "14px",
-    color: "#fff",
+    color: colors.text,
     fontWeight: "500",
-  },
+  }),
 
-  projectTitle: {
+  projectTitle: (colors: any) => ({
     fontSize: "18px",
     fontWeight: "600",
-    color: "#ffffff",
+    color: colors.text,
     letterSpacing: "-0.3px",
-  },
+  }),
 
-  taskCount: {
+  taskCount: (colors: any) => ({
     fontSize: "12px",
-    color: "#888",
+    color: colors.textSecondary,
     marginLeft: "8px",
-  },
+  }),
 
-  chatBtn: {
+  chatBtn: (colors: any) => ({
     padding: "8px 16px",
     borderRadius: "10px",
-    border: "1px solid rgba(11, 125, 224, 0.3)",
-    background: "rgba(11, 125, 224, 0.1)",
-    color: "#0b7de0",
+    border: `1px solid ${colors.primary}40`,
+    background: colors.primaryLight,
+    color: colors.primary,
     fontWeight: "600",
     fontSize: "13px",
     cursor: "pointer",
@@ -115,7 +116,7 @@ const styles: any = {
     display: "flex",
     alignItems: "center",
     gap: "6px",
-  },
+  }),
 
   // Main content
   mainContent: {
@@ -145,8 +146,8 @@ const styles: any = {
     paddingTop: "4px",
   },
 
-  column: {
-    background: "#242424",
+  column: (colors: any, isDark: boolean) => ({
+    background: colors.surface,
     padding: "12px",
     borderRadius: "12px",
     display: "flex",
@@ -154,10 +155,11 @@ const styles: any = {
     minHeight: "300px",
     maxHeight: "calc(100vh - 220px)",
     transition: "all 0.25s ease",
-    border: "1px solid rgba(255,255,255,0.05)",
+    border: `1px solid ${colors.border}`,
     position: "relative",
     overflow: "hidden",
-  },
+    boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.08)",
+  }),
 
   columnHighlight: {
     position: "absolute",
@@ -194,22 +196,22 @@ const styles: any = {
     zIndex: 2,
   },
 
-  columnTitle: {
+  columnTitle: (colors: any) => ({
     fontWeight: "600",
     fontSize: "13px",
     letterSpacing: "0.5px",
-    color: "#b3b3b3",
+    color: colors.textSecondary,
     textTransform: "uppercase",
-  },
+  }),
 
-  columnCount: {
-    background: "#2a2a2a",
+  columnCount: (colors: any) => ({
+    background: colors.primaryLight,
     padding: "4px 10px",
     borderRadius: "12px",
     fontSize: "11px",
     fontWeight: "600",
-    color: "#0b7de0",
-  },
+    color: colors.primary,
+  }),
 
   taskList: {
     flex: 1,
@@ -225,31 +227,32 @@ const styles: any = {
     zIndex: 2,
   },
 
-  card: {
-    background: "rgba(255,255,255,0.02)",
+  card: (colors: any, isDark: boolean) => ({
+    background: colors.cardBg,
     padding: "12px",
     borderRadius: "12px",
     cursor: "grab",
     transition: "transform 120ms ease, box-shadow 120ms ease",
-    color: "#ffffff",
+    color: colors.text,
     fontSize: "13px",
     userSelect: "none",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     gap: "8px",
-    border: "1px solid rgba(255,255,255,0.06)",
+    border: `1px solid ${colors.border}`,
     position: "relative",
     zIndex: 3,
-  },
+    boxShadow: isDark ? "none" : "0 1px 2px rgba(0,0,0,0.05)",
+  }),
 
-  cardDragging: {
+  cardDragging: (isDark: boolean) => ({
     transform: "scale(1.02)",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.45)",
+    boxShadow: isDark ? "0 20px 40px rgba(0,0,0,0.45)" : "0 20px 40px rgba(0,0,0,0.15)",
     cursor: "grabbing",
     opacity: 0.95,
     zIndex: 999,
-  },
+  }),
 
   dragPlaceholder: {
     height: "2px",
@@ -440,6 +443,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const theme = useTheme();
   const colors = theme.getThemeColors();
+  const isDark = theme.mode === 'dark';
   
   const [project, setProject] = useState<any>(location.state?.project || null);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -801,11 +805,8 @@ export default function Dashboard() {
             <div
               className={`task-card ${draggedTask?.id === t.id ? 'dragging' : ''}`}
               style={{
-                ...styles.card,
-                ...(draggedTask?.id === t.id ? styles.cardDragging : {}),
-                background: "rgba(255,255,255,0.02)",
-                color: colors.text,
-                border: `1px solid rgba(255,255,255,0.06)`,
+                ...styles.card(colors, isDark),
+                ...(draggedTask?.id === t.id ? styles.cardDragging(isDark) : {}),
                 opacity: draggedTask?.id === t.id ? 0.3 : 1,
                 outline: selectedTaskId === t.id ? `2px solid ${colors.primary}` : "none",
               }}
@@ -948,15 +949,16 @@ export default function Dashboard() {
         }
         
         .task-card:hover {
-          border-color: rgba(255,255,255,0.12) !important;
-          background: rgba(255,255,255,0.04) !important;
+          border-color: ${isDark ? 'rgba(255,255,255,0.12)' : colors.border} !important;
+          background: ${colors.surfaceHover} !important;
           transform: translateY(-1px);
           z-index: 4;
+          box-shadow: ${isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.08)'} !important;
         }
         
         .task-card.dragging {
           transform: scale(1.02) !important;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.45) !important;
+          box-shadow: ${isDark ? '0 20px 40px rgba(0,0,0,0.45)' : '0 20px 40px rgba(0,0,0,0.15)'} !important;
           cursor: grabbing !important;
           opacity: 0.95 !important;
           z-index: 999 !important;
@@ -996,8 +998,8 @@ export default function Dashboard() {
         
         .board-grid > div:hover {
           transform: translateY(-4px);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08);
-          border-color: rgba(255,255,255,0.15);
+          box-shadow: ${isDark ? '0 10px 25px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08)' : '0 10px 25px rgba(0,0,0,0.12)'};
+          border-color: ${isDark ? 'rgba(255,255,255,0.15)' : colors.border};
           z-index: 10;
         }
         
@@ -1163,20 +1165,20 @@ export default function Dashboard() {
       `}</style>
 
       {/* Top Bar with Header Info */}
-      <div style={{...styles.topBar, background: colors.surface, borderBottom: `1px solid ${colors.border}`}} className="top-bar">
+      <div style={styles.topBar(colors, isDark)} className="top-bar">
         <div style={styles.topBarLeft}>
           <button 
-            style={styles.backBtn} 
+            style={styles.backBtn(colors)} 
             onClick={() => navigate('/board')}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "#2c2c2c"; e.currentTarget.style.color = "#fff"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "#1a1a1a"; e.currentTarget.style.color = "#b3b3b3"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = colors.surfaceHover; e.currentTarget.style.color = colors.text; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = colors.surface; e.currentTarget.style.color = colors.textSecondary; }}
           >
             ← Back
           </button>
           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={styles.projectTitle}>{project ? project.title : "Project Board"}</div>
-              <div style={styles.taskCount}>· {tasks.length} tasks</div>
+              <div style={styles.projectTitle(colors)}>{project ? project.title : "Project Board"}</div>
+              <div style={styles.taskCount(colors)}>· {tasks.length} tasks</div>
             </div>
             {teamMembers.length > 1 && (
               <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
@@ -1195,7 +1197,7 @@ export default function Dashboard() {
         </div>
 
         <div style={styles.topBarCenter} className="top-bar-center">
-          {greeting && <div style={styles.greeting}>{greeting}</div>}
+          {greeting && <div style={styles.greeting(colors)}>{greeting}</div>}
         </div>
 
         <div style={styles.topBarRight}>
@@ -1250,11 +1252,11 @@ export default function Dashboard() {
             </div>
           )}
           <button 
-            style={styles.chatBtn} 
+            style={styles.chatBtn(colors)} 
             className="chat-btn-animated"
             onClick={() => projectId && navigate(`/chat/${projectId}`)}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.2)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(11,125,224,0.1)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '1'; }}
           >
             💬 Chat
           </button>
@@ -1273,8 +1275,7 @@ export default function Dashboard() {
               <div
                 key={col}
                 style={{
-                  ...styles.column,
-                  background: colors.surface,
+                  ...styles.column(colors, isDark),
                   border: dragOverCol === col 
                     ? `1px solid ${colors.primary}` 
                     : `1px solid ${colors.border}`,
@@ -1296,10 +1297,10 @@ export default function Dashboard() {
                 <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span style={{ fontSize: "16px" }}>{config.emoji}</span>
-                    <div style={styles.columnTitle}>{config.title}</div>
+                    <div style={styles.columnTitle(colors)}>{config.title}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={styles.columnCount} className="column-count">{getColumnTasks(col).length}</div>
+                    <div style={styles.columnCount(colors)} className="column-count">{getColumnTasks(col).length}</div>
                     <button
                       style={styles.addBtn}
                       className="add-btn"

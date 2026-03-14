@@ -99,17 +99,18 @@ const s: any = {
     gap: "12px",
     marginBottom: "8px",
   },
-  card: (colors: any) => ({
+  card: (colors: any, isDark: boolean) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "18px 20px",
     borderRadius: "16px",
     background: colors.cardBg,
-    transition: "background 0.2s, box-shadow 0.2s",
+    transition: "background 0.2s, box-shadow 0.2s, transform 0.2s",
     userSelect: "none" as const,
     cursor: "pointer",
     border: `1px solid ${colors.border}`,
+    boxShadow: isDark ? "6px 6px 14px rgba(0,0,0,0.5)" : "0 1px 3px rgba(0,0,0,0.08)",
   }),
   cardLeft: { display: "flex", alignItems: "center", gap: "12px", flex: 1, minWidth: 0 },
   projectEmoji: { fontSize: "20px", flexShrink: 0 },
@@ -222,6 +223,7 @@ export default function ProjectBoard() {
   const navigate = useNavigate();
   const theme = useTheme();
   const colors = theme.getThemeColors();
+  const isDark = theme.mode === 'dark';
   
   const [personalProjects, setPersonalProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
@@ -450,11 +452,8 @@ export default function ProjectBoard() {
         key={p.id}
         className="project-card"
         style={{
-          ...s.card(colors),
+          ...s.card(colors, isDark),
           background: isHovered ? colors.surfaceHover : colors.cardBg,
-          boxShadow: isHovered
-            ? `8px 8px 20px rgba(0,0,0,0.6), inset 0 0 0 1px ${colors.primary}33`
-            : "6px 6px 14px rgba(0,0,0,0.5)",
           cursor: editingId === p.id ? "default" : "pointer",
         }}
         onClick={() => {
@@ -543,7 +542,7 @@ export default function ProjectBoard() {
         /* Project Card Hover Elevation */
         .project-card:hover {
           transform: translateY(-3px);
-          box-shadow: 0 8px 20px rgba(0,0,0,0.5) !important;
+          box-shadow: ${isDark ? '0 8px 20px rgba(0,0,0,0.5)' : '0 8px 20px rgba(0,0,0,0.12)'} !important;
         }
         
         /* Project Card Glassmorphism */

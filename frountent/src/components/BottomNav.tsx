@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 interface BottomNavProps {
   projectId?: string;
@@ -7,6 +8,8 @@ interface BottomNavProps {
 export default function BottomNav({ projectId }: BottomNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const colors = theme.getThemeColors();
 
   const isChat = location.pathname.includes("/chat");
   const isDashboard = location.pathname.includes("/dashboard");
@@ -21,20 +24,24 @@ export default function BottomNav({ projectId }: BottomNavProps) {
       justifyContent: "center",
       alignItems: "center",
       padding: "12px 0 18px",
-      background: "rgba(20, 20, 20, 0.85)",
+      background: theme.mode === 'dark' 
+        ? "rgba(20, 20, 20, 0.85)" 
+        : "rgba(255, 255, 255, 0.85)",
       backdropFilter: "blur(16px)",
       WebkitBackdropFilter: "blur(16px)",
-      borderTop: "1px solid rgba(255,255,255,0.04)",
+      borderTop: `1px solid ${colors.border}`,
       zIndex: 100,
     }}>
       {/* Pill Container */}
       <div style={{
         display: "flex",
-        background: "rgba(40, 40, 40, 0.9)",
+        background: colors.surface,
         borderRadius: "16px",
-        border: "1px solid rgba(255,255,255,0.07)",
+        border: `1px solid ${colors.border}`,
         overflow: "hidden",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+        boxShadow: theme.mode === 'dark' 
+          ? "0 4px 24px rgba(0,0,0,0.4)" 
+          : "0 4px 24px rgba(0,0,0,0.1)",
       }}>
         {/* Dashboard Tile */}
         <button
@@ -46,11 +53,11 @@ export default function BottomNav({ projectId }: BottomNavProps) {
             gap: "8px",
             padding: "10px 24px",
             background: isDashboard
-              ? "rgba(11, 125, 224, 0.15)"
+              ? colors.primaryLight
               : "transparent",
             border: "none",
-            borderRight: "1px solid rgba(255,255,255,0.06)",
-            color: isDashboard ? "#3b9eff" : "#666",
+            borderRight: `1px solid ${colors.border}`,
+            color: isDashboard ? colors.primary : colors.textSecondary,
             cursor: "pointer",
             transition: "all 0.2s ease",
             fontSize: "13px",
@@ -58,10 +65,10 @@ export default function BottomNav({ projectId }: BottomNavProps) {
             letterSpacing: "0.2px",
           }}
           onMouseEnter={(e) => {
-            if (!isDashboard) e.currentTarget.style.color = "#aaa";
+            if (!isDashboard) e.currentTarget.style.color = colors.text;
           }}
           onMouseLeave={(e) => {
-            if (!isDashboard) e.currentTarget.style.color = "#666";
+            if (!isDashboard) e.currentTarget.style.color = colors.textSecondary;
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -76,8 +83,8 @@ export default function BottomNav({ projectId }: BottomNavProps) {
               width: "4px",
               height: "4px",
               borderRadius: "50%",
-              background: "#3b9eff",
-              boxShadow: "0 0 6px #3b9eff",
+              background: colors.primary,
+              boxShadow: `0 0 6px ${colors.primary}`,
               marginLeft: "2px",
             }} />
           )}
@@ -93,10 +100,10 @@ export default function BottomNav({ projectId }: BottomNavProps) {
             gap: "8px",
             padding: "10px 24px",
             background: isChat
-              ? "rgba(139, 92, 246, 0.15)"
+              ? colors.primaryLight
               : "transparent",
             border: "none",
-            color: isChat ? "#a78bfa" : "#666",
+            color: isChat ? colors.primary : colors.textSecondary,
             cursor: "pointer",
             transition: "all 0.2s ease",
             fontSize: "13px",
@@ -104,10 +111,10 @@ export default function BottomNav({ projectId }: BottomNavProps) {
             letterSpacing: "0.2px",
           }}
           onMouseEnter={(e) => {
-            if (!isChat) e.currentTarget.style.color = "#aaa";
+            if (!isChat) e.currentTarget.style.color = colors.text;
           }}
           onMouseLeave={(e) => {
-            if (!isChat) e.currentTarget.style.color = "#666";
+            if (!isChat) e.currentTarget.style.color = colors.textSecondary;
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -119,8 +126,8 @@ export default function BottomNav({ projectId }: BottomNavProps) {
               width: "4px",
               height: "4px",
               borderRadius: "50%",
-              background: "#a78bfa",
-              boxShadow: "0 0 6px #a78bfa",
+              background: colors.primary,
+              boxShadow: `0 0 6px ${colors.primary}`,
               marginLeft: "2px",
             }} />
           )}

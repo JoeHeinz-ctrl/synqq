@@ -5,7 +5,9 @@ import { useAuth } from '../context/AuthContext';
 export default function SettingsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { mode, color, toggleMode, setColor } = useTheme();
+  const theme = useTheme();
+  const { mode, color, toggleMode, setColor } = theme;
+  const themeColors = theme.getThemeColors();
   const { logout } = useAuth();
 
   const colors: Array<{ name: string; value: 'blue' | 'purple' | 'red'; color: string }> = [
@@ -34,20 +36,51 @@ export default function SettingsDropdown() {
     <div style={styles.container} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        style={styles.settingsBtn}
+        style={{
+          ...styles.settingsBtn,
+          background: themeColors.surfaceHover,
+          color: themeColors.text,
+        }}
         title="Settings"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = mode === 'dark' 
+            ? 'rgba(255,255,255,0.15)' 
+            : 'rgba(0,0,0,0.08)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = themeColors.surfaceHover;
+        }}
       >
         ⚙️
       </button>
 
       {isOpen && (
-        <div style={styles.dropdown}>
+        <div style={{
+          ...styles.dropdown,
+          background: themeColors.surface,
+          border: `1px solid ${themeColors.border}`,
+          boxShadow: mode === 'dark' 
+            ? '0 8px 24px rgba(0,0,0,0.4)' 
+            : '0 8px 24px rgba(0,0,0,0.15)',
+        }}>
           {/* Theme Mode */}
           <div style={styles.section}>
-            <div style={styles.sectionLabel}>Theme Mode</div>
+            <div style={{...styles.sectionLabel, color: themeColors.textSecondary}}>Theme Mode</div>
             <button
               onClick={toggleMode}
-              style={styles.modeToggle}
+              style={{
+                ...styles.modeToggle,
+                background: themeColors.surfaceHover,
+                color: themeColors.text,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = mode === 'dark' 
+                  ? 'rgba(255,255,255,0.1)' 
+                  : 'rgba(0,0,0,0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = themeColors.surfaceHover;
+              }}
             >
               <span style={styles.modeIcon}>{mode === 'dark' ? '🌙' : '☀️'}</span>
               <span style={styles.modeText}>{mode === 'dark' ? 'Dark' : 'Light'} Mode</span>
@@ -55,11 +88,11 @@ export default function SettingsDropdown() {
           </div>
 
           {/* Divider */}
-          <div style={styles.divider} />
+          <div style={{...styles.divider, background: themeColors.border}} />
 
           {/* Accent Color */}
           <div style={styles.section}>
-            <div style={styles.sectionLabel}>Accent Color</div>
+            <div style={{...styles.sectionLabel, color: themeColors.textSecondary}}>Accent Color</div>
             <div style={styles.colorGrid}>
               {colors.map((c) => (
                 <button
@@ -67,9 +100,20 @@ export default function SettingsDropdown() {
                   onClick={() => setColor(c.value)}
                   style={{
                     ...styles.colorOption,
-                    background: color === c.value ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    background: color === c.value ? themeColors.primaryLight : 'transparent',
+                    color: themeColors.text,
                   }}
                   title={c.name}
+                  onMouseEnter={(e) => {
+                    if (color !== c.value) {
+                      e.currentTarget.style.background = themeColors.surfaceHover;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (color !== c.value) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
                 >
                   <div
                     style={{
@@ -86,7 +130,7 @@ export default function SettingsDropdown() {
           </div>
 
           {/* Divider */}
-          <div style={styles.divider} />
+          <div style={{...styles.divider, background: themeColors.border}} />
 
           {/* Logout */}
           <button

@@ -21,10 +21,10 @@ const styles: any = {
     background: colors.headerBg,
     borderBottom: `1px solid ${colors.border}`,
     padding: "12px 24px",
-    display: "flex",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gap: "12px",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: "20px",
     position: "sticky",
     top: 0,
     zIndex: 50,
@@ -36,22 +36,20 @@ const styles: any = {
     display: "flex",
     alignItems: "center",
     gap: "16px",
-    flex: "0 0 auto",
+    justifyContent: "flex-start",
   },
 
   headerCenter: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    flex: "1 1 auto",
-    minWidth: 0,
   },
 
   headerRight: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    flex: "0 0 auto",
+    justifyContent: "flex-end",
   },
 
   backBtn: (colors: any) => ({

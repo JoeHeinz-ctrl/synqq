@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchTasks, createTask, moveTask, deleteTask, reorderTasks, getCurrentUser, updateTask, fetchTeamMembers } from "../services/api";
+import { fetchTasks, createTask, moveTask, deleteTask, reorderTasks, getCurrentUser, updateTask, fetchTeamMembers, fetchProject } from "../services/api";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import BottomNav from "../components/BottomNav";
@@ -20,12 +20,11 @@ const styles: any = {
   topBar: (colors: any, isDark: boolean) => ({
     background: colors.headerBg,
     borderBottom: `1px solid ${colors.border}`,
-    padding: "12px 16px",
+    padding: "16px 24px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: "12px",
-    flexWrap: "wrap",
+    gap: "24px",
     position: "sticky",
     top: 0,
     zIndex: 50,
@@ -33,25 +32,27 @@ const styles: any = {
     boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)",
   }),
 
-  topBarLeft: {
+  headerLeft: {
     display: "flex",
     alignItems: "center",
-    gap: "16px",
+    gap: "20px",
     flex: "0 0 auto",
   },
 
-  topBarCenter: {
+  headerCenter: {
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
-    gap: "12px",
+    gap: "8px",
     flex: "1 1 auto",
-    justifyContent: "center",
+    maxWidth: "600px",
   },
 
-  topBarRight: {
+  headerRight: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
+    flex: "0 0 auto",
   },
 
   backBtn: (colors: any) => ({
@@ -84,16 +85,49 @@ const styles: any = {
   },
 
   greeting: (colors: any) => ({
-    fontSize: "14px",
+    fontSize: "13px",
+    color: colors.textSecondary,
+    fontWeight: "500",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  }),
+
+  greetingIcon: {
+    fontSize: "16px",
+  },
+
+  projectTitle: (colors: any) => ({
+    fontSize: "24px",
+    fontWeight: "700",
     color: colors.text,
+    letterSpacing: "-0.5px",
+    textAlign: "center",
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  }),
+
+  projectMeta: (colors: any) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    fontSize: "13px",
+    color: colors.textSecondary,
     fontWeight: "500",
   }),
 
-  projectTitle: (colors: any) => ({
-    fontSize: "18px",
+  metaBadge: (colors: any) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "4px 12px",
+    borderRadius: "20px",
+    background: colors.primaryLight,
+    color: colors.primary,
+    fontSize: "12px",
     fontWeight: "600",
-    color: colors.text,
-    letterSpacing: "-0.3px",
   }),
 
   taskCount: (colors: any) => ({
@@ -128,14 +162,14 @@ const styles: any = {
     marginTop: "0",
   },
 
-  shortcuts: {
+  shortcuts: (colors: any) => ({
     fontSize: "11px",
-    color: "#666",
-    opacity: 0.6,
+    color: colors.textSecondary,
+    opacity: 0.7,
     display: "flex",
-    gap: "12px",
+    gap: "8px",
     alignItems: "center",
-  },
+  }),
 
   board: {
     display: "grid",
@@ -470,7 +504,13 @@ export default function Dashboard() {
   // Load project if missing
   useEffect(() => {
     if (!project && projectId) {
-      setProject({ id: parseInt(projectId), title: "Project " + projectId });
+      // Fetch actual project data instead of using fallback
+      fetchProject(parseInt(projectId))
+        .then(setProject)
+        .catch(() => {
+          // Fallback only if fetch fails
+          setProject({ id: parseInt(projectId), title: "Project " + projectId });
+        });
     }
   }, [projectId, project]);
 
@@ -1143,15 +1183,19 @@ export default function Dashboard() {
           .top-bar { 
             flex-direction: column; 
             align-items: stretch !important; 
-            padding: 10px 12px !important;
-            gap: 8px !important;
+            padding: 12px 16px !important;
+            gap: 12px !important;
           }
-          .top-bar-left, .top-bar-right {
+          .header-left {
+            order: 1;
+          }
+          .header-center { 
+            order: 0;
+            max-width: 100%;
+          }
+          .header-right {
+            order: 2;
             justify-content: space-between;
-          }
-          .top-bar-center { 
-            order: -1; 
-            margin-bottom: 8px; 
           }
           .board-grid { 
             grid-template-columns: 1fr !important; 
@@ -1159,14 +1203,14 @@ export default function Dashboard() {
           }
           .shortcuts-badge {
             font-size: 10px !important;
-            margin-top: 4px;
           }
         }
       `}</style>
 
-      {/* Top Bar with Header Info */}
+      {/* Top Bar with Modern Royal Header */}
       <div style={styles.topBar(colors, isDark)} className="top-bar">
-        <div style={styles.topBarLeft}>
+        {/* Left Section - Back Button */}
+        <div style={styles.headerLeft} className="header-left">
           <button 
             style={styles.backBtn(colors)} 
             onClick={() => navigate('/board')}
@@ -1175,82 +1219,94 @@ export default function Dashboard() {
           >
             ← Back
           </button>
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={styles.projectTitle(colors)}>{project ? project.title : "Project Board"}</div>
-              <div style={styles.taskCount(colors)}>· {tasks.length} tasks</div>
+        </div>
+
+        {/* Center Section - Project Info */}
+        <div style={styles.headerCenter} className="header-center">
+          <div style={styles.projectTitle(colors)}>
+            {project ? project.title : "Loading..."}
+          </div>
+          <div style={styles.projectMeta(colors)}>
+            <div style={styles.metaBadge(colors)}>
+              <span>📋</span>
+              <span>{tasks.length} tasks</span>
             </div>
-            {teamMembers.length > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
-                {teamMembers.map((m: any, i: number) => (
-                  <span key={m.id} style={{ fontSize: "11px", color: "#666", fontWeight: "500" }}>
-                    {m.name}{i < teamMembers.length - 1 ? "," : ""}
-                  </span>
-                ))}
+            {teamMembers.length > 0 && (
+              <div style={styles.metaBadge(colors)}>
+                <span>👥</span>
+                <span>{teamMembers.length} {teamMembers.length === 1 ? 'member' : 'members'}</span>
               </div>
             )}
-            {/* Hotkey hints */}
-            <div style={styles.shortcuts} className="shortcuts-badge">
-              <kbd>N</kbd> new task · <kbd>E</kbd> edit · <kbd>D</kbd> mark done
-            </div>
+            {greeting && (
+              <div style={styles.greeting(colors)}>
+                <span style={styles.greetingIcon}>👋</span>
+                <span>{greeting}</span>
+              </div>
+            )}
+          </div>
+          {/* Hotkey hints */}
+          <div style={styles.shortcuts(colors)} className="shortcuts-badge">
+            <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
           </div>
         </div>
 
-        <div style={styles.topBarCenter} className="top-bar-center">
-          {greeting && <div style={styles.greeting(colors)}>{greeting}</div>}
-        </div>
-
-        <div style={styles.topBarRight}>
-          {/* Member avatars strip */}
+        {/* Right Section - Actions */}
+        <div style={styles.headerRight} className="header-right">
+          {/* Member avatars */}
           {teamMembers.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
-              {teamMembers.slice(0, 5).map((m, i) => (
+              {teamMembers.slice(0, 3).map((m, i) => (
                 <div
                   key={m.id}
                   title={m.name}
                   style={{
-                    width: "30px",
-                    height: "30px",
+                    width: "36px",
+                    height: "36px",
                     borderRadius: "50%",
-                    background: `hsl(${(m.id * 67) % 360}, 60%, 45%)`,
-                    border: "2px solid #1a1a1a",
-                    marginLeft: i === 0 ? "0" : "-8px",
+                    background: `linear-gradient(135deg, hsl(${(m.id * 67) % 360}, 65%, 50%), hsl(${(m.id * 67 + 30) % 360}, 65%, 45%))`,
+                    border: `2px solid ${colors.surface}`,
+                    marginLeft: i === 0 ? "0" : "-12px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "11px",
+                    fontSize: "13px",
                     fontWeight: "700",
                     color: "#fff",
                     cursor: "default",
-                    zIndex: teamMembers.slice(0, 5).length - i,
+                    zIndex: teamMembers.slice(0, 3).length - i,
                     position: "relative",
-                    boxShadow: "0 0 0 1px rgba(255,255,255,0.05)",
+                    boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
+                    transition: "transform 0.2s ease",
                   }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px) scale(1.05)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
                 >
                   {m.name[0].toUpperCase()}
                 </div>
               ))}
-              {teamMembers.length > 5 && (
+              {teamMembers.length > 3 && (
                 <div style={{
-                  width: "30px",
-                  height: "30px",
+                  width: "36px",
+                  height: "36px",
                   borderRadius: "50%",
-                  background: "#333",
-                  border: "2px solid #1a1a1a",
-                  marginLeft: "-8px",
+                  background: colors.primaryLight,
+                  border: `2px solid ${colors.surface}`,
+                  marginLeft: "-12px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "10px",
+                  fontSize: "11px",
                   fontWeight: "700",
-                  color: "#888",
+                  color: colors.primary,
                   position: "relative",
+                  boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
                 }}>
-                  +{teamMembers.length - 5}
+                  +{teamMembers.length - 3}
                 </div>
               )}
             </div>
           )}
+          
           <button 
             style={styles.chatBtn(colors)} 
             className="chat-btn-animated"
@@ -1261,7 +1317,6 @@ export default function Dashboard() {
             💬 Chat
           </button>
           
-          {/* Settings Dropdown */}
           <SettingsDropdown />
         </div>
       </div>

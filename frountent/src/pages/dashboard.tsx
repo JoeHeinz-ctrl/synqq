@@ -165,8 +165,8 @@ const styles: any = {
     pointerEvents: "none",
     opacity: 0,
     transition: "opacity 120ms ease",
-    background: "rgba(99,102,241,0.08)",
-    border: "1px solid rgba(99,102,241,0.25)",
+    boxShadow: "inset 0 0 0 1px rgba(99,102,241,0.4)",
+    background: "rgba(99,102,241,0.04)",
     zIndex: 1,
   },
 
@@ -229,7 +229,7 @@ const styles: any = {
     padding: "12px",
     borderRadius: "12px",
     cursor: "grab",
-    transition: "all 120ms ease",
+    transition: "all 120ms ease, transform 150ms ease",
     color: "#ffffff",
     fontSize: "13px",
     userSelect: "none",
@@ -243,20 +243,21 @@ const styles: any = {
   },
 
   cardDragging: {
-    transform: "scale(1.02)",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
+    transform: "rotate(1deg) scale(1.03)",
+    boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
     cursor: "grabbing",
-    opacity: 0.9,
-    zIndex: 100,
+    opacity: 0.95,
+    zIndex: 999,
   },
 
   dragPlaceholder: {
-    height: "44px",
-    border: "1px dashed rgba(255,255,255,0.15)",
-    background: "rgba(255,255,255,0.03)",
-    borderRadius: "10px",
+    height: "2px",
+    background: "#6366f1",
+    borderRadius: "2px",
+    boxShadow: "0 0 8px rgba(99,102,241,0.6)",
+    margin: "6px 0",
     transition: "all 150ms ease",
-    animation: "placeholderFadeIn 150ms ease",
+    animation: "insertionLineFadeIn 150ms ease",
   },
 
   inlineInput: {
@@ -791,9 +792,9 @@ export default function Dashboard() {
       <>
         {colTasks.map((t) => (
           <div key={t.id}>
-            {/* Drag placeholder */}
+            {/* Insertion line indicator */}
             {dragOverTaskId === t.id && draggedTask?.id !== t.id && (
-              <div style={styles.dragPlaceholder} className="drag-placeholder" />
+              <div style={styles.dragPlaceholder} className="insertion-line" />
             )}
 
             <div
@@ -804,7 +805,7 @@ export default function Dashboard() {
                 background: "rgba(255,255,255,0.02)",
                 color: colors.text,
                 border: `1px solid rgba(255,255,255,0.06)`,
-                opacity: draggedTask?.id === t.id ? 0.5 : 1,
+                opacity: draggedTask?.id === t.id ? 0.3 : 1,
                 outline: selectedTaskId === t.id ? `2px solid ${colors.primary}` : "none",
               }}
               draggable
@@ -913,23 +914,24 @@ export default function Dashboard() {
           }
         }
         
-        /* Drag placeholder animation */
-        @keyframes placeholderFadeIn {
+        /* Insertion line animation */
+        @keyframes insertionLineFadeIn {
           from {
             opacity: 0;
-            transform: scaleY(0.8);
+            transform: scaleX(0.8);
           }
           to {
             opacity: 1;
-            transform: scaleY(1);
+            transform: scaleX(1);
           }
         }
         
         /* Task card improvements */
         .task-card {
-          transition: all 120ms ease;
+          transition: all 120ms ease, transform 150ms ease;
           position: relative;
           z-index: 3;
+          will-change: transform;
         }
         
         .task-card:hover {
@@ -940,16 +942,22 @@ export default function Dashboard() {
         }
         
         .task-card.dragging {
-          transform: scale(1.02);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-          cursor: grabbing;
-          opacity: 0.5;
-          z-index: 100 !important;
+          transform: rotate(1deg) scale(1.03) !important;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+          cursor: grabbing !important;
+          opacity: 0.95 !important;
+          z-index: 999 !important;
+          will-change: transform;
         }
         
         /* Z-index layering for proper stacking */
         .board-grid > div {
           isolation: isolate;
+        }
+        
+        /* Smooth task reordering */
+        .task-list > div {
+          transition: transform 150ms ease;
         }
 
         /* ─────────────────── ANIMATIONS ─────────────────── */

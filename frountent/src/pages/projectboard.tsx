@@ -13,8 +13,11 @@ import {
   fetchTeamMembers,
 } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
+import { useSubscription } from "../context/SubscriptionContext";
 import { useNavigate } from "react-router-dom";
 import SettingsDropdown from "../components/SettingsDropdown";
+import { UsageIndicator } from "../components/ui/UsageIndicator";
+import { LimitAlert } from "../components/ui/UpgradePrompt";
 
 /* ─────────────────────────── styles ─────────────────────────── */
 const s: any = {
@@ -224,6 +227,7 @@ export default function ProjectBoard() {
   const theme = useTheme();
   const colors = theme.getThemeColors();
   const isDark = theme.mode === 'dark';
+  const { isAtLimit, refreshUsage } = useSubscription();
   
   const [personalProjects, setPersonalProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
@@ -383,10 +387,18 @@ export default function ProjectBoard() {
 
   async function handleCreatePersonal() {
     if (!newTitle.trim()) return;
+    
+    // Check if user is at limit
+    if (isAtLimit('personal_projects')) {
+      setAlertMessage("Personal project limit reached. Upgrade to Premium for unlimited projects!");
+      return;
+    }
+    
     try {
       const proj = await createProject(newTitle.trim());
       setPersonalProjects((prev) => [...prev, proj]);
       setNewTitle("");
+      await refreshUsage(); // Refresh usage stats
     } catch (err: any) {
       setAlertMessage(err.message || "Failed to create project");
     }
@@ -395,10 +407,18 @@ export default function ProjectBoard() {
   async function handleCreateTeamProject(teamId: number) {
     const title = (teamNewTitle[teamId] || "").trim();
     if (!title) return;
+    
+    // Check if user is at limit for group projects
+    if (isAtLimit('group_projects')) {
+      setAlertMessage("Group project limit reached. Upgrade to Premium for unlimited group projects!");
+      return;
+    }
+    
     try {
       const proj = await createProject(title, teamId);
       setTeamProjects((prev) => ({ ...prev, [teamId]: [...(prev[teamId] || []), proj] }));
       setTeamNewTitle((prev) => ({ ...prev, [teamId]: "" }));
+      await refreshUsage(); // Refresh usage stats
     } catch (err: any) {
       setAlertMessage(err.message || "Failed to create project");
     }
@@ -406,12 +426,20 @@ export default function ProjectBoard() {
 
   async function handleCreateTeam() {
     if (!createTeamName.trim()) return;
+    
+    // Check if user is at limit
+    if (isAtLimit('groups')) {
+      setAlertMessage("Group limit reached. Upgrade to Premium for unlimited groups!");
+      return;
+    }
+    
     setCreateTeamLoading(true);
     try {
       const team = await createTeam(createTeamName.trim());
       setCreatedTeamCode(team.team_code);
       setTeams((prev) => [...prev, team]);
       setTeamProjects((prev) => ({ ...prev, [team.id]: [] }));
+      await refreshUsage(); // Refresh usage stats
     } catch (err: any) {
       setAlertMessage(err.message || "Failed to create team");
       setShowCreateTeam(false);
@@ -639,7 +667,14 @@ export default function ProjectBoard() {
       {/* ── Personal Projects ── */}
       <div style={s.sectionHeader}>
         <h3 style={s.sectionTitle(colors)}>👤 My Projects</h3>
+        <UsageIndicator type="personal_projects" />
       </div>
+
+      {isAtLimit('personal_projects') && (
+        <div style={{ marginBottom: '20px' }}>
+          <LimitAlert type="personal_projects" />
+        </div>
+      )}
 
       <div style={s.createBar}>
         <input
@@ -671,76 +706,82 @@ export default function ProjectBoard() {
           <div style={s.divider(colors)} />
 
           <div style={s.sectionHeader}>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={s.sectionTitle(colors)}>👥 {team.name}</h3>
+              <UsageIndicator type="groups" />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
               {teamMembers[team.id] && teamMembers[team.id].length > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
-                  {teamMembers[team.id].slice(0, 5).map((m: any, i: number) => (
-                    <div
-                      key={m.id}
-                      title={m.name}
-                      style={{
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ fontSize: "12px", color: colors.textSecondary }}>Members:</div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {teamMembers[team.id].slice(0, 5).map((m: any, i: number) => (
+                      <div
+                        key={m.id}
+                        title={m.name}
+                        style={{
+                          width: "28px", height: "28px", borderRadius: "50%",
+                          background: `hsl(${(m.id * 67) % 360}, 60%, 45%)`,
+                          border: "2px solid #1a1a1a", marginLeft: i === 0 ? "0" : "-8px",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "11px", fontWeight: "700", color: "#fff",
+                          cursor: "default", zIndex: 10 - i, position: "relative",
+                          boxShadow: "0 0 0 1px rgba(255,255,255,0.05)",
+                        }}
+                      >
+                        {m.name[0].toUpperCase()}
+                      </div>
+                    ))}
+                    {teamMembers[team.id].length > 5 && (
+                      <div style={{
                         width: "28px", height: "28px", borderRadius: "50%",
-                        background: `hsl(${(m.id * 67) % 360}, 60%, 45%)`,
-                        border: "2px solid #1a1a1a", marginLeft: i === 0 ? "0" : "-8px",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: "11px", fontWeight: "700", color: "#fff",
-                        cursor: "default", zIndex: 10 - i, position: "relative",
-                        boxShadow: "0 0 0 1px rgba(255,255,255,0.05)",
-                      }}
-                    >
-                      {m.name[0].toUpperCase()}
-                    </div>
-                  ))}
-                  {teamMembers[team.id].length > 5 && (
-                    <div style={{
-                      width: "28px", height: "28px", borderRadius: "50%",
-                      background: "#333", border: "2px solid #1a1a1a",
-                      marginLeft: "-8px", display: "flex", alignItems: "center",
-                      justifyContent: "center", fontSize: "10px", fontWeight: "700",
-                      color: "#888", position: "relative",
-                    }}>+{teamMembers[team.id].length - 5}</div>
-                  )}
+                        background: "#333", border: "2px solid #1a1a1a",
+                        marginLeft: "-8px", display: "flex", alignItems: "center",
+                        justifyContent: "center", fontSize: "10px", fontWeight: "700",
+                        color: "#888", position: "relative",
+                      }}>+{teamMembers[team.id].length - 5}</div>
+                    )}
+                  </div>
                 </div>
               )}
-            </div>
-            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-              <div
-                className="team-code-badge"
-                style={{
-                  ...s.teamCodeBadge(colors),
-                  background: copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : colors.primaryLight,
-                  color: copiedCode === team.team_code ? "#10b981" : colors.primary,
-                  borderColor: copiedCode === team.team_code ? "rgba(16,185,129,0.3)" : `${colors.primary}40`,
-                }}
-                title="Click to copy team code"
-                onClick={() => copyCode(team.team_code)}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = `${colors.primary}30`; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : colors.primaryLight; }}
-              >
-                {copiedCode === team.team_code ? "✓ Copied!" : `# ${team.team_code}`}
-              </div>
-              {team.owner_id === (currentUser?.id || null) && (
-                <button
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div
+                  className="team-code-badge"
                   style={{
-                    padding: "6px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid rgba(255, 68, 68, 0.3)",
-                    background: "transparent",
-                    color: "#ff6b6b",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
+                    ...s.teamCodeBadge(colors),
+                    background: copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : colors.primaryLight,
+                    color: copiedCode === team.team_code ? "#10b981" : colors.primary,
+                    borderColor: copiedCode === team.team_code ? "rgba(16,185,129,0.3)" : `${colors.primary}40`,
                   }}
-                  onClick={() => setDeleteTeamConfirmId(team.id)}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255, 68, 68, 0.1)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                  title="Delete team and all projects"
+                  title="Click to copy team code"
+                  onClick={() => copyCode(team.team_code)}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.background = `${colors.primary}30`; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.background = copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : colors.primaryLight; }}
                 >
-                  🗑️ Delete Team
-                </button>
-              )}
+                  {copiedCode === team.team_code ? "✓ Copied!" : `# ${team.team_code}`}
+                </div>
+                {team.owner_id === (currentUser?.id || null) && (
+                  <button
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      border: "1px solid rgba(255, 68, 68, 0.3)",
+                      background: "transparent",
+                      color: "#ff6b6b",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                    onClick={() => setDeleteTeamConfirmId(team.id)}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255, 68, 68, 0.1)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    title="Delete team and all projects"
+                  >
+                    🗑️ Delete Team
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

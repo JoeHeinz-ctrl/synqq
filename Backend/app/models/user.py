@@ -9,6 +9,9 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True)
     password = Column(String)
+    subscription_tier = Column(String, default="free")  # "free" or "premium"
+    projects_created = Column(Integer, default=0)  # Count personal projects
+    groups_created = Column(Integer, default=0)   # Count teams created
 
     projects = relationship("Project", back_populates="owner")
     assigned_tasks = relationship("Task", foreign_keys="Task.assigned_user_id", back_populates="assigned_user")

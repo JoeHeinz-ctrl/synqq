@@ -7,6 +7,7 @@ from app.models.team import Team, TeamMember
 from app.models.user import User
 from app.schemas.schema import ProjectCreate
 from app.core.dependencies import get_current_user
+from app.services.subscription_service import SubscriptionLimits
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -17,7 +18,11 @@ def create_project(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # If team_id is provided, verify the user is a member
+    # Check subscription limits for personal projects
+    if payload.team_id is None:
+        SubscriptionLimits.check_personal_project_limit(current_user, db)
+    
+    # If team_id is provided, verify the user is a member and check group project limits
     if payload.team_id is not None:
         membership = db.query(TeamMember).filter(
             TeamMember.team_id == payload.team_id,
@@ -25,6 +30,11 @@ def create_project(
         ).first()
         if not membership:
             raise HTTPException(status_code=403, detail="You are not a member of this team")
+        
+        # Check group project limits
+        team = db.query(Team).filter(Team.id == payload.team_id).first()
+        if team:
+            SubscriptionLimits.check_group_project_limit(team, db)
 
     project = Project(title=payload.title, owner_id=current_user.id, team_id=payload.team_id)
     db.add(project)

@@ -10,6 +10,7 @@ class Team(Base):
     name = Column(String, nullable=False)
     team_code = Column(String, unique=True, nullable=False, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    group_projects_created = Column(Integer, default=0)  # Count projects in this team
 
     owner = relationship("User", foreign_keys=[owner_id])
     members = relationship("TeamMember", back_populates="team", cascade="all, delete")

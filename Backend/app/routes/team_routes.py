@@ -10,6 +10,7 @@ from app.models.project import Project
 from app.models.user import User
 from app.schemas.schema import TeamCreate, TeamJoin
 from app.core.dependencies import get_current_user
+from app.services.subscription_service import SubscriptionLimits
 
 router = APIRouter(prefix="/teams", tags=["Teams"])
 
@@ -25,6 +26,9 @@ def create_team(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    # Check subscription limits for group creation
+    SubscriptionLimits.check_group_creation_limit(current_user, db)
+    
     # Generate unique code
     for _ in range(10):
         code = _generate_code()

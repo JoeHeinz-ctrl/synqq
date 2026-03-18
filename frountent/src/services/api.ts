@@ -290,3 +290,19 @@ export async function fetchTeamMembers(teamId: number) {
   });
   return handleResponse(res);
 }
+
+/* ---------------- SUBSCRIPTION ---------------- */
+
+export async function getUsageStats() {
+  const res = await fetch(`${API_URL}/subscription/usage`, {
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function getSubscriptionLimits() {
+  const res = await fetch(`${API_URL}/subscription/limits`, {
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}

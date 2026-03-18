@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.routes import auth_routes, project_routes, task_routes
-from app.routes import team_routes
+from app.routes import team_routes, subscription_routes
 from app.db.database import Base, engine
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.user import User
@@ -13,7 +13,7 @@ import os
 import psycopg2
 from urllib.parse import urlparse
 
-from app.routes import auth_routes, project_routes, task_routes, team_routes
+from app.routes import auth_routes, project_routes, task_routes, team_routes, subscription_routes
 from app.socket_handler import sio
 
 # ⭐ Create database tables
@@ -56,6 +56,46 @@ def run_migrations():
             ("due_date", "VARCHAR(20)"),
             ("created_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
         ]
+        
+        # Add subscription-related columns for users table
+        cursor.execute("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = 'users'
+        """)
+        existing_user_cols = [row[0] for row in cursor.fetchall()]
+        
+        user_columns = [
+            ("subscription_tier", "VARCHAR(20) DEFAULT 'free'"),
+            ("projects_created", "INTEGER DEFAULT 0"),
+            ("groups_created", "INTEGER DEFAULT 0")
+        ]
+        
+        for col_name, col_type in user_columns:
+            if col_name not in existing_user_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
+                    print(f"✅ Added user column: {col_name}")
+                except Exception as e:
+                    print(f"⚠️  User column {col_name}: {e}")
+        
+        # Add subscription-related columns for teams table
+        cursor.execute("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = 'teams'
+        """)
+        existing_team_cols = [row[0] for row in cursor.fetchall()]
+        
+        team_columns = [
+            ("group_projects_created", "INTEGER DEFAULT 0")
+        ]
+        
+        for col_name, col_type in team_columns:
+            if col_name not in existing_team_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE teams ADD COLUMN {col_name} {col_type}")
+                    print(f"✅ Added team column: {col_name}")
+                except Exception as e:
+                    print(f"⚠️  Team column {col_name}: {e}")
         
         for col_name, col_type in new_columns:
             if col_name not in existing_cols:
@@ -106,6 +146,7 @@ app.include_router(auth_routes.router)
 app.include_router(project_routes.router)
 app.include_router(task_routes.router)
 app.include_router(team_routes.router)
+app.include_router(subscription_routes.router)
 
 @app.get("/")
 def root():

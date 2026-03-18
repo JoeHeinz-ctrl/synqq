@@ -6,8 +6,8 @@ from fastapi import HTTPException
 
 class SubscriptionLimits:
     FREE_PERSONAL_PROJECTS = 3
-    FREE_GROUPS = 1
-    FREE_GROUP_PROJECTS = 1
+    FREE_TEAMS = 1
+    FREE_TEAM_PROJECTS = 1
     
     @staticmethod
     def check_personal_project_limit(user: User, db: Session):
@@ -28,32 +28,32 @@ class SubscriptionLimits:
         return True
     
     @staticmethod
-    def check_group_creation_limit(user: User, db: Session):
-        """Check if user can create more groups"""
+    def check_team_creation_limit(user: User, db: Session):
+        """Check if user can create a team"""
         if user.subscription_tier == "premium":
             return True
             
         current_count = db.query(Team).filter(Team.owner_id == user.id).count()
         
-        if current_count >= SubscriptionLimits.FREE_GROUPS:
+        if current_count >= SubscriptionLimits.FREE_TEAMS:
             raise HTTPException(
                 status_code=403,
-                detail=f"Group limit reached ({SubscriptionLimits.FREE_GROUPS}). Upgrade to premium for unlimited groups."
+                detail="Team limit reached (1 max). Upgrade to premium for unlimited teams."
             )
         return True
     
     @staticmethod
-    def check_group_project_limit(team: Team, db: Session):
+    def check_team_project_limit(team: Team, db: Session):
         """Check if team can have more projects"""
         if team.owner.subscription_tier == "premium":
             return True
             
         current_count = db.query(Project).filter(Project.team_id == team.id).count()
         
-        if current_count >= SubscriptionLimits.FREE_GROUP_PROJECTS:
+        if current_count >= SubscriptionLimits.FREE_TEAM_PROJECTS:
             raise HTTPException(
                 status_code=403,
-                detail=f"Group project limit reached ({SubscriptionLimits.FREE_GROUP_PROJECTS}). Upgrade to premium for unlimited group projects."
+                detail="Project limit reached (1 per team). Upgrade to premium for unlimited projects."
             )
         return True
     
@@ -65,24 +65,26 @@ class SubscriptionLimits:
             Project.team_id.is_(None)
         ).count()
         
-        groups_created = db.query(Team).filter(Team.owner_id == user.id).count()
+        teams_created = db.query(Team).filter(Team.owner_id == user.id).count()
         
-        group_projects = 0
-        if groups_created > 0:
-            group_projects = db.query(Project).join(Team).filter(Team.owner_id == user.id).count()
+        team_projects = 0
+        if teams_created > 0:
+            team_projects = db.query(Project).join(Team).filter(Team.owner_id == user.id).count()
+        
+        is_free = user.subscription_tier == "free"
         
         return {
             "subscription_tier": user.subscription_tier,
             "personal_projects": {
                 "used": personal_projects,
-                "limit": SubscriptionLimits.FREE_PERSONAL_PROJECTS if user.subscription_tier == "free" else "unlimited"
+                "limit": SubscriptionLimits.FREE_PERSONAL_PROJECTS if is_free else "unlimited"
             },
-            "groups": {
-                "used": groups_created,
-                "limit": SubscriptionLimits.FREE_GROUPS if user.subscription_tier == "free" else "unlimited"
+            "teams": {
+                "used": teams_created,
+                "limit": SubscriptionLimits.FREE_TEAMS if is_free else "unlimited"
             },
-            "group_projects": {
-                "used": group_projects,
-                "limit": SubscriptionLimits.FREE_GROUP_PROJECTS if user.subscription_tier == "free" else "unlimited"
+            "team_projects": {
+                "used": team_projects,
+                "limit": SubscriptionLimits.FREE_TEAM_PROJECTS if is_free else "unlimited"
             }
         }

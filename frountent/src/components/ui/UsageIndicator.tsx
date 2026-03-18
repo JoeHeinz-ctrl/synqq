@@ -2,19 +2,16 @@ import { useSubscription } from "../../context/SubscriptionContext";
 import { cn } from "../../lib/utils";
 
 interface UsageIndicatorProps {
-  type: 'personal_projects' | 'groups' | 'group_projects';
+  type: 'personal_projects' | 'teams' | 'team_projects';
   className?: string;
+  compact?: boolean;
 }
 
-export function UsageIndicator({ type, className }: UsageIndicatorProps) {
+export function UsageIndicator({ type, className, compact = false }: UsageIndicatorProps) {
   const { usageStats, limits, isLoading } = useSubscription();
 
   if (isLoading || !usageStats || !limits) {
-    return (
-      <div className={cn("text-sm text-gray-500", className)}>
-        Loading...
-      </div>
-    );
+    return null;
   }
 
   const used = usageStats[type].used;
@@ -27,50 +24,40 @@ export function UsageIndicator({ type, className }: UsageIndicatorProps) {
   const getLabel = () => {
     switch (type) {
       case 'personal_projects':
-        return 'Personal Projects';
-      case 'groups':
-        return 'Groups';
-      case 'group_projects':
-        return 'Group Projects';
+        return 'Personal';
+      case 'teams':
+        return 'Teams';
+      case 'team_projects':
+        return 'Team Projects';
     }
   };
 
-  const getRemainingText = () => {
-    if (isUnlimited) return 'Unlimited';
-    const remaining = Math.max(0, limit - used);
-    return `${remaining} left`;
-  };
+  if (compact) {
+    return (
+      <div className={cn(
+        "inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium",
+        isAtLimit ? "bg-red-500/20 text-red-400" : 
+        isNearLimit ? "bg-yellow-500/20 text-yellow-400" : 
+        "bg-blue-500/20 text-blue-400",
+        className
+      )}>
+        <span>{getLabel()}</span>
+        <span className="opacity-70">{used}{isUnlimited ? '' : `/${limit}`}</span>
+      </div>
+    );
+  }
 
   return (
-    <div className={cn("space-y-1", className)}>
-      <div className="flex justify-between items-center text-sm">
-        <span className="font-medium">{getLabel()}</span>
-        <span className={cn(
-          "text-xs",
-          isAtLimit ? "text-red-500" : 
-          isNearLimit ? "text-yellow-500" : 
-          "text-gray-500"
-        )}>
-          {getRemainingText()}
-        </span>
-      </div>
-      
-      {!isUnlimited && (
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className={cn(
-              "h-2 rounded-full transition-all duration-300",
-              isAtLimit ? "bg-red-500" : 
-              isNearLimit ? "bg-yellow-500" : 
-              "bg-blue-500"
-            )}
-            style={{ width: `${Math.min(percentage, 100)}%` }}
-          />
-        </div>
-      )}
-      
-      <div className="text-xs text-gray-500">
-        {used} / {isUnlimited ? "∞" : limit}
+    <div className={cn("flex items-center gap-2", className)}>
+      <span className="text-xs text-gray-500">{getLabel()}:</span>
+      <div className={cn(
+        "flex items-center gap-1 text-xs font-medium",
+        isAtLimit ? "text-red-400" : 
+        isNearLimit ? "text-yellow-400" : 
+        "text-blue-400"
+      )}>
+        <span>{used}</span>
+        {!isUnlimited && <span className="opacity-50">/{limit}</span>}
       </div>
     </div>
   );

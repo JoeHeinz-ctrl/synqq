@@ -7,11 +7,11 @@ interface UsageStats {
     used: number;
     limit: number | "unlimited";
   };
-  groups: {
+  teams: {
     used: number;
     limit: number | "unlimited";
   };
-  group_projects: {
+  team_projects: {
     used: number;
     limit: number | "unlimited";
   };
@@ -20,8 +20,8 @@ interface UsageStats {
 interface SubscriptionLimits {
   tier: "free" | "premium";
   personal_projects: number | "unlimited";
-  groups: number | "unlimited";
-  group_projects: number | "unlimited";
+  teams: number | "unlimited";
+  team_projects: number | "unlimited";
 }
 
 interface SubscriptionContextType {
@@ -29,8 +29,8 @@ interface SubscriptionContextType {
   limits: SubscriptionLimits | null;
   isLoading: boolean;
   refreshUsage: () => Promise<void>;
-  isAtLimit: (type: 'personal_projects' | 'groups' | 'group_projects') => boolean;
-  getRemainingCount: (type: 'personal_projects' | 'groups' | 'group_projects') => number | "unlimited";
+  isAtLimit: (type: 'personal_projects' | 'teams' | 'team_projects') => boolean;
+  getRemainingCount: (type: 'personal_projects' | 'teams' | 'team_projects') => number | "unlimited";
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -60,7 +60,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     refreshUsage();
   }, []);
 
-  const isAtLimit = (type: 'personal_projects' | 'groups' | 'group_projects'): boolean => {
+  const isAtLimit = (type: 'personal_projects' | 'teams' | 'team_projects'): boolean => {
     if (!usageStats || !limits) return false;
     
     const used = usageStats[type].used;
@@ -70,7 +70,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     return used >= limit;
   };
 
-  const getRemainingCount = (type: 'personal_projects' | 'groups' | 'group_projects'): number | "unlimited" => {
+  const getRemainingCount = (type: 'personal_projects' | 'teams' | 'team_projects'): number | "unlimited" => {
     if (!usageStats || !limits) return "unlimited";
     
     const used = usageStats[type].used;

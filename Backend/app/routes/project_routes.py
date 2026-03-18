@@ -22,7 +22,7 @@ def create_project(
     if payload.team_id is None:
         SubscriptionLimits.check_personal_project_limit(current_user, db)
     
-    # If team_id is provided, verify the user is a member and check group project limits
+    # If team_id is provided, verify the user is a member and check team project limits
     if payload.team_id is not None:
         membership = db.query(TeamMember).filter(
             TeamMember.team_id == payload.team_id,
@@ -31,10 +31,10 @@ def create_project(
         if not membership:
             raise HTTPException(status_code=403, detail="You are not a member of this team")
         
-        # Check group project limits
+        # Check team project limits
         team = db.query(Team).filter(Team.id == payload.team_id).first()
         if team:
-            SubscriptionLimits.check_group_project_limit(team, db)
+            SubscriptionLimits.check_team_project_limit(team, db)
 
     project = Project(title=payload.title, owner_id=current_user.id, team_id=payload.team_id)
     db.add(project)

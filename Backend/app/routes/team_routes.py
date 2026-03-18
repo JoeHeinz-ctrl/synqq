@@ -26,8 +26,8 @@ def create_team(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Check subscription limits for group creation
-    SubscriptionLimits.check_group_creation_limit(current_user, db)
+    # Check subscription limits for team creation
+    SubscriptionLimits.check_team_creation_limit(current_user, db)
     
     # Generate unique code
     for _ in range(10):

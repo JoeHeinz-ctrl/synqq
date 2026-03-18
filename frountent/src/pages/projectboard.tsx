@@ -408,9 +408,9 @@ export default function ProjectBoard() {
     const title = (teamNewTitle[teamId] || "").trim();
     if (!title) return;
     
-    // Check if user is at limit for group projects
-    if (isAtLimit('group_projects')) {
-      setAlertMessage("Group project limit reached. Upgrade to Premium for unlimited group projects!");
+    // Check if user is at limit for team projects
+    if (isAtLimit('team_projects')) {
+      setAlertMessage("Team project limit reached (1 max). Upgrade to Premium for unlimited projects!");
       return;
     }
     
@@ -428,8 +428,8 @@ export default function ProjectBoard() {
     if (!createTeamName.trim()) return;
     
     // Check if user is at limit
-    if (isAtLimit('groups')) {
-      setAlertMessage("Group limit reached. Upgrade to Premium for unlimited groups!");
+    if (isAtLimit('teams')) {
+      setAlertMessage("Team limit reached (1 max). Upgrade to Premium for unlimited teams!");
       return;
     }
     
@@ -708,7 +708,7 @@ export default function ProjectBoard() {
           <div style={s.sectionHeader}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={s.sectionTitle(colors)}>👥 {team.name}</h3>
-              <UsageIndicator type="groups" />
+              <UsageIndicator type="teams" compact />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
               {teamMembers[team.id] && teamMembers[team.id].length > 0 && (

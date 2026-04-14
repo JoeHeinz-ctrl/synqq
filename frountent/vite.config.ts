@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': {
-        target: 'http://localhost:8000',
+        target: 'https://api.dozzl.xyz',
         changeOrigin: true,
       }
     }

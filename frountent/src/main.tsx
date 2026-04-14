@@ -16,7 +16,7 @@ import "./style/tailwind.css";
     console.log("🔍 Early token check - validating before app render...");
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8000"}/auth/me`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "https://api.dozzl.xyz"}/auth/me`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"

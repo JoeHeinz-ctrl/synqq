@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL || "https://api.dozzl.xyz";
 
 async function handleResponse(res: Response) {
   const data = await res.json();              // ✅ read ONCE

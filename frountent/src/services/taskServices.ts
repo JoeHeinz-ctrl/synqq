@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL || "https://api.dozzl.xyz";
+
 interface TaskPayload {
     title: string;
     project_id: number;
@@ -10,7 +12,7 @@ export const createTask = async (task: TaskPayload) => {
     const token = localStorage.getItem("token");
 
     return axios.post(
-        "http://localhost:8000/tasks/",
+        `${API_URL}/tasks/`,
         task,
         {
             headers: {

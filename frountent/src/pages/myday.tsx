@@ -9,9 +9,7 @@ import {
   Clock,
   ChevronDown,
   ChevronRight,
-  MoreHorizontal,
-  Trash2,
-  Edit
+  MoreHorizontal
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { fetchProjects } from '../services/api';
@@ -34,7 +32,6 @@ interface Project {
 export default function MyDay() {
   const navigate = useNavigate();
   const theme = useTheme();
-  const isDark = theme.mode === 'dark';
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [completedExpanded, setCompletedExpanded] = useState(false);
@@ -53,8 +50,8 @@ export default function MyDay() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Load user's projects
-        const userProjects = await fetchProjects();
+        // Load user's projects (for future use)
+        await fetchProjects();
         
         // Mock tasks for demonstration
         const mockProjects: Project[] = [

@@ -11,13 +11,7 @@ from app.services.message_analyzer import MessageAnalyzer
 # Create Socket.IO server
 sio = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://synqq-neon.vercel.app",
-        "https://dozzl.xyz",
-        "https://www.dozzl.xyz",
-    ],
+    cors_allowed_origins='*',  # Allow all origins for Socket.IO (FastAPI CORS will handle security)
     logger=True,
     engineio_logger=True
 )

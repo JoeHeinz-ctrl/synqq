@@ -14,7 +14,7 @@ const styles: any = {
   container: (colors: any) => ({
     background: colors.background,
     height: "100vh",
-    width: "100vw",
+    width: "100%",
     overflow: "hidden",
     boxSizing: "border-box",
     display: "flex",

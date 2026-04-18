@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { 
   Folder, 
@@ -29,6 +30,7 @@ interface Project {
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   
   const { 
@@ -243,13 +245,24 @@ export default function Sidebar() {
           {!isCollapsed && (
             <div className="px-4 py-3 mt-4 rounded-lg bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-600/20">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">JD</span>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-xs">
+                    {user?.name
+                      ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+                      : '?'}
+                  </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-white truncate">John Doe</div>
-                  <div className="text-xs text-zinc-400">Premium Plan</div>
+                  <div className="text-sm font-medium text-white truncate">{user?.name || 'Loading...'}</div>
+                  <div className="text-xs text-zinc-400 truncate">{user?.email || ''}</div>
                 </div>
+                <button
+                  onClick={logout}
+                  title="Logout"
+                  className="flex-shrink-0 p-1 rounded text-zinc-500 hover:text-red-400 transition-colors text-xs"
+                >
+                  ↩
+                </button>
               </div>
             </div>
           )}

@@ -1,8 +1,15 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { getCurrentUser } from "../services/api";
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 interface AuthContextType {
   token: string | null;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (token: string) => void;
@@ -14,43 +21,38 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const checkAuth = async () => {
     const storedToken = localStorage.getItem("token");
     
-    console.log("🔍 Checking auth - token exists:", !!storedToken);
-    
     if (!storedToken) {
-      console.log("❌ No token found");
       setToken(null);
+      setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
       return;
     }
 
     try {
-      console.log("🔄 Validating token with backend...");
-      await getCurrentUser();
-      console.log("✅ Token valid - user authenticated");
+      const userData = await getCurrentUser();
       setToken(storedToken);
+      setUser(userData);
       setIsAuthenticated(true);
     } catch (error) {
       console.error("❌ Token validation failed:", error);
-      
-      // CRITICAL: Clear ALL auth data immediately
-      localStorage.clear(); // Clear everything to be safe
+      localStorage.clear();
       setToken(null);
+      setUser(null);
       setIsAuthenticated(false);
       
-      // Force hard redirect to login for ANY page except public pages
       const currentPath = window.location.pathname;
       const publicPaths = ['/', '/login', '/register', '/pricing'];
       
       if (!publicPaths.includes(currentPath)) {
-        console.log("🔄 Forcing redirect to login from:", currentPath);
-        window.location.replace('/login'); // Use replace to prevent back button issues
+        window.location.replace('/login');
       }
     } finally {
       setIsLoading(false);
@@ -58,40 +60,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    console.log("🚀 AuthProvider mounted");
     checkAuth();
 
     const handleUnauthorized = () => {
-      console.error("🚨 Unauthorized event received - clearing session");
       localStorage.clear();
       setToken(null);
+      setUser(null);
       setIsAuthenticated(false);
       window.location.replace('/login');
     };
     
     window.addEventListener("auth:unauthorized", handleUnauthorized);
     return () => {
-      console.log("🔌 AuthProvider unmounting");
       window.removeEventListener("auth:unauthorized", handleUnauthorized);
     };
   }, []);
 
-  const login = (newToken: string) => {
+  const login = async (newToken: string) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
     setIsAuthenticated(true);
+    // Fetch user profile after login
+    try {
+      const userData = await getCurrentUser();
+      setUser(userData);
+    } catch {
+      // non-critical, user will be fetched on next checkAuth
+    }
   };
 
   const logout = () => {
-    console.log("👋 Logging out");
     localStorage.clear();
     setToken(null);
+    setUser(null);
     setIsAuthenticated(false);
     window.location.replace('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, isLoading, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ token, user, isAuthenticated, isLoading, login, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

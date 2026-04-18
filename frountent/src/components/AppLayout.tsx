@@ -11,7 +11,7 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { isCollapsed, toggleMobile, activePanel, closePanel } = useSidebarStore();
 
-  const sidebarWidth = isCollapsed ? '72px' : '240px';
+  const sidebarWidth = isCollapsed ? '80px' : '280px';
 
   return (
     <div className="flex min-h-screen bg-zinc-950">
@@ -21,7 +21,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <button
         onClick={toggleMobile}
         aria-label="Open menu"
-        className="fixed top-5 left-5 w-11 h-11 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-100 flex items-center justify-center z-[1000] shadow-lg hover:bg-zinc-800 transition-all md:hidden mobile-menu-btn"
+        className="fixed top-6 left-6 w-12 h-12 rounded-xl border border-zinc-800/50 bg-zinc-900/80 backdrop-blur-sm text-zinc-100 flex items-center justify-center z-[1000] shadow-xl hover:bg-zinc-800/80 transition-all md:hidden mobile-menu-btn"
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -29,9 +29,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <main
         style={{ marginLeft: sidebarWidth }}
-        className="flex-1 transition-all duration-300 min-h-screen main-content"
+        className="flex-1 transition-all duration-300 min-h-screen main-content relative"
       >
-        {children}
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-zinc-950 to-zinc-900"></div>
+        <div className="relative z-10">
+          {children}
+        </div>
       </main>
 
       {/* Right Panel */}

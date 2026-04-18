@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, User } from "lucide-react";
 
 interface AiTaskSuggestionProps {
   messageId: string;
@@ -121,7 +121,7 @@ export default function AiTaskSuggestion({
               borderRadius: "6px",
               background: "rgba(255,255,255,0.05)",
             }}>
-              <span style={{ fontSize: "14px" }}>👤</span>
+              <User className="w-4 h-4" />
               <span>{suggestion.assignee.name}</span>
             </div>
           )}

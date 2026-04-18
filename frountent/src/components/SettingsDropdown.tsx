@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Settings, Sun, Moon } from 'lucide-react';
+import { Settings, Sun, Moon, LogOut } from 'lucide-react';
 
 export default function SettingsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -56,97 +56,112 @@ export default function SettingsDropdown() {
       </button>
 
       {isOpen && (
-        <div style={{
-          ...styles.dropdown,
-          background: themeColors.surface,
-          border: `1px solid ${themeColors.border}`,
-          boxShadow: mode === 'dark' 
-            ? '0 8px 24px rgba(0,0,0,0.4)' 
-            : '0 8px 24px rgba(0,0,0,0.15)',
-        }}>
-          {/* Theme Mode */}
-          <div style={styles.section}>
-            <div style={{...styles.sectionLabel, color: themeColors.textSecondary}}>Theme Mode</div>
+        <>
+          <div style={{
+            ...styles.dropdown,
+            background: themeColors.surface,
+            border: `1px solid ${themeColors.border}`,
+            boxShadow: mode === 'dark' 
+              ? '0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)' 
+              : '0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
+          }}>
+            {/* Theme Mode */}
+            <div style={styles.section}>
+              <div style={{...styles.sectionLabel, color: themeColors.textSecondary}}>Theme Mode</div>
+              <button
+                onClick={toggleMode}
+                style={{
+                  ...styles.modeToggle,
+                  background: themeColors.surfaceHover,
+                  color: themeColors.text,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = mode === 'dark' 
+                    ? 'rgba(255,255,255,0.1)' 
+                    : 'rgba(0,0,0,0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = themeColors.surfaceHover;
+                }}
+              >
+                <span style={styles.modeIcon}>
+                  {mode === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+                </span>
+                <span style={styles.modeText}>{mode === 'dark' ? 'Dark' : 'Light'} Mode</span>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div style={{...styles.divider, background: themeColors.border}} />
+
+            {/* Accent Color */}
+            <div style={styles.section}>
+              <div style={{...styles.sectionLabel, color: themeColors.textSecondary}}>Accent Color</div>
+              <div style={styles.colorGrid}>
+                {colors.map((c) => (
+                  <button
+                    key={c.value}
+                    onClick={() => setColor(c.value)}
+                    style={{
+                      ...styles.colorOption,
+                      background: color === c.value ? themeColors.primaryLight : 'transparent',
+                      color: themeColors.text,
+                    }}
+                    title={c.name}
+                    onMouseEnter={(e) => {
+                      if (color !== c.value) {
+                        e.currentTarget.style.background = themeColors.surfaceHover;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (color !== c.value) {
+                        e.currentTarget.style.background = 'transparent';
+                      }
+                    }}
+                  >
+                    <div
+                      style={{
+                        ...styles.colorCircle,
+                        background: c.color,
+                        outline: color === c.value ? `2px solid ${c.color}` : 'none',
+                        outlineOffset: '2px',
+                      }}
+                    />
+                    <span style={styles.colorName}>{c.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div style={{...styles.divider, background: themeColors.border}} />
+
+            {/* Logout */}
             <button
-              onClick={toggleMode}
-              style={{
-                ...styles.modeToggle,
-                background: themeColors.surfaceHover,
-                color: themeColors.text,
+              onClick={() => {
+                setIsOpen(false);
+                logout();
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = mode === 'dark' 
-                  ? 'rgba(255,255,255,0.1)' 
-                  : 'rgba(0,0,0,0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = themeColors.surfaceHover;
-              }}
+              style={styles.logoutBtn}
             >
-              <span style={styles.modeIcon}>
-                {mode === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
-              </span>
-              <span style={styles.modeText}>{mode === 'dark' ? 'Dark' : 'Light'} Mode</span>
+              <LogOut size={16} />
+              <span>Logout</span>
             </button>
           </div>
-
-          {/* Divider */}
-          <div style={{...styles.divider, background: themeColors.border}} />
-
-          {/* Accent Color */}
-          <div style={styles.section}>
-            <div style={{...styles.sectionLabel, color: themeColors.textSecondary}}>Accent Color</div>
-            <div style={styles.colorGrid}>
-              {colors.map((c) => (
-                <button
-                  key={c.value}
-                  onClick={() => setColor(c.value)}
-                  style={{
-                    ...styles.colorOption,
-                    background: color === c.value ? themeColors.primaryLight : 'transparent',
-                    color: themeColors.text,
-                  }}
-                  title={c.name}
-                  onMouseEnter={(e) => {
-                    if (color !== c.value) {
-                      e.currentTarget.style.background = themeColors.surfaceHover;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (color !== c.value) {
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  <div
-                    style={{
-                      ...styles.colorCircle,
-                      background: c.color,
-                      outline: color === c.value ? `2px solid ${c.color}` : 'none',
-                      outlineOffset: '2px',
-                    }}
-                  />
-                  <span style={styles.colorName}>{c.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div style={{...styles.divider, background: themeColors.border}} />
-
-          {/* Logout */}
-          <button
-            onClick={() => {
-              setIsOpen(false);
-              logout();
-            }}
-            style={styles.logoutBtn}
-          >
-            <span>🚪</span>
-            <span>Logout</span>
-          </button>
-        </div>
+          
+          <style>{`
+            @keyframes dropdownSlideIn {
+              from {
+                opacity: 0;
+                transform: translateY(-10px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          `}</style>
+        </>
       )}
     </div>
   );
@@ -174,12 +189,15 @@ const styles: Record<string, React.CSSProperties> = {
     top: 'calc(100% + 8px)',
     right: 0,
     background: '#2a2a2a',
-    borderRadius: '12px',
-    padding: '12px',
-    minWidth: '220px',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+    borderRadius: '16px',
+    padding: '16px',
+    minWidth: '260px',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.1)',
-    zIndex: 1000,
+    zIndex: 1001,
+    backdropFilter: 'blur(20px)',
+    transform: 'translateY(0)',
+    animation: 'dropdownSlideIn 200ms ease-out',
   },
   section: {
     padding: '8px 0',

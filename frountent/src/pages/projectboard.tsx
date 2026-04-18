@@ -680,7 +680,7 @@ export default function ProjectBoard() {
 
       {/* ── Personal Projects ── */}
       <div style={s.sectionHeader}>
-        <h3 style={s.sectionTitle(colors)}>👤 My Projects</h3>
+        <h3 style={s.sectionTitle(colors)}>My Projects</h3>
         <UsageIndicator type="personal_projects" />
       </div>
 
@@ -883,7 +883,7 @@ export default function ProjectBoard() {
           <div style={s.modalContent(colors)} onClick={(e) => e.stopPropagation()}>
             {createdTeamCode ? (
               <>
-                <h3 style={s.modalTitle(colors)}>✅ Team Created!</h3>
+                <h3 style={s.modalTitle(colors)}>Team Created!</h3>
                 <p style={s.modalText(colors)}>Share this code with your teammates so they can join:</p>
                 <div style={s.codeDisplay(colors)}>
                   <div style={s.codeValue(colors)}>{createdTeamCode}</div>

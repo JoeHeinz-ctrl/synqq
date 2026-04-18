@@ -13,6 +13,7 @@ import Register from "./pages/register";
 import ProjectBoard from "./pages/projectboard";
 import Dashboard from "./pages/dashboard";
 import Chat from "./pages/chat";
+import MyDay from "./pages/myday";
 import { PricingDemo } from "./components/ui/pricing-demo";
 
 function AppRoutes() {
@@ -64,6 +65,7 @@ function AppRoutes() {
 
       {/* Protected Routes (only for LOGGED IN users) */}
       <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout><MyDay /></AppLayout>} path="/dashboard" />
         <Route element={<AppLayout><ProjectBoard /></AppLayout>} path="/board" />
         <Route element={<AppLayout><Dashboard /></AppLayout>} path="/dashboard/:projectId" />
         <Route element={<AppLayout><Chat /></AppLayout>} path="/chat/:projectId" />

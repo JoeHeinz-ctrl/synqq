@@ -142,7 +142,7 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
         {/* Assigned To */}
         <div style={{ position: "relative" }}>
           <label style={{ fontSize: "11px", color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>
-            👤 Assigned To
+            Assigned To
           </label>
           <div 
             onClick={() => setShowMembers(!showMembers)}

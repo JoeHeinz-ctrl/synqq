@@ -1,10 +1,10 @@
-import { X, Sparkles, Settings as SettingsIcon, Sun, Moon, LogOut } from 'lucide-react';
+import { X, Sparkles, Settings as SettingsIcon, Sun, Moon, LogOut, Bell, Check, Clock, AlertCircle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 
 interface RightPanelProps {
-  activePanel: 'none' | 'ai' | 'settings';
+  activePanel: 'none' | 'ai' | 'settings' | 'notifications';
   onClose: () => void;
 }
 
@@ -17,6 +17,47 @@ export function RightPanel({ activePanel, onClose }: RightPanelProps) {
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
+  };
+
+  // Mock notifications data
+  const notifications = [
+    {
+      id: 1,
+      type: 'task_completed',
+      title: 'Task completed',
+      message: 'Deploy the fe with renamed landing page by tomorrow has been marked as done',
+      time: '2 minutes ago',
+      read: false
+    },
+    {
+      id: 2,
+      type: 'task_assigned',
+      title: 'New task assigned',
+      message: 'You have been assigned to work on the user authentication system',
+      time: '1 hour ago',
+      read: true
+    },
+    {
+      id: 3,
+      type: 'deadline_approaching',
+      title: 'Deadline approaching',
+      message: 'Project "Mobile App Redesign" is due in 2 days',
+      time: '3 hours ago',
+      read: false
+    }
+  ];
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'task_completed':
+        return <Check className="w-4 h-4 text-green-500" />;
+      case 'task_assigned':
+        return <Clock className="w-4 h-4 text-blue-500" />;
+      case 'deadline_approaching':
+        return <AlertCircle className="w-4 h-4 text-amber-500" />;
+      default:
+        return <Bell className="w-4 h-4 text-zinc-500" />;
+    }
   };
 
   return (
@@ -47,6 +88,12 @@ export function RightPanel({ activePanel, onClose }: RightPanelProps) {
                 <h2 className="text-lg font-semibold text-zinc-100">Settings</h2>
               </>
             )}
+            {activePanel === 'notifications' && (
+              <>
+                <Bell className="w-5 h-5 text-zinc-400" />
+                <h2 className="text-lg font-semibold text-zinc-100">Notifications</h2>
+              </>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -57,9 +104,9 @@ export function RightPanel({ activePanel, onClose }: RightPanelProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto">
           {activePanel === 'ai' && (
-            <div className="space-y-4">
+            <div className="p-4 space-y-4">
               <div className="text-center py-12">
                 <Sparkles className="w-12 h-12 text-blue-500 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-zinc-100 mb-2">AI Assistant</h3>
@@ -70,8 +117,66 @@ export function RightPanel({ activePanel, onClose }: RightPanelProps) {
             </div>
           )}
 
+          {activePanel === 'notifications' && (
+            <div className="space-y-1">
+              {notifications.length === 0 ? (
+                <div className="text-center py-12 px-4">
+                  <Bell className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-zinc-300 mb-2">No notifications</h3>
+                  <p className="text-sm text-zinc-500">
+                    You're all caught up! New notifications will appear here.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="p-4 border-b border-zinc-800">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-zinc-300">
+                        {notifications.filter(n => !n.read).length} unread
+                      </span>
+                      <button className="text-xs text-blue-500 hover:text-blue-400">
+                        Mark all as read
+                      </button>
+                    </div>
+                  </div>
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`
+                        p-4 border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors cursor-pointer
+                        ${!notification.read ? 'bg-zinc-800/20' : ''}
+                      `}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-1">
+                          {getNotificationIcon(notification.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-sm font-medium text-zinc-200">
+                              {notification.title}
+                            </h4>
+                            {!notification.read && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            )}
+                          </div>
+                          <p className="text-sm text-zinc-400 leading-relaxed mb-2">
+                            {notification.message}
+                          </p>
+                          <span className="text-xs text-zinc-500">
+                            {notification.time}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+
           {activePanel === 'settings' && (
-            <div className="space-y-6">
+            <div className="p-4 space-y-6">
               {/* Theme Toggle */}
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-3">

@@ -28,7 +28,7 @@ export default function Login() {
       }
 
       login(data.access_token);
-      navigate("/board");
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       alert("Google login failed");
@@ -49,7 +49,7 @@ export default function Login() {
     }
 
     login(data.access_token);
-    navigate("/board");
+    navigate("/dashboard");
 
   } catch (err: any) {
     setError(err.message || "Login failed");

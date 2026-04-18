@@ -19,5 +19,10 @@ export function ProtectedRoute() {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // If user is authenticated and on root protected path, redirect to My Day
+  if (location.pathname === '/') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <Outlet />;
 }

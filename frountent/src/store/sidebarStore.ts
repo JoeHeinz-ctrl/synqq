@@ -4,11 +4,11 @@ import { persist } from 'zustand/middleware';
 interface SidebarState {
   isCollapsed: boolean;
   isMobileOpen: boolean;
-  activePanel: 'none' | 'ai' | 'settings';
+  activePanel: 'none' | 'ai' | 'settings' | 'notifications';
   toggleCollapse: () => void;
   toggleMobile: () => void;
   closeMobile: () => void;
-  setActivePanel: (panel: 'none' | 'ai' | 'settings') => void;
+  setActivePanel: (panel: 'none' | 'ai' | 'settings' | 'notifications') => void;
   closePanel: () => void;
 }
 

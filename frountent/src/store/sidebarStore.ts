@@ -15,7 +15,7 @@ interface SidebarState {
 export const useSidebarStore = create<SidebarState>()(
   persist(
     (set) => ({
-      isCollapsed: false,
+      isCollapsed: false,       // always starts expanded
       isMobileOpen: false,
       activePanel: 'none',
       toggleCollapse: () => set((state) => ({ isCollapsed: !state.isCollapsed })),
@@ -26,7 +26,8 @@ export const useSidebarStore = create<SidebarState>()(
     }),
     {
       name: 'sidebar-storage',
-      partialize: (state) => ({ isCollapsed: state.isCollapsed }),
+      // Only persist activePanel — NOT isCollapsed, so sidebar is always expanded on load
+      partialize: (state) => ({ activePanel: state.activePanel }),
     }
   )
 );

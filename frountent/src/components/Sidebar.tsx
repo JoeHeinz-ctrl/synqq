@@ -1,28 +1,27 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
-import { useSidebarStore } from '../store/sidebarStore';
 import { useEffect } from 'react';
-
-interface NavItem {
-  id: string;
-  label: string;
-  icon: string;
-  path: string;
-  badge?: number;
-}
+import { 
+  Folder, 
+  ChevronLeft, 
+  ChevronRight,
+  Sparkles,
+  Settings
+} from 'lucide-react';
+import { useSidebarStore } from '../store/sidebarStore';
+import { SidebarItem } from './ui/SidebarItem';
+import { SidebarSection } from './ui/SidebarSection';
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const colors = theme.getThemeColors();
-  const isDark = theme.mode === 'dark';
   
-  const { isCollapsed, isMobileOpen, toggleCollapse, closeMobile } = useSidebarStore();
-
-  const navItems: NavItem[] = [
-    { id: 'board', label: 'Projects', icon: '📂', path: '/board' },
-  ];
+  const { 
+    isCollapsed, 
+    isMobileOpen, 
+    toggleCollapse, 
+    closeMobile,
+    setActivePanel 
+  } = useSidebarStore();
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -52,185 +51,88 @@ export default function Sidebar() {
       {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.6)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 998,
-            animation: 'fadeIn 200ms ease',
-          }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] animate-fadeIn"
           onClick={closeMobile}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: sidebarWidth,
-          background: colors.surface,
-          borderRight: `1px solid ${colors.border}`,
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'width 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-          zIndex: 999,
-          boxShadow: isDark ? 'none' : '2px 0 8px rgba(0, 0, 0, 0.05)',
-        }}
-        className="sidebar"
+        style={{ width: sidebarWidth }}
+        className="fixed left-0 top-0 bottom-0 bg-zinc-900 border-r border-zinc-800 flex flex-col transition-all duration-300 z-[999] sidebar"
       >
         {/* Header */}
-        <div
-          style={{
-            padding: isCollapsed ? '20px 12px' : '20px 24px',
-            borderBottom: `1px solid ${colors.border}`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            flexShrink: 0,
-          }}
-        >
+        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
           {!isCollapsed && (
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                cursor: 'pointer',
-              }}
+              className="flex items-center gap-2 cursor-pointer group"
               onClick={() => navigate('/board')}
             >
-              <span style={{ fontSize: '24px' }}>📋</span>
-              <span
-                style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">S</span>
+              </div>
+              <span className="text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
                 SYNQ
               </span>
             </div>
           )}
 
           {isCollapsed && (
-            <span
-              style={{ fontSize: '24px', cursor: 'pointer', margin: '0 auto' }}
+            <div
+              className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center cursor-pointer mx-auto"
               onClick={() => navigate('/board')}
             >
-              📋
-            </span>
+              <span className="text-white font-bold text-sm">S</span>
+            </div>
           )}
 
           {/* Toggle Button - Desktop Only */}
           <button
             onClick={toggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              border: 'none',
-              background: colors.primaryLight,
-              color: colors.primary,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px',
-              transition: 'all 200ms ease',
-              flexShrink: 0,
-            }}
-            className="toggle-btn"
+            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-all toggle-btn"
           >
-            {isCollapsed ? '→' : '←'}
+            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
         </div>
 
         {/* Navigation */}
-        <nav
-          style={{
-            flex: 1,
-            padding: isCollapsed ? '16px 8px' : '16px 12px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-          }}
-        >
-          {navItems.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <div
-                key={item.id}
-                onClick={() => navigate(item.path)}
-                title={isCollapsed ? item.label : undefined}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: isCollapsed ? '12px' : '12px 16px',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  transition: 'all 200ms ease',
-                  background: active ? colors.primaryLight : 'transparent',
-                  color: active ? colors.primary : colors.textSecondary,
-                  fontWeight: active ? '600' : '500',
-                  fontSize: '14px',
-                  position: 'relative',
-                  justifyContent: isCollapsed ? 'center' : 'flex-start',
-                }}
-                className="nav-item"
-              >
-                <span style={{ fontSize: '18px', flexShrink: 0 }}>{item.icon}</span>
-                {!isCollapsed && (
-                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.label}
-                  </span>
-                )}
-                {!isCollapsed && item.badge && (
-                  <span
-                    style={{
-                      marginLeft: 'auto',
-                      background: colors.primary,
-                      color: 'white',
-                      fontSize: '11px',
-                      fontWeight: '700',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      minWidth: '20px',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-6">
+          {/* Projects Section */}
+          <SidebarSection label="Navigation" collapsed={isCollapsed}>
+            <SidebarItem
+              icon={<Folder className="w-5 h-5" />}
+              label="Projects"
+              active={isActive('/board')}
+              onClick={() => navigate('/board')}
+              collapsed={isCollapsed}
+            />
+          </SidebarSection>
+
+          {/* Tools Section */}
+          <SidebarSection label="Tools" collapsed={isCollapsed}>
+            <SidebarItem
+              icon={<Sparkles className="w-5 h-5" />}
+              label="AI Assistant"
+              onClick={() => setActivePanel('ai')}
+              collapsed={isCollapsed}
+            />
+          </SidebarSection>
         </nav>
 
         {/* Footer */}
-        <div
-          style={{
-            padding: isCollapsed ? '16px 12px' : '16px 24px',
-            borderTop: `1px solid ${colors.border}`,
-            fontSize: '11px',
-            color: colors.textSecondary,
-            textAlign: 'center',
-            flexShrink: 0,
-          }}
-        >
-          {!isCollapsed && <div>© 2026 SYNQ</div>}
-          {isCollapsed && <div>©</div>}
+        <div className="p-3 border-t border-zinc-800 space-y-1">
+          <SidebarItem
+            icon={<Settings className="w-5 h-5" />}
+            label="Settings"
+            onClick={() => setActivePanel('settings')}
+            collapsed={isCollapsed}
+          />
+          {!isCollapsed && (
+            <div className="px-3 py-2 text-xs text-zinc-500">
+              © 2026 SYNQ
+            </div>
+          )}
         </div>
       </aside>
 
@@ -240,33 +142,8 @@ export default function Sidebar() {
           to { opacity: 1; }
         }
 
-        .nav-item:hover {
-          background: ${colors.primaryLight} !important;
-          color: ${colors.primary} !important;
-          transform: translateX(2px);
-        }
-
-        .toggle-btn:hover {
-          background: ${colors.primary} !important;
-          color: white !important;
-          transform: scale(1.05);
-        }
-
-        .sidebar::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-          background: ${colors.border};
-          border-radius: 3px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-          background: ${colors.textSecondary};
+        .animate-fadeIn {
+          animation: fadeIn 200ms ease;
         }
 
         /* Mobile Styles */
@@ -287,6 +164,24 @@ export default function Sidebar() {
           .sidebar {
             transform: translateX(0) !important;
           }
+        }
+
+        /* Scrollbar Styles */
+        .sidebar::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+          background: #3f3f46;
+          border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+          background: #52525b;
         }
       `}</style>
     </>

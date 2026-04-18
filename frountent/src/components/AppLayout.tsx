@@ -1,97 +1,47 @@
 import type { ReactNode } from 'react';
+import { RightPanel } from './RightPanel';
 import Sidebar from './Sidebar';
 import { useSidebarStore } from '../store/sidebarStore';
-import { useTheme } from '../context/ThemeContext';
+import { Menu } from 'lucide-react';
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  const { isCollapsed, toggleMobile } = useSidebarStore();
-  const theme = useTheme();
-  const colors = theme.getThemeColors();
+  const { isCollapsed, toggleMobile, activePanel, closePanel } = useSidebarStore();
 
   const sidebarWidth = isCollapsed ? '72px' : '240px';
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        minHeight: '100vh',
-        background: colors.background,
-      }}
-    >
+    <div className="flex min-h-screen bg-zinc-950">
       <Sidebar />
 
       {/* Mobile Menu Button */}
       <button
         onClick={toggleMobile}
         aria-label="Open menu"
-        style={{
-          position: 'fixed',
-          top: '20px',
-          left: '20px',
-          width: '44px',
-          height: '44px',
-          borderRadius: '12px',
-          border: `1px solid ${colors.border}`,
-          background: colors.surface,
-          color: colors.text,
-          cursor: 'pointer',
-          display: 'none',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '20px',
-          zIndex: 1000,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-          transition: 'all 200ms ease',
-        }}
-        className="mobile-menu-btn"
+        className="fixed top-5 left-5 w-11 h-11 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-100 flex items-center justify-center z-[1000] shadow-lg hover:bg-zinc-800 transition-all md:hidden mobile-menu-btn"
       >
-        ☰
+        <Menu className="w-5 h-5" />
       </button>
 
       {/* Main Content */}
       <main
-        style={{
-          flex: 1,
-          marginLeft: sidebarWidth,
-          transition: 'margin-left 300ms cubic-bezier(0, 0, 0.2, 1)',
-          minHeight: '100vh',
-          width: `calc(100% - ${sidebarWidth})`,
-        }}
-        className="main-content"
+        style={{ marginLeft: sidebarWidth }}
+        className="flex-1 transition-all duration-300 min-h-screen main-content"
       >
         {children}
       </main>
+
+      {/* Right Panel */}
+      <RightPanel activePanel={activePanel} onClose={closePanel} />
 
       <style>{`
         /* Mobile Styles */
         @media (max-width: 768px) {
           .main-content {
             margin-left: 0 !important;
-            width: 100% !important;
-          }
-
-          .mobile-menu-btn {
-            display: flex !important;
-          }
-
-          .mobile-menu-btn:hover {
-            background: ${colors.surfaceHover};
-            transform: scale(1.05);
-          }
-
-          .mobile-menu-btn:active {
-            transform: scale(0.95);
-          }
-        }
-
-        /* Desktop Styles */
-        @media (min-width: 769px) {
-          .mobile-menu-btn {
-            display: none !important;
           }
         }
       `}</style>

@@ -4,9 +4,12 @@ import { persist } from 'zustand/middleware';
 interface SidebarState {
   isCollapsed: boolean;
   isMobileOpen: boolean;
+  activePanel: 'none' | 'ai' | 'settings';
   toggleCollapse: () => void;
   toggleMobile: () => void;
   closeMobile: () => void;
+  setActivePanel: (panel: 'none' | 'ai' | 'settings') => void;
+  closePanel: () => void;
 }
 
 export const useSidebarStore = create<SidebarState>()(
@@ -14,9 +17,12 @@ export const useSidebarStore = create<SidebarState>()(
     (set) => ({
       isCollapsed: false,
       isMobileOpen: false,
+      activePanel: 'none',
       toggleCollapse: () => set((state) => ({ isCollapsed: !state.isCollapsed })),
       toggleMobile: () => set((state) => ({ isMobileOpen: !state.isMobileOpen })),
       closeMobile: () => set({ isMobileOpen: false }),
+      setActivePanel: (panel) => set({ activePanel: panel }),
+      closePanel: () => set({ activePanel: 'none' }),
     }),
     {
       name: 'sidebar-storage',

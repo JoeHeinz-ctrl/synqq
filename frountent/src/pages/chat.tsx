@@ -70,7 +70,7 @@ const styles: any = {
   },
 
   sidebar: (colors: any) => ({
-    width: "260px",
+    width: "280px",
     background: colors.surface,
     borderRight: `1px solid ${colors.border}`,
     display: "flex",
@@ -85,7 +85,7 @@ const styles: any = {
     left: 0,
     bottom: 0,
     width: "100%",
-    maxWidth: "300px",
+    maxWidth: "320px",
     background: colors.surface,
     zIndex: 100,
     transform: "translateX(-100%)",
@@ -97,35 +97,38 @@ const styles: any = {
   },
 
   sidebarHeader: (colors: any) => ({
-    padding: "16px",
+    padding: "18px 16px",
     borderBottom: `1px solid ${colors.border}`,
-    fontSize: "13px",
-    fontWeight: "600",
+    fontSize: "11px",
+    fontWeight: "700",
     color: colors.textSecondary,
     textTransform: "uppercase",
-    letterSpacing: "0.5px",
+    letterSpacing: "1px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   }),
 
   userList: {
     flex: 1,
     overflowY: "auto" as const,
-    padding: "8px",
+    padding: "12px",
   },
 
   userItem: {
-    padding: "12px",
-    borderRadius: "8px",
+    padding: "14px 12px",
+    borderRadius: "10px",
     display: "flex",
     alignItems: "center",
-    gap: "12px",
+    gap: "14px",
     cursor: "pointer",
     transition: "all 0.2s ease",
-    marginBottom: "4px",
+    marginBottom: "6px",
   },
 
   userAvatar: {
-    width: "36px",
-    height: "36px",
+    width: "40px",
+    height: "40px",
     borderRadius: "50%",
     background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     display: "flex",
@@ -133,18 +136,23 @@ const styles: any = {
     justifyContent: "center",
     color: "#fff",
     fontWeight: "600",
-    fontSize: "14px",
+    fontSize: "15px",
+    flexShrink: 0,
   },
 
   userInfo: {
     flex: 1,
+    minWidth: 0,
   },
 
   userName: (colors: any) => ({
-    fontSize: "14px",
-    fontWeight: "500",
+    fontSize: "15px",
+    fontWeight: "600",
     color: colors.text,
-    marginBottom: "2px",
+    marginBottom: "4px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   }),
 
   userStatus: (colors: any) => ({

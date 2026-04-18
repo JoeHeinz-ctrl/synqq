@@ -10,11 +10,13 @@ export function SidebarSection({ label, children, collapsed = false }: SidebarSe
   return (
     <div className="space-y-1">
       {!collapsed && (
-        <h3 className="px-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+        <h3 className="px-3 py-2 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
           {label}
         </h3>
       )}
-      {children}
+      <div className="space-y-0.5">
+        {children}
+      </div>
     </div>
   );
 }

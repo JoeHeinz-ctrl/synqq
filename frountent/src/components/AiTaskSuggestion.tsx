@@ -58,87 +58,138 @@ export default function AiTaskSuggestion({
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))",
-        border: "1px solid rgba(139, 92, 246, 0.3)",
-        borderRadius: "12px",
-        padding: "12px 16px",
-        marginTop: "8px",
-        marginBottom: "8px",
+        background: "linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.08))",
+        border: "1px solid rgba(139, 92, 246, 0.25)",
+        borderRadius: "14px",
+        padding: "16px 18px",
+        marginTop: "12px",
+        marginBottom: "12px",
         animation: "slideIn 0.3s ease-out",
+        boxShadow: "0 4px 12px rgba(139, 92, 246, 0.1)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-        <Sparkles size={16} style={{ color: "#a78bfa" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
+        <div style={{
+          width: "28px",
+          height: "28px",
+          borderRadius: "8px",
+          background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          <Sparkles size={14} style={{ color: "#fff" }} />
+        </div>
         <span
           style={{
-            fontSize: "12px",
-            fontWeight: "600",
+            fontSize: "11px",
+            fontWeight: "700",
             color: "#a78bfa",
             textTransform: "uppercase",
-            letterSpacing: "0.5px",
+            letterSpacing: "1px",
           }}
         >
-          SYNQ AI Suggestion
+          AI Task Suggestion
         </span>
       </div>
 
-      <div style={{ marginBottom: "12px" }}>
-        <div style={{ fontSize: "14px", fontWeight: "600", color: "#fff", marginBottom: "6px" }}>
-          Task: {suggestion.title}
+      <div style={{ marginBottom: "16px", paddingLeft: "2px" }}>
+        <div style={{ 
+          fontSize: "15px", 
+          fontWeight: "600", 
+          color: "#fff", 
+          marginBottom: "10px",
+          lineHeight: "1.5",
+        }}>
+          {suggestion.title}
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", fontSize: "13px", color: "#aaa" }}>
+        <div style={{ 
+          display: "flex", 
+          flexWrap: "wrap", 
+          gap: "12px", 
+          fontSize: "13px", 
+          color: "#a0a0a0" 
+        }}>
           {suggestion.assignee && (
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <span>👤</span>
-              <span>Assigned to: {suggestion.assignee.name}</span>
+            <div style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "6px",
+              padding: "4px 10px",
+              borderRadius: "6px",
+              background: "rgba(255,255,255,0.05)",
+            }}>
+              <span style={{ fontSize: "14px" }}>👤</span>
+              <span>{suggestion.assignee.name}</span>
             </div>
           )}
 
           {suggestion.dueDate && (
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <span>📅</span>
-              <span>Due: {formatDueDate(suggestion.dueDate)}</span>
+            <div style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "6px",
+              padding: "4px 10px",
+              borderRadius: "6px",
+              background: "rgba(255,255,255,0.05)",
+            }}>
+              <span style={{ fontSize: "14px" }}>📅</span>
+              <span>{formatDueDate(suggestion.dueDate)}</span>
             </div>
           )}
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div style={{ display: "flex", gap: "10px" }}>
         <button
           onClick={handleCreate}
           disabled={isCreating}
           style={{
             flex: 1,
-            padding: "8px 16px",
-            borderRadius: "8px",
+            padding: "10px 18px",
+            borderRadius: "10px",
             border: "none",
             background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
             color: "#fff",
             fontWeight: "600",
-            fontSize: "13px",
+            fontSize: "14px",
             cursor: isCreating ? "not-allowed" : "pointer",
             opacity: isCreating ? 0.6 : 1,
             transition: "all 0.2s ease",
+            boxShadow: "0 2px 8px rgba(139, 92, 246, 0.3)",
+          }}
+          onMouseEnter={(e) => {
+            if (!isCreating) e.currentTarget.style.transform = "translateY(-1px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
           }}
         >
-          {isCreating ? "Creating..." : "Create Task"}
+          {isCreating ? "Creating..." : "✓ Create Task"}
         </button>
 
         <button
           onClick={onEdit}
           disabled={isCreating}
           style={{
-            padding: "8px 16px",
-            borderRadius: "8px",
+            padding: "10px 18px",
+            borderRadius: "10px",
             border: "1px solid rgba(139, 92, 246, 0.3)",
-            background: "transparent",
+            background: "rgba(139, 92, 246, 0.05)",
             color: "#a78bfa",
             fontWeight: "600",
-            fontSize: "13px",
+            fontSize: "14px",
             cursor: isCreating ? "not-allowed" : "pointer",
             opacity: isCreating ? 0.6 : 1,
             transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            if (!isCreating) e.currentTarget.style.background = "rgba(139, 92, 246, 0.1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(139, 92, 246, 0.05)";
           }}
         >
           Edit
@@ -148,16 +199,26 @@ export default function AiTaskSuggestion({
           onClick={onIgnore}
           disabled={isCreating}
           style={{
-            padding: "8px 16px",
-            borderRadius: "8px",
+            padding: "10px 18px",
+            borderRadius: "10px",
             border: "1px solid rgba(255, 255, 255, 0.1)",
             background: "transparent",
             color: "#888",
             fontWeight: "600",
-            fontSize: "13px",
+            fontSize: "14px",
             cursor: isCreating ? "not-allowed" : "pointer",
             opacity: isCreating ? 0.6 : 1,
             transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            if (!isCreating) {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+              e.currentTarget.style.color = "#aaa";
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "#888";
           }}
         >
           Ignore

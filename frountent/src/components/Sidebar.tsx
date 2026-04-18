@@ -62,13 +62,13 @@ export default function Sidebar() {
         className="fixed left-0 top-0 bottom-0 bg-zinc-900 border-r border-zinc-800 flex flex-col transition-all duration-300 z-[999] sidebar"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-zinc-800/50">
           {!isCollapsed && (
             <div
-              className="flex items-center gap-2 cursor-pointer group"
+              className="flex items-center gap-2.5 cursor-pointer group"
               onClick={() => navigate('/board')}
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20">
                 <span className="text-white font-bold text-sm">S</span>
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
@@ -79,7 +79,7 @@ export default function Sidebar() {
 
           {isCollapsed && (
             <div
-              className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center cursor-pointer mx-auto"
+              className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center cursor-pointer mx-auto shadow-lg shadow-blue-600/20"
               onClick={() => navigate('/board')}
             >
               <span className="text-white font-bold text-sm">S</span>
@@ -90,14 +90,14 @@ export default function Sidebar() {
           <button
             onClick={toggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-all toggle-btn"
+            className="hidden md:flex items-center justify-center w-7 h-7 rounded-md bg-zinc-800/50 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-all toggle-btn"
           >
             {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-6">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 space-y-8">
           {/* Projects Section */}
           <SidebarSection label="Navigation" collapsed={isCollapsed}>
             <SidebarItem
@@ -121,7 +121,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="p-3 border-t border-zinc-800 space-y-1">
+        <div className="px-2 py-3 border-t border-zinc-800/50 space-y-1">
           <SidebarItem
             icon={<Settings className="w-5 h-5" />}
             label="Settings"
@@ -129,7 +129,7 @@ export default function Sidebar() {
             collapsed={isCollapsed}
           />
           {!isCollapsed && (
-            <div className="px-3 py-2 text-xs text-zinc-500">
+            <div className="px-3 py-2 text-[11px] text-zinc-600 font-medium">
               © 2026 SYNQ
             </div>
           )}

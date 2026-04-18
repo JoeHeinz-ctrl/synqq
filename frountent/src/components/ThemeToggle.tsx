@@ -1,4 +1,5 @@
 import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 export default function ThemeToggle() {
   const { mode, color, toggleMode, setColor } = useTheme();
@@ -17,7 +18,7 @@ export default function ThemeToggle() {
         style={styles.modeBtn}
         title={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}
       >
-        {mode === 'dark' ? '☀️' : '🌙'}
+        {mode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
       </button>
 
       {/* Color Options */}

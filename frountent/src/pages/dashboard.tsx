@@ -5,6 +5,8 @@ import { useTheme } from "../context/ThemeContext";
 import BottomNav from "../components/BottomNav";
 import TaskDetailModal from "../components/TaskDetailModal";
 import SettingsDropdown from "../components/SettingsDropdown";
+import { ArrowLeft, MessageSquare, ListTodo, Zap, CheckCircle2, Trash2, LayoutGrid, List } from "lucide-react";
+import { TaskListView } from "../components/TaskListView";
 
 const styles: any = {
   container: {
@@ -491,6 +493,7 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
+  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
 
   const tasksRef = useRef(tasks);
   useEffect(() => { tasksRef.current = tasks; }, [tasks]);
@@ -790,19 +793,19 @@ export default function Dashboard() {
   const getColumnConfig = (status: string) => {
     const configs: any = {
       todo: { 
-        emoji: "📋", 
+        icon: ListTodo,
         color: "#0b7de0",
         title: "Todo",
         emptyText: "Drag tasks here to get started"
       },
       doing: { 
-        emoji: "⚡", 
+        icon: Zap,
         color: "#f59e0b",
         title: "In Progress",
         emptyText: "Drag tasks here to start working"
       },
       done: { 
-        emoji: "✓", 
+        icon: CheckCircle2,
         color: "#10b981",
         title: "Done",
         emptyText: "Completed tasks will appear here"
@@ -821,7 +824,7 @@ export default function Dashboard() {
     if (colTasks.length === 0 && inlineCreateCol !== status) {
       return (
         <div style={styles.emptyState} className="empty-state">
-          <div style={styles.emptyIcon}>{config.emoji}</div>
+          <config.icon size={32} style={{ opacity: 0.25, color: config.color }} />
           <div style={styles.emptyText}>{config.emptyText}</div>
         </div>
       );
@@ -865,7 +868,9 @@ export default function Dashboard() {
                   onClick={(e) => onClickDeleteTask(e, t.id)}
                   onMouseEnter={(e) => { e.currentTarget.style.color = "#ff6b6b"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = "#666666"; }}
-                >🗑️</button>
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
 
@@ -1207,7 +1212,8 @@ export default function Dashboard() {
             onMouseEnter={(e) => { e.currentTarget.style.background = colors.surfaceHover; e.currentTarget.style.color = colors.text; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = colors.surface; e.currentTarget.style.color = colors.textSecondary; }}
           >
-            ← Back
+            <ArrowLeft size={14} />
+            Back
           </button>
           
           <div style={styles.projectTitle(colors)}>
@@ -1235,6 +1241,52 @@ export default function Dashboard() {
 
         {/* Right Section - Shortcuts + Avatars + Actions */}
         <div style={styles.headerRight} className="header-right">
+          {/* View Toggle */}
+          <div style={{ display: "flex", gap: "4px", background: colors.surface, borderRadius: "8px", padding: "4px", border: `1px solid ${colors.border}` }}>
+            <button
+              onClick={() => setViewMode('board')}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "6px",
+                border: "none",
+                background: viewMode === 'board' ? colors.primaryLight : "transparent",
+                color: viewMode === 'board' ? colors.primary : colors.textSecondary,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "12px",
+                fontWeight: "600",
+                transition: "all 0.2s ease",
+              }}
+              title="Board View"
+            >
+              <LayoutGrid size={14} />
+              Board
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "6px",
+                border: "none",
+                background: viewMode === 'list' ? colors.primaryLight : "transparent",
+                color: viewMode === 'list' ? colors.primary : colors.textSecondary,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "12px",
+                fontWeight: "600",
+                transition: "all 0.2s ease",
+              }}
+              title="List View"
+            >
+              <List size={14} />
+              List
+            </button>
+          </div>
+
           {/* Keyboard shortcuts */}
           <div style={styles.shortcuts(colors)} className="shortcuts-badge">
             <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
@@ -1302,7 +1354,8 @@ export default function Dashboard() {
             onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '0.8'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '1'; }}
           >
-            💬 Chat
+            <MessageSquare size={16} />
+            Chat
           </button>
           
           <SettingsDropdown />
@@ -1311,60 +1364,79 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div style={styles.mainContent}>
-        <div style={styles.board} className="board-grid">
-          {(["todo", "doing", "done"] as const).map((col) => {
-            const config = getColumnConfig(col);
-            return (
-              <div
-                key={col}
-                style={{
-                  ...styles.column(colors, isDark),
-                  border: dragOverCol === col 
-                    ? `1px solid ${colors.primary}` 
-                    : `1px solid ${colors.border}`,
-                }}
-                className={`column-${col}`}
-                onDragOver={(e) => onDragOverColumn(e, col)}
-                onDragLeave={onDragLeaveColumn}
-                onDrop={() => onDropColumn(col)}
-              >
-                {/* Drag-over highlight layer */}
-                <div 
+        {viewMode === 'board' ? (
+          <div style={styles.board} className="board-grid">
+            {(["todo", "doing", "done"] as const).map((col) => {
+              const config = getColumnConfig(col);
+              const StatusIcon = config.icon;
+              return (
+                <div
+                  key={col}
                   style={{
-                    ...styles.columnHighlight,
-                    ...(dragOverCol === col ? styles.columnHighlightActive : {}),
+                    ...styles.column(colors, isDark),
+                    border: dragOverCol === col 
+                      ? `1px solid ${colors.primary}` 
+                      : `1px solid ${colors.border}`,
                   }}
-                  className="column-highlight"
-                />
-                
-                <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "16px" }}>{config.emoji}</span>
-                    <div style={styles.columnTitle(colors)}>{config.title}</div>
+                  className={`column-${col}`}
+                  onDragOver={(e) => onDragOverColumn(e, col)}
+                  onDragLeave={onDragLeaveColumn}
+                  onDrop={() => onDropColumn(col)}
+                >
+                  {/* Drag-over highlight layer */}
+                  <div 
+                    style={{
+                      ...styles.columnHighlight,
+                      ...(dragOverCol === col ? styles.columnHighlightActive : {}),
+                    }}
+                    className="column-highlight"
+                  />
+                  
+                  <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <StatusIcon size={16} style={{ color: config.color }} />
+                      <div style={styles.columnTitle(colors)}>{config.title}</div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={styles.columnCount(colors)} className="column-count">{getColumnTasks(col).length}</div>
+                      <button
+                        style={styles.addBtn}
+                        className="add-btn"
+                        title={`Add to ${config.title}`}
+                        onClick={() => promptCreateTask(col)}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#3a3a3a"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "transparent"; }}
+                      >+</button>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={styles.columnCount(colors)} className="column-count">{getColumnTasks(col).length}</div>
-                    <button
-                      style={styles.addBtn}
-                      className="add-btn"
-                      title={`Add to ${config.title}`}
-                      onClick={() => promptCreateTask(col)}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#3a3a3a"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "transparent"; }}
-                    >+</button>
+                  
+                  {/* Column header divider */}
+                  <div style={styles.columnHeaderDivider} />
+                  
+                  <div style={styles.taskList} className="task-list">
+                    {renderTasks(col)}
                   </div>
                 </div>
-                
-                {/* Column header divider */}
-                <div style={styles.columnHeaderDivider} />
-                
-                <div style={styles.taskList} className="task-list">
-                  {renderTasks(col)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+            <TaskListView
+              tasks={tasks}
+              onTaskClick={(taskId) => {
+                setSelectedTaskId(taskId);
+                setShowTaskDetail(true);
+              }}
+              onDeleteTask={onClickDeleteTask}
+              onEditTask={(taskId) => {
+                setSelectedTaskId(taskId);
+                setShowTaskDetail(true);
+              }}
+              selectedTaskId={selectedTaskId}
+            />
+          </div>
+        )}
       </div>
 
       {/* Delete Modal */}

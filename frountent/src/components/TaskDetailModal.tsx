@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ListTodo } from "lucide-react";
 
 interface TaskDetailPanelProps {
   task: {
@@ -67,7 +68,9 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
             alignItems: "center",
             justifyContent: "center",
             fontSize: "16px"
-          }}>📋</div>
+          }}>
+            <ListTodo size={16} color="#fff" />
+          </div>
           <span style={{ fontSize: "14px", fontWeight: "700", color: "#fff", letterSpacing: "0.5px" }}>
             TASK DETAILS
           </span>

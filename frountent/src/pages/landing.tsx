@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import NeuralBackground from "@/components/ui/flow-field-background";
 import { PricingSection } from "@/components/PricingSection";
-
 import { useNavigate } from "react-router-dom";
+import { Bot, LayoutGrid, Users, Zap } from "lucide-react";
 
 const features = [
-    { icon: "🤖", title: "Chat → Task AI", desc: "Automatically detect tasks from conversations and convert them into project tasks with one click." },
-    { icon: "📋", title: "Kanban Project Boards", desc: "Organize work with simple boards: Todo, Doing, Done. Drag and drop tasks with smooth animations." },
-    { icon: "👥", title: "Team Collaboration", desc: "Work together with integrated team chat and shared projects. Real-time updates across all devices." },
-    { icon: "⚡", title: "Instant Team Setup", desc: "Create a workspace and invite teammates in seconds. Share team codes and start collaborating immediately." },
+    { Icon: Bot, title: "Chat → Task AI", desc: "Automatically detect tasks from conversations and convert them into project tasks with one click." },
+    { Icon: LayoutGrid, title: "Kanban Project Boards", desc: "Organize work with simple boards: Todo, Doing, Done. Drag and drop tasks with smooth animations." },
+    { Icon: Users, title: "Team Collaboration", desc: "Work together with integrated team chat and shared projects. Real-time updates across all devices." },
+    { Icon: Zap, title: "Instant Team Setup", desc: "Create a workspace and invite teammates in seconds. Share team codes and start collaborating immediately." },
 ];
 
 const navLinks = ["Features", "About", "Pricing", "Blog"];
@@ -112,13 +112,18 @@ export default function Landing() {
                     tasks directly from conversations and turning them into actionable project items.
                 </p>
                 <div className="feature-grid">
-                    {features.map((f) => (
-                        <div key={f.title} className="feature-card">
-                            <div style={s.featureIcon}>{f.icon}</div>
-                            <h3 style={s.featureTitle}>{f.title}</h3>
-                            <p style={s.featureDesc}>{f.desc}</p>
-                        </div>
-                    ))}
+                    {features.map((f) => {
+                        const FeatureIcon = f.Icon;
+                        return (
+                            <div key={f.title} className="feature-card">
+                                <div style={s.featureIcon}>
+                                    <FeatureIcon size={32} />
+                                </div>
+                                <h3 style={s.featureTitle}>{f.title}</h3>
+                                <p style={s.featureDesc}>{f.desc}</p>
+                            </div>
+                        );
+                    })}
                 </div>
             </section>
             {/* Pricing Section */}

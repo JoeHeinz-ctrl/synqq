@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { Settings, Sun, Moon } from 'lucide-react';
 
 export default function SettingsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +52,7 @@ export default function SettingsDropdown() {
           e.currentTarget.style.background = themeColors.surfaceHover;
         }}
       >
-        ⚙️
+        <Settings size={18} />
       </button>
 
       {isOpen && (
@@ -82,7 +83,9 @@ export default function SettingsDropdown() {
                 e.currentTarget.style.background = themeColors.surfaceHover;
               }}
             >
-              <span style={styles.modeIcon}>{mode === 'dark' ? '🌙' : '☀️'}</span>
+              <span style={styles.modeIcon}>
+                {mode === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+              </span>
               <span style={styles.modeText}>{mode === 'dark' ? 'Dark' : 'Light'} Mode</span>
             </button>
           </div>

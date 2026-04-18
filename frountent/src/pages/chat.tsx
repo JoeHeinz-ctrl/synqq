@@ -8,6 +8,7 @@ import { useWebRTC } from "../hooks/useWebRTC";
 import AiTaskSuggestion from "../components/AiTaskSuggestion";
 import EditTaskModal from "../components/EditTaskModal";
 import { useTheme } from "../context/ThemeContext";
+import { MessageSquare, Users, Paperclip, Send } from "lucide-react";
 
 const styles: any = {
   container: (colors: any) => ({
@@ -621,11 +622,12 @@ export default function Chat() {
                 padding: "4px",
               }}
             >
-              👥
+              <Users size={20} />
             </button>
           )}
           <div style={styles.title(colors)}>
-            💬 Team Chat
+            <MessageSquare size={20} style={{ display: "inline-block", verticalAlign: "middle" }} />
+            <span style={{ marginLeft: "8px" }}>Team Chat</span>
             {isConnected && <div style={styles.statusDot} title="Connected" />}
           </div>
         </div>
@@ -729,7 +731,7 @@ export default function Chat() {
           <div style={styles.messagesContainer}>
             {messages.length === 0 ? (
               <div style={styles.emptyState(colors)}>
-                <div style={{ fontSize: "48px" }}>💬</div>
+                <MessageSquare size={48} style={{ color: colors.textSecondary, opacity: 0.5 }} />
                 <div style={{ fontSize: "16px" }}>No messages yet</div>
                 <div style={{ fontSize: "13px" }}>
                   Start the conversation!
@@ -821,7 +823,7 @@ export default function Chat() {
                 e.currentTarget.style.color = colors.textSecondary;
               }}
             >
-              📎
+              <Paperclip size={18} />
             </button>
             <input
               style={styles.input(colors)}
@@ -841,7 +843,7 @@ export default function Chat() {
                 e.currentTarget.style.background = colors.primary;
               }}
             >
-              ➤
+              <Send size={18} />
             </button>
           </div>
         </div>

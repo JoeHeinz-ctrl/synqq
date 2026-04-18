@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Sparkles } from "lucide-react";
 
 interface AiTaskSuggestionProps {
   messageId: string;
@@ -67,7 +68,7 @@ export default function AiTaskSuggestion({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-        <span style={{ fontSize: "16px" }}>⚡</span>
+        <Sparkles size={16} style={{ color: "#a78bfa" }} />
         <span
           style={{
             fontSize: "12px",

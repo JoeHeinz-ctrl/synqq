@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import SettingsDropdown from "../components/SettingsDropdown";
 import { UsageIndicator } from "../components/ui/UsageIndicator";
 import { LimitAlert } from "../components/ui/UpgradePrompt";
+import { Folder, Check, Edit3, Trash2, Link2, Users, FolderKanban, Copy, AlertTriangle } from "lucide-react";
 
 /* ─────────────────────────── styles ─────────────────────────── */
 const s: any = {
@@ -493,7 +494,7 @@ export default function ProjectBoard() {
         onMouseLeave={() => setHoveredId(null)}
       >
         <div style={s.cardLeft}>
-          <span style={s.projectEmoji}>📂</span>
+          <Folder size={20} style={{ flexShrink: 0, color: colors.primary }} />
           {editingId === p.id ? (
             <input
               ref={editInputRef}
@@ -522,7 +523,9 @@ export default function ProjectBoard() {
             onClick={(e) => editingId === p.id ? commitRename(p.id) : startEdit(e, p)}
             onMouseEnter={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.28)" : `${colors.primary}40`; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.15)" : colors.primaryLight; }}
-          >{editingId === p.id ? "✓" : "✏️"}</button>
+          >
+            {editingId === p.id ? <Check size={15} /> : <Edit3 size={15} />}
+          </button>
 
           <button
             title="Delete project"
@@ -530,7 +533,9 @@ export default function ProjectBoard() {
             onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(p.id); }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,68,68,0.25)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,68,68,0.1)"; }}
-          >🗑️</button>
+          >
+            <Trash2 size={15} />
+          </button>
         </div>
       </div>
     );
@@ -642,7 +647,10 @@ export default function ProjectBoard() {
       <div style={s.topBar}>
         <div style={{ display: "flex", flexDirection: "column" }}>
           {greeting && <div style={{ color: colors.textSecondary, fontSize: 14, marginBottom: 6 }}>{greeting}</div>}
-          <h2 style={s.pageTitle(colors)}>🗂️ Projects</h2>
+          <h2 style={s.pageTitle(colors)}>
+            <FolderKanban size={28} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "8px" }} />
+            Projects
+          </h2>
         </div>
         <div style={s.topActions}>
           <SettingsDropdown />
@@ -652,7 +660,10 @@ export default function ProjectBoard() {
             onClick={() => { setShowJoinTeam(true); setJoinCode(""); }}
             onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; e.currentTarget.style.borderColor = colors.border; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; e.currentTarget.style.borderColor = colors.border; }}
-          >🔗 Join Team</button>
+          >
+            <Link2 size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px" }} />
+            Join Team
+          </button>
 
           <button
             style={s.btnSuccess}
@@ -660,7 +671,10 @@ export default function ProjectBoard() {
             onClick={() => { setShowCreateTeam(true); setCreateTeamName(""); setCreatedTeamCode(null); }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(16,185,129,0.25)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(16,185,129,0.15)"; }}
-          >👥 Create Team</button>
+          >
+            <Users size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px" }} />
+            Create Team
+          </button>
         </div>
       </div>
 
@@ -707,7 +721,10 @@ export default function ProjectBoard() {
 
           <div style={s.sectionHeader}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={s.sectionTitle(colors)}>👥 {team.name}</h3>
+              <h3 style={s.sectionTitle(colors)}>
+                <Users size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px" }} />
+                {team.name}
+              </h3>
               <UsageIndicator type="teams" compact />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
@@ -758,7 +775,14 @@ export default function ProjectBoard() {
                   onMouseEnter={(e: any) => { e.currentTarget.style.background = `${colors.primary}30`; }}
                   onMouseLeave={(e: any) => { e.currentTarget.style.background = copiedCode === team.team_code ? "rgba(16,185,129,0.15)" : colors.primaryLight; }}
                 >
-                  {copiedCode === team.team_code ? "✓ Copied!" : `# ${team.team_code}`}
+                  {copiedCode === team.team_code ? (
+                    <>
+                      <Check size={12} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+                      Copied!
+                    </>
+                  ) : (
+                    `# ${team.team_code}`
+                  )}
                 </div>
                 {team.owner_id === (currentUser?.id || null) && (
                   <button
@@ -778,7 +802,8 @@ export default function ProjectBoard() {
                     onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                     title="Delete team and all projects"
                   >
-                    🗑️ Delete Team
+                    <Trash2 size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px" }} />
+                    Delete Team
                   </button>
                 )}
               </div>
@@ -836,7 +861,10 @@ export default function ProjectBoard() {
         <div style={s.modalOverlay} className="modal-overlay" onClick={() => setDeleteTeamConfirmId(null)}>
           <div style={s.modalContent(colors)} onClick={(e) => e.stopPropagation()}>
             <h3 style={s.modalTitle(colors)}>Delete Team</h3>
-            <p style={s.modalText(colors)}>⚠️ This will delete the entire team and ALL projects within it. This cannot be undone.</p>
+            <p style={s.modalText(colors)}>
+              <AlertTriangle size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px", color: "#ff6b6b" }} />
+              This will delete the entire team and ALL projects within it. This cannot be undone.
+            </p>
             <div style={s.modalButtons}>
               <button style={s.btnSecondary} onClick={() => setDeleteTeamConfirmId(null)}
                 onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; }}
@@ -867,7 +895,10 @@ export default function ProjectBoard() {
                     onClick={() => { copyCode(createdTeamCode); setShowCreateTeam(false); setCreatedTeamCode(null); setCreateTeamName(""); }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
-                  >📋 Copy & Close</button>
+                  >
+                    <Copy size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px" }} />
+                    Copy & Close
+                  </button>
                 </div>
               </>
             ) : (
@@ -925,7 +956,14 @@ export default function ProjectBoard() {
                 disabled={joinLoading}
                 onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
-              >{joinLoading ? "Joining…" : "🔗 Join Team"}</button>
+              >
+                {joinLoading ? "Joining…" : (
+                  <>
+                    <Link2 size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "6px" }} />
+                    Join Team
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

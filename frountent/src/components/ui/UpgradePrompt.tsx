@@ -1,4 +1,4 @@
-import { AlertCircle, Crown } from "lucide-react";
+import { AlertCircle, Crown, Check } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface UpgradePromptProps {
@@ -43,10 +43,19 @@ export function UpgradePrompt({
             {message}
           </p>
           <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-500">
-              ✓ Unlimited personal projects<br />
-              ✓ Unlimited groups<br />
-              ✓ Unlimited group projects
+            <div className="text-xs text-gray-500 space-y-1">
+              <div className="flex items-center gap-1">
+                <Check size={12} className="text-green-600" />
+                <span>Unlimited personal projects</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Check size={12} className="text-green-600" />
+                <span>Unlimited groups</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Check size={12} className="text-green-600" />
+                <span>Unlimited group projects</span>
+              </div>
             </div>
             <button
               onClick={handleUpgrade}

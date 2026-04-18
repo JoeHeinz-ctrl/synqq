@@ -22,8 +22,6 @@ export default function Sidebar() {
 
   const navItems: NavItem[] = [
     { id: 'board', label: 'Projects', icon: '📂', path: '/board' },
-    { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/dashboard' },
-    { id: 'chat', label: 'Chat', icon: '💬', path: '/chat' },
   ];
 
   // Close mobile sidebar on route change

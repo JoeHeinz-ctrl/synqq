@@ -30,8 +30,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
         aria-label="Open menu"
         style={{
           position: 'fixed',
-          top: '16px',
-          left: '16px',
+          top: '20px',
+          left: '20px',
           width: '44px',
           height: '44px',
           borderRadius: '12px',
@@ -43,8 +43,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '20px',
-          zIndex: 997,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          zIndex: 1000,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
           transition: 'all 200ms ease',
         }}
         className="mobile-menu-btn"

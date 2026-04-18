@@ -11,7 +11,6 @@ import {
   ChevronRight,
   MoreHorizontal
 } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 import { fetchProjects } from '../services/api';
 
 interface Task {
@@ -31,7 +30,6 @@ interface Project {
 
 export default function MyDay() {
   const navigate = useNavigate();
-  const theme = useTheme();
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [completedExpanded, setCompletedExpanded] = useState(false);

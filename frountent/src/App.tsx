@@ -5,6 +5,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { SubscriptionProvider } from "./context/SubscriptionContext";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { PublicRoute } from "./routes/PublicRoute";
+import AppLayout from "./components/AppLayout";
 
 import Landing from "./pages/landing";
 import Login from "./pages/login";
@@ -63,9 +64,9 @@ function AppRoutes() {
 
       {/* Protected Routes (only for LOGGED IN users) */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/board" element={<ProjectBoard />} />
-        <Route path="/dashboard/:projectId" element={<Dashboard />} />
-        <Route path="/chat/:projectId" element={<Chat />} />
+        <Route element={<AppLayout><ProjectBoard /></AppLayout>} path="/board" />
+        <Route element={<AppLayout><Dashboard /></AppLayout>} path="/dashboard/:projectId" />
+        <Route element={<AppLayout><Chat /></AppLayout>} path="/chat/:projectId" />
       </Route>
 
       {/* Fallback routing */}

@@ -29,8 +29,9 @@ function getCurrentDate() {
 }
 
 export default function MyDay() {
-  const { mode } = useTheme();
+  const { mode, getThemeColors } = useTheme();
   const isDark = mode === 'dark';
+  const colors = getThemeColors();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -107,7 +108,10 @@ export default function MyDay() {
         {/* ── Header ── */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-lg flex-shrink-0">
+            <div 
+              className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
+              style={{ background: colors.primary }}
+            >
               <Sun className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -132,18 +136,18 @@ export default function MyDay() {
 
           {/* Stats Row */}
           {tasks.length > 0 && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <StatCard
                 label="Remaining"
                 value={activeTasks.length}
                 variant="default"
-                className="min-w-[120px]"
+                className="min-w-[140px]"
               />
               <StatCard
                 label="Completed"
                 value={completedTasks.length}
                 variant="primary"
-                className="min-w-[120px]"
+                className="min-w-[140px]"
               />
             </div>
           )}
@@ -152,11 +156,16 @@ export default function MyDay() {
         {/* ── Add Task Input ── */}
         <div
           className={cn(
-            'mb-6 flex items-center gap-3 px-4 py-4 rounded-xl border transition-all',
+            'mb-8 flex items-center gap-3 px-5 py-4 rounded-xl border transition-all',
             isDark
-              ? 'bg-zinc-900/40 border-zinc-800/50 focus-within:border-teal-500/40 focus-within:bg-zinc-900/60'
-              : 'bg-white border-zinc-200 shadow-sm focus-within:border-teal-400 focus-within:shadow-md'
+              ? 'bg-zinc-900/40 border-zinc-800/50 focus-within:bg-zinc-900/60'
+              : 'bg-white border-zinc-200 shadow-sm focus-within:shadow-md'
           )}
+          style={{
+            borderColor: undefined
+          }}
+          onFocus={(e) => e.currentTarget.style.borderColor = colors.primary + '60'}
+          onBlur={(e) => e.currentTarget.style.borderColor = ''}
         >
           <Plus
             className={cn(
@@ -181,11 +190,12 @@ export default function MyDay() {
             <button
               onClick={addTask}
               className={cn(
-                'px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0',
-                isDark
-                  ? 'bg-teal-500/10 text-teal-400 hover:bg-teal-500/20 border border-teal-500/20'
-                  : 'bg-teal-500 text-white hover:bg-teal-600 shadow-sm'
+                'px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 text-white',
+                isDark ? 'shadow-sm' : 'shadow-md'
               )}
+              style={{ backgroundColor: colors.primary }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               Add
             </button>
@@ -231,10 +241,10 @@ export default function MyDay() {
 
         {/* ── Task List ── */}
         {tasks.length > 0 && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Active Tasks */}
             {activeTasks.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {activeTasks.map((task) => (
                   <TaskRow
                     key={task.id}
@@ -249,7 +259,7 @@ export default function MyDay() {
 
             {/* Completed Tasks */}
             {completedTasks.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-3 mt-6">
                 <button
                   onClick={() => setCompletedExpanded((v) => !v)}
                   className={cn(
@@ -268,7 +278,7 @@ export default function MyDay() {
                 </button>
 
                 {completedExpanded && (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {completedTasks.map((task) => (
                       <TaskRow
                         key={task.id}
@@ -301,15 +311,23 @@ interface TaskRowProps {
 }
 
 function TaskRow({ task, isDark, onToggle, onDelete, muted = false }: TaskRowProps) {
+  const { getThemeColors } = useTheme();
+  const colors = getThemeColors();
+
   return (
     <div
       className={cn(
-        'group flex items-center gap-4 px-4 py-3.5 rounded-xl border transition-all',
+        'group flex items-center gap-4 px-5 py-4 rounded-xl border transition-all',
         muted ? 'opacity-60' : '',
         isDark
           ? 'bg-zinc-900/30 border-zinc-800/50 hover:bg-zinc-900/50 hover:border-zinc-700/50'
-          : 'bg-white border-zinc-200 hover:border-teal-300 hover:shadow-md'
+          : 'bg-white border-zinc-200 hover:shadow-md'
       )}
+      style={{
+        borderColor: undefined
+      }}
+      onMouseEnter={(e) => !muted && (e.currentTarget.style.borderColor = colors.primary + '40')}
+      onMouseLeave={(e) => e.currentTarget.style.borderColor = ''}
     >
       {/* Checkbox */}
       <button
@@ -317,11 +335,31 @@ function TaskRow({ task, isDark, onToggle, onDelete, muted = false }: TaskRowPro
         className={cn(
           'flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
           task.completed
-            ? 'bg-teal-500 border-teal-500 hover:bg-teal-600 hover:border-teal-600'
+            ? ''
             : isDark
-            ? 'border-zinc-600 hover:border-teal-500 hover:bg-teal-500/10'
-            : 'border-zinc-400 hover:border-teal-500 hover:bg-teal-50'
+            ? 'border-zinc-600 hover:bg-zinc-800'
+            : 'border-zinc-400 hover:bg-zinc-50'
         )}
+        style={task.completed ? {
+          backgroundColor: colors.primary,
+          borderColor: colors.primary
+        } : undefined}
+        onMouseEnter={(e) => {
+          if (!task.completed) {
+            e.currentTarget.style.borderColor = colors.primary;
+            e.currentTarget.style.backgroundColor = colors.primaryLight;
+          } else {
+            e.currentTarget.style.opacity = '0.8';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!task.completed) {
+            e.currentTarget.style.borderColor = '';
+            e.currentTarget.style.backgroundColor = '';
+          } else {
+            e.currentTarget.style.opacity = '1';
+          }
+        }}
       >
         {task.completed ? (
           <Check className="w-3.5 h-3.5 text-white" />

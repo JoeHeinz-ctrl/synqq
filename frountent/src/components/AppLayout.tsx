@@ -1,3 +1,1 @@
-// Re-export from new canonical location
-export { AppLayout as default } from './layout/AppLayout';
-export { AppLayout } from './layout/AppLayout';
+export { AppLayout as default, AppLayout } from './layout/AppLayout';

@@ -1,3 +1,2 @@
-// Deprecated — use useSidebar() from context/SidebarContext instead.
-// This shim keeps old imports working during migration.
+// Deprecated shim — use useSidebar() from context/SidebarContext
 export { useSidebar as useSidebarStore } from '../context/SidebarContext';

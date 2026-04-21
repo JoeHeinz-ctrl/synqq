@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 import { 
   Plus, 
   Check, 
@@ -6,9 +7,10 @@ import {
   Calendar,
   ChevronDown,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Sun,
+  Trash2
 } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 
 interface Task {
   id: string;
@@ -27,24 +29,20 @@ export default function MyDay() {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [completedExpanded, setCompletedExpanded] = useState(true);
 
-  // Get current date string (YYYY-MM-DD)
   const getCurrentDate = () => {
     const now = new Date();
     return now.toISOString().split('T')[0];
   };
 
-  // Load tasks and check if date has changed
   useEffect(() => {
     const storedDate = localStorage.getItem(DATE_KEY);
     const currentDate = getCurrentDate();
 
-    // If date has changed, clear tasks
     if (storedDate !== currentDate) {
       localStorage.setItem(DATE_KEY, currentDate);
       localStorage.removeItem(STORAGE_KEY);
       setTasks([]);
     } else {
-      // Load tasks for today
       const storedTasks = localStorage.getItem(STORAGE_KEY);
       if (storedTasks) {
         try {
@@ -57,14 +55,12 @@ export default function MyDay() {
     }
   }, []);
 
-  // Save tasks whenever they change
   useEffect(() => {
     if (tasks.length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
     }
   }, [tasks]);
 
-  // Get current date info
   const today = new Date();
   const dateString = today.toLocaleDateString('en-US', { 
     weekday: 'long', 
@@ -100,63 +96,113 @@ export default function MyDay() {
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-[#0a0a0a]' : 'bg-gradient-to-br from-zinc-50 to-zinc-100'} ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className={`min-h-screen ${isDark ? 'bg-[#0a0a0a]' : 'bg-gradient-to-br from-zinc-50 via-white to-zinc-100'}`}>
+      <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-lg">
-              <Calendar className="w-5 h-5 text-white" />
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-2">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+              isDark 
+                ? 'bg-gradient-to-br from-teal-500 to-cyan-600' 
+                : 'bg-gradient-to-br from-teal-400 to-cyan-500'
+            } shadow-lg`}>
+              {isDark ? <Sun className="w-6 h-6 text-white" /> : <Calendar className="w-6 h-6 text-white" />}
             </div>
             <div>
-              <h1 className={`text-3xl font-bold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>My Day</h1>
-              <p className={`text-sm mt-0.5 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>{dateString}</p>
+              <h1 className={`text-4xl font-bold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
+                My Day
+              </h1>
+              <p className={`text-sm mt-1 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                {dateString}
+              </p>
             </div>
           </div>
+          
+          {/* Stats */}
+          {tasks.length > 0 && (
+            <div className="flex items-center gap-4 mt-6">
+              <div className={`px-4 py-2 rounded-lg ${
+                isDark ? 'bg-zinc-900/50 border border-zinc-800/50' : 'bg-white border border-zinc-200 shadow-sm'
+              }`}>
+                <span className={`text-2xl font-bold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
+                  {activeTasks.length}
+                </span>
+                <span className={`text-xs ml-2 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                  remaining
+                </span>
+              </div>
+              <div className={`px-4 py-2 rounded-lg ${
+                isDark ? 'bg-zinc-900/50 border border-zinc-800/50' : 'bg-white border border-zinc-200 shadow-sm'
+              }`}>
+                <span className={`text-2xl font-bold ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>
+                  {completedTasks.length}
+                </span>
+                <span className={`text-xs ml-2 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                  completed
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Empty State */}
         {tasks.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className={`w-20 h-20 rounded-2xl border flex items-center justify-center mb-6 ${
-              isDark ? 'bg-zinc-900/50 border-zinc-800/50' : 'bg-white border-zinc-200 shadow-sm'
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mb-6 ${
+              isDark 
+                ? 'bg-zinc-900/50 border border-zinc-800/50' 
+                : 'bg-white border border-zinc-200 shadow-lg'
             }`}>
-              <Sparkles className={`w-10 h-10 ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`} />
+              <Sparkles className={`w-12 h-12 ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`} />
             </div>
-            <h2 className={`text-2xl font-semibold mb-3 ${isDark ? 'text-zinc-300' : 'text-zinc-800'}`}>
-              Start your day
+            <h2 className={`text-3xl font-bold mb-3 ${isDark ? 'text-zinc-300' : 'text-zinc-800'}`}>
+              Start your day fresh
             </h2>
-            <p className={`max-w-md mb-8 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
-              Add tasks to focus on today. Your list resets each day for a fresh start.
+            <p className={`text-base max-w-md mb-10 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+              Add tasks to focus on today. Your list automatically resets each day for a clean start.
             </p>
-            <div className="w-full max-w-md">
-              <div className={`flex items-center gap-3 p-4 rounded-xl border ${
-                isDark 
-                  ? 'bg-zinc-900/50 border-zinc-800/50' 
-                  : 'bg-white border-zinc-200 shadow-sm'
-              }`}>
-                <Plus className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`} />
-                <input
-                  type="text"
-                  placeholder="Add your first task..."
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                  className={`flex-1 bg-transparent outline-none text-[15px] ${
-                    isDark 
-                      ? 'text-zinc-100 placeholder-zinc-600' 
-                      : 'text-zinc-900 placeholder-zinc-400'
-                  }`}
-                  autoFocus
-                />
-              </div>
-            </div>
           </div>
         )}
 
+        {/* Add Task Input */}
+        <div className={`mb-6 ${
+          isDark 
+            ? 'bg-zinc-900/30 border border-zinc-800/50' 
+            : 'bg-white border border-zinc-200 shadow-md'
+        } rounded-xl p-4 transition-all hover:shadow-lg`}>
+          <div className="flex items-center gap-3">
+            <Plus className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`} />
+            <input
+              type="text"
+              placeholder="Add a task for today..."
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addTask()}
+              className={`flex-1 bg-transparent outline-none text-base ${
+                isDark 
+                  ? 'text-zinc-100 placeholder-zinc-600' 
+                  : 'text-zinc-900 placeholder-zinc-400'
+              }`}
+              autoFocus={tasks.length === 0}
+            />
+            {newTaskTitle.trim() && (
+              <button
+                onClick={addTask}
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                  isDark
+                    ? 'bg-teal-500/10 text-teal-400 hover:bg-teal-500/20'
+                    : 'bg-teal-500 text-white hover:bg-teal-600'
+                }`}
+              >
+                Add
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Task List */}
         {tasks.length > 0 && (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Active Tasks */}
             {activeTasks.length > 0 && (
               <div className="space-y-2">
@@ -171,17 +217,17 @@ export default function MyDay() {
                   >
                     <button
                       onClick={() => toggleTask(task.id)}
-                      className={`flex-shrink-0 w-5 h-5 rounded-full border-2 transition-colors flex items-center justify-center ${
+                      className={`flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${
                         isDark
-                          ? 'border-zinc-600 hover:border-teal-500'
-                          : 'border-zinc-400 hover:border-teal-500'
+                          ? 'border-zinc-600 hover:border-teal-500 hover:bg-teal-500/10'
+                          : 'border-zinc-400 hover:border-teal-500 hover:bg-teal-50'
                       }`}
                     >
                       <Circle className="w-3 h-3 text-transparent" />
                     </button>
                     
                     <div className="flex-1 min-w-0">
-                      <p className={`text-[15px] leading-snug ${
+                      <p className={`text-base leading-relaxed ${
                         isDark ? 'text-zinc-200' : 'text-zinc-800'
                       }`}>
                         {task.title}
@@ -190,13 +236,13 @@ export default function MyDay() {
 
                     <button
                       onClick={() => deleteTask(task.id)}
-                      className={`flex-shrink-0 opacity-0 group-hover:opacity-100 p-2 rounded-lg transition-all text-xs ${
+                      className={`flex-shrink-0 opacity-0 group-hover:opacity-100 p-2 rounded-lg transition-all ${
                         isDark
                           ? 'hover:bg-zinc-800 text-zinc-500 hover:text-red-400'
                           : 'hover:bg-red-50 text-zinc-400 hover:text-red-600'
                       }`}
                     >
-                      ×
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -208,7 +254,7 @@ export default function MyDay() {
               <div className="space-y-2">
                 <button
                   onClick={() => setCompletedExpanded(!completedExpanded)}
-                  className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 text-sm font-semibold transition-colors ${
                     isDark 
                       ? 'text-zinc-500 hover:text-zinc-400' 
                       : 'text-zinc-600 hover:text-zinc-700'
@@ -235,13 +281,13 @@ export default function MyDay() {
                       >
                         <button
                           onClick={() => toggleTask(task.id)}
-                          className="flex-shrink-0 w-5 h-5 rounded-full bg-teal-500 border-2 border-teal-500 transition-colors flex items-center justify-center"
+                          className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-500 border-2 border-teal-500 transition-all flex items-center justify-center hover:bg-teal-600 hover:border-teal-600"
                         >
-                          <Check className="w-3 h-3 text-white" />
+                          <Check className="w-4 h-4 text-white" />
                         </button>
                         
                         <div className="flex-1 min-w-0">
-                          <p className={`text-[15px] leading-snug line-through ${
+                          <p className={`text-base leading-relaxed line-through ${
                             isDark ? 'text-zinc-500' : 'text-zinc-500'
                           }`}>
                             {task.title}
@@ -250,13 +296,13 @@ export default function MyDay() {
 
                         <button
                           onClick={() => deleteTask(task.id)}
-                          className={`flex-shrink-0 opacity-0 group-hover:opacity-100 p-2 rounded-lg transition-all text-xs ${
+                          className={`flex-shrink-0 opacity-0 group-hover:opacity-100 p-2 rounded-lg transition-all ${
                             isDark
                               ? 'hover:bg-zinc-800 text-zinc-600 hover:text-red-400'
                               : 'hover:bg-red-50 text-zinc-400 hover:text-red-600'
                           }`}
                         >
-                          ×
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     ))}
@@ -264,56 +310,6 @@ export default function MyDay() {
                 )}
               </div>
             )}
-
-            {/* Add Task Input */}
-            <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
-              isDark
-                ? 'bg-zinc-900/30 border-zinc-800/50 hover:bg-zinc-900/50 hover:border-zinc-700/50'
-                : 'bg-white border-zinc-200 hover:border-teal-300 hover:shadow-md'
-            }`}>
-              <Plus className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`} />
-              <input
-                type="text"
-                placeholder="Add a task"
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                className={`flex-1 bg-transparent outline-none text-[15px] ${
-                  isDark 
-                    ? 'text-zinc-100 placeholder-zinc-600' 
-                    : 'text-zinc-900 placeholder-zinc-400'
-                }`}
-              />
-            </div>
-
-            {/* Stats */}
-            <div className={`grid grid-cols-2 gap-4 pt-8 ${isDark ? 'border-t border-zinc-900' : 'border-t border-zinc-200'}`}>
-              <div className={`p-4 rounded-xl border ${
-                isDark 
-                  ? 'bg-zinc-900/30 border-zinc-800/50' 
-                  : 'bg-white border-zinc-200 shadow-sm'
-              }`}>
-                <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
-                  {activeTasks.length}
-                </div>
-                <div className={`text-xs uppercase tracking-wide ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
-                  Remaining
-                </div>
-              </div>
-              
-              <div className={`p-4 rounded-xl border ${
-                isDark 
-                  ? 'bg-zinc-900/30 border-zinc-800/50' 
-                  : 'bg-white border-zinc-200 shadow-sm'
-              }`}>
-                <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>
-                  {completedTasks.length}
-                </div>
-                <div className={`text-xs uppercase tracking-wide ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
-                  Completed
-                </div>
-              </div>
-            </div>
           </div>
         )}
       </div>

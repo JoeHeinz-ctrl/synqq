@@ -14,24 +14,34 @@ import {
   Bell,
   Search,
   Plus,
-  FolderOpen
+  FolderOpen,
+  LogOut,
+  X
 } from 'lucide-react';
 import { useSidebarStore } from '../store/sidebarStore';
-import { SidebarItem } from './ui/SidebarItem';
-import { SidebarSection } from './ui/SidebarSection';
-import { fetchProjects } from '../services/api';
+import { QuickAccessPanel } from './QuickAccessPanel';
+import { fetchProjects, fetchTeams, fetchTeamProjects } from '../services/api';
 
 interface Project {
   id: number;
   title: string;
-  team_id?: number;
+  team_id?: number | null;
+}
+
+interface Team {
+  id: number;
+  name: string;
 }
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [personalProjects, setPersonalProjects] = useState<Project[]>([]);
+  const [teamProjects, setTeamProjects] = useState<Project[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [quickAccessType, setQuickAccessType] = useState<'chat' | 'teams' | 'newProject' | 'none'>('none');
   
   const { 
     isCollapsed, 
@@ -45,8 +55,19 @@ export default function Sidebar() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const projectsData = await fetchProjects();
-        setProjects(projectsData.slice(0, 5)); // Show only first 5 projects in sidebar
+        const allProjects = await fetchProjects();
+        const personal = allProjects.filter((p: Project) => !p.team_id);
+        setPersonalProjects(personal);
+
+        const teams: Team[] = await fetchTeams();
+        if (teams.length > 0) {
+          const teamProjectsPromises = teams.map((team: Team) => 
+            fetchTeamProjects(team.id).catch(() => [])
+          );
+          const teamProjectsArrays = await Promise.all(teamProjectsPromises);
+          const allTeamProjects = teamProjectsArrays.flat();
+          setTeamProjects(allTeamProjects);
+        }
       } catch (error) {
         console.error('Failed to load projects:', error);
       }
@@ -55,21 +76,9 @@ export default function Sidebar() {
     loadProjects();
   }, []);
 
-  // Close mobile sidebar on route change
   useEffect(() => {
     closeMobile();
   }, [location.pathname, closeMobile]);
-
-  // Close mobile sidebar on escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isMobileOpen) {
-        closeMobile();
-      }
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [isMobileOpen, closeMobile]);
 
   const isActive = (path: string) => {
     if (path === '/board') return location.pathname === '/board';
@@ -79,189 +88,221 @@ export default function Sidebar() {
     return location.pathname.startsWith(path);
   };
 
-  const sidebarWidth = isCollapsed ? '80px' : '280px';
+  const allProjects = [...personalProjects, ...teamProjects];
+  const recentProjects = allProjects
+    .sort((a, b) => b.id - a.id)
+    .slice(0, 3);
+
+  const filteredProjects = recentProjects.filter(p => 
+    p.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalProjectCount = personalProjects.length + teamProjects.length;
 
   return (
     <>
       {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] animate-fadeIn"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] md:hidden"
           onClick={closeMobile}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        style={{ width: sidebarWidth }}
-        className="fixed left-0 top-0 bottom-0 bg-gradient-to-b from-zinc-950 to-zinc-900 border-r border-zinc-800/50 flex flex-col transition-all duration-300 z-[999] sidebar backdrop-blur-xl"
+        className={`
+          fixed left-0 top-0 bottom-0 bg-[#0a0a0a] border-r border-zinc-800/50 
+          flex flex-col z-[999] transition-all duration-300 ease-in-out
+          ${isCollapsed ? 'w-[72px]' : 'w-[280px]'}
+          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-6 border-b border-zinc-800/30">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-800/50 flex-shrink-0">
           {!isCollapsed ? (
-            <div
-              className="flex items-center gap-3 cursor-pointer group"
-              onClick={() => navigate('/board')}
-            >
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-600/25 group-hover:shadow-blue-600/40 transition-all duration-300">
-                  <div className="w-6 h-6 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <div className="w-3 h-3 rounded bg-white"></div>
-                  </div>
+            <>
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm">S</span>
                 </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-950"></div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-semibold text-zinc-100 truncate">Synq</span>
+                  <span className="text-xs text-zinc-500 truncate">{user?.name || 'User'}</span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-white">
-                  Synq
-                </span>
-                <span className="text-xs text-zinc-400 font-medium">
-                  Workspace
-                </span>
-              </div>
-            </div>
+              <button
+                onClick={toggleCollapse}
+                className="hidden md:flex items-center justify-center w-7 h-7 rounded-md hover:bg-zinc-800/70 text-zinc-500 hover:text-zinc-300 transition-colors flex-shrink-0"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </>
           ) : (
-            <div
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center cursor-pointer mx-auto shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 group"
-              onClick={() => navigate('/board')}
+            <button
+              onClick={toggleCollapse}
+              className="hidden md:flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 mx-auto"
             >
-              <div className="w-6 h-6 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <div className="w-3 h-3 rounded bg-white"></div>
-              </div>
-            </div>
+              <ChevronRight className="w-4 h-4 text-white" />
+            </button>
           )}
-
-          {/* Toggle Button - Desktop Only */}
-          <button
-            onClick={toggleCollapse}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/70 text-zinc-400 hover:text-zinc-100 transition-all duration-200 toggle-btn backdrop-blur-sm"
-          >
-            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
         </div>
 
-        {/* Quick Actions */}
+        {/* Search */}
         {!isCollapsed && (
-          <div className="px-5 py-4 border-b border-zinc-800/30">
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-800/40 hover:bg-zinc-800/60 text-zinc-300 hover:text-white transition-all duration-200 group">
-              <Search className="w-4 h-4" />
-              <span className="text-sm font-medium">Search projects...</span>
-              <div className="ml-auto px-2 py-1 rounded-md bg-zinc-700/50 text-xs text-zinc-400">
-                ⌘K
+          <div className="px-3 py-3 border-b border-zinc-800/50 flex-shrink-0">
+            {!showSearch ? (
+              <button
+                onClick={() => setShowSearch(true)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900/50 hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 transition-all"
+              >
+                <Search className="w-4 h-4" />
+                <span className="text-sm">Search...</span>
+              </button>
+            ) : (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search projects..."
+                  autoFocus
+                  className="w-full pl-9 pr-8 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-teal-500/50"
+                />
+                <button
+                  onClick={() => {
+                    setShowSearch(false);
+                    setSearchQuery('');
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-zinc-800 text-zinc-500"
+                >
+                  <X className="w-3 h-3" />
+                </button>
               </div>
-            </button>
+            )}
           </div>
         )}
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 space-y-6">
-          {/* Main Navigation */}
-          <SidebarSection label="Main" collapsed={isCollapsed}>
-            <SidebarItem
-              icon={<Home className="w-5 h-5" />}
+          {/* Main */}
+          <div className="space-y-1">
+            {!isCollapsed && (
+              <div className="px-3 py-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
+                Main
+              </div>
+            )}
+            <NavItem
+              icon={<Home className="w-[18px] h-[18px]" />}
               label="My Day"
               active={isActive('/dashboard') && location.pathname === '/dashboard'}
               onClick={() => navigate('/dashboard')}
               collapsed={isCollapsed}
             />
-            <SidebarItem
-              icon={<Folder className="w-5 h-5" />}
+            <NavItem
+              icon={<Folder className="w-[18px] h-[18px]" />}
               label="All Projects"
               active={isActive('/board')}
               onClick={() => navigate('/board')}
               collapsed={isCollapsed}
-              badge={projects.length}
+              badge={totalProjectCount}
             />
-            <SidebarItem
-              icon={<MessageSquare className="w-5 h-5" />}
+            <NavItem
+              icon={<MessageSquare className="w-[18px] h-[18px]" />}
               label="Chat"
               active={isActive('/chat')}
-              onClick={() => navigate('/chat')}
+              onClick={() => setQuickAccessType('chat')}
               collapsed={isCollapsed}
             />
-            <SidebarItem
-              icon={<Users className="w-5 h-5" />}
+            <NavItem
+              icon={<Users className="w-[18px] h-[18px]" />}
               label="Teams"
-              onClick={() => navigate('/teams')}
+              onClick={() => setQuickAccessType('teams')}
               collapsed={isCollapsed}
             />
-          </SidebarSection>
+          </div>
 
           {/* Recent Projects */}
-          {!isCollapsed && projects.length > 0 && (
-            <SidebarSection label="Recent Projects" collapsed={isCollapsed}>
-              {projects.map((project) => (
-                <SidebarItem
+          {!isCollapsed && recentProjects.length > 0 && (
+            <div className="space-y-1">
+              <div className="px-3 py-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
+                Recent
+              </div>
+              {(searchQuery ? filteredProjects : recentProjects).map((project) => (
+                <NavItem
                   key={project.id}
-                  icon={<FolderOpen className="w-4 h-4" />}
+                  icon={<FolderOpen className="w-[16px] h-[16px]" />}
                   label={project.title}
                   active={location.pathname === `/dashboard/${project.id}`}
                   onClick={() => navigate(`/dashboard/${project.id}`)}
                   collapsed={isCollapsed}
                 />
               ))}
-              <SidebarItem
-                icon={<Plus className="w-4 h-4" />}
+              <NavItem
+                icon={<Plus className="w-[16px] h-[16px]" />}
                 label="New Project"
-                onClick={() => navigate('/board')}
+                onClick={() => setQuickAccessType('newProject')}
                 collapsed={isCollapsed}
               />
-            </SidebarSection>
+            </div>
           )}
 
-          {/* Tools Section */}
-          <SidebarSection label="Tools" collapsed={isCollapsed}>
-            <SidebarItem
-              icon={<Sparkles className="w-5 h-5" />}
+          {/* Tools */}
+          <div className="space-y-1">
+            {!isCollapsed && (
+              <div className="px-3 py-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
+                Tools
+              </div>
+            )}
+            <NavItem
+              icon={<Sparkles className="w-[18px] h-[18px]" />}
               label="AI Assistant"
               onClick={() => setActivePanel('ai')}
               collapsed={isCollapsed}
             />
-            <SidebarItem
-              icon={<BarChart3 className="w-5 h-5" />}
+            <NavItem
+              icon={<BarChart3 className="w-[18px] h-[18px]" />}
               label="Analytics"
-              onClick={() => navigate('/analytics')}
+              onClick={() => navigate('/board')}
               collapsed={isCollapsed}
             />
-            <SidebarItem
-              icon={<Bell className="w-5 h-5" />}
+            <NavItem
+              icon={<Bell className="w-[18px] h-[18px]" />}
               label="Notifications"
               onClick={() => setActivePanel('notifications')}
               collapsed={isCollapsed}
               badge={2}
             />
-          </SidebarSection>
+          </div>
         </nav>
 
         {/* Footer */}
-        <div className="px-3 py-4 border-t border-zinc-800/30 space-y-2">
-          <SidebarItem
-            icon={<Settings className="w-5 h-5" />}
+        <div className="px-3 py-3 border-t border-zinc-800/50 flex-shrink-0 space-y-2">
+          <NavItem
+            icon={<Settings className="w-[18px] h-[18px]" />}
             label="Settings"
             onClick={() => setActivePanel('settings')}
             collapsed={isCollapsed}
           />
-          {!isCollapsed && (
-            <div className="px-4 py-3 mt-4 rounded-lg bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-600/20">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-xs">
-                    {user?.name
-                      ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-                      : '?'}
+          {!isCollapsed && user && (
+            <div className="px-3 py-3 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-semibold text-xs">
+                    {user.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || 'U'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-white truncate">{user?.name || 'Loading...'}</div>
-                  <div className="text-xs text-zinc-400 truncate">{user?.email || ''}</div>
+                  <div className="text-xs font-medium text-zinc-200 truncate">{user.name}</div>
+                  <div className="text-[10px] text-zinc-500 truncate">{user.email}</div>
                 </div>
                 <button
                   onClick={logout}
                   title="Logout"
-                  className="flex-shrink-0 p-1 rounded text-zinc-500 hover:text-red-400 transition-colors text-xs"
+                  className="flex-shrink-0 p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-red-400 transition-colors"
                 >
-                  ↩
+                  <LogOut className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -269,54 +310,60 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 200ms ease;
-        }
-
-        /* Mobile Styles */
-        @media (max-width: 768px) {
-          .sidebar {
-            transform: ${isMobileOpen ? 'translateX(0)' : 'translateX(-100%)'};
-            width: 280px !important;
-            box-shadow: ${isMobileOpen ? '20px 0 40px rgba(0, 0, 0, 0.4)' : 'none'};
-          }
-
-          .toggle-btn {
-            display: none !important;
-          }
-        }
-
-        /* Desktop Styles */
-        @media (min-width: 769px) {
-          .sidebar {
-            transform: translateX(0) !important;
-          }
-        }
-
-        /* Scrollbar Styles */
-        .sidebar::-webkit-scrollbar {
-          width: 4px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-          background: rgba(63, 63, 70, 0.5);
-          border-radius: 2px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-          background: rgba(82, 82, 91, 0.7);
-        }
-      `}</style>
+      <QuickAccessPanel 
+        type={quickAccessType} 
+        onClose={() => setQuickAccessType('none')} 
+      />
     </>
+  );
+}
+
+// NavItem Component
+interface NavItemProps {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+  collapsed?: boolean;
+  badge?: number;
+}
+
+function NavItem({ icon, label, active = false, onClick, collapsed = false, badge }: NavItemProps) {
+  return (
+    <button
+      onClick={onClick}
+      title={collapsed ? label : undefined}
+      className={`
+        w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-150 relative
+        ${collapsed ? 'justify-center' : ''}
+        ${active
+          ? 'bg-teal-500/10 text-teal-400 font-medium'
+          : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'
+        }
+      `}
+    >
+      {active && !collapsed && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-teal-500 rounded-r-full" />
+      )}
+      
+      <span className="flex-shrink-0">{icon}</span>
+      
+      {!collapsed && (
+        <>
+          <span className="flex-1 text-left text-[13px] font-medium truncate">{label}</span>
+          {badge !== undefined && badge > 0 && (
+            <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold rounded-full bg-teal-500/20 text-teal-400">
+              {badge > 99 ? '99+' : badge}
+            </span>
+          )}
+        </>
+      )}
+      
+      {collapsed && badge !== undefined && badge > 0 && (
+        <div className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full bg-teal-500 text-white">
+          {badge > 9 ? '9+' : badge}
+        </div>
+      )}
+    </button>
   );
 }

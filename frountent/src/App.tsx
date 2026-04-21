@@ -14,6 +14,9 @@ import ProjectBoard from './pages/projectboard';
 import Dashboard from './pages/dashboard';
 import Chat from './pages/chat';
 import MyDay from './pages/myday';
+import Analytics from './pages/analytics';
+import AIAssistant from './pages/ai-assistant';
+import Settings from './pages/settings';
 import { PricingDemo } from './components/ui/pricing-demo';
 
 function AppRoutes() {
@@ -70,6 +73,30 @@ function AppRoutes() {
           element={
             <AppLayout>
               <Chat />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <AppLayout>
+              <Analytics />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/ai-assistant"
+          element={
+            <AppLayout>
+              <AIAssistant />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <AppLayout>
+              <Settings />
             </AppLayout>
           }
         />

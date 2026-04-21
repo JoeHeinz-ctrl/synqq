@@ -49,6 +49,9 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
   const isActive = (path: string) => {
     if (path === '/board') return location.pathname === '/board';
     if (path === '/dashboard') return location.pathname === '/dashboard';
+    if (path === '/analytics') return location.pathname === '/analytics';
+    if (path === '/ai-assistant') return location.pathname === '/ai-assistant';
+    if (path === '/settings') return location.pathname === '/settings';
     return location.pathname.startsWith(path);
   };
 
@@ -62,22 +65,24 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
 
   return (
     <>
+      {/* Mobile backdrop */}
       {isMobileOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[998] md:hidden" onClick={closeMobile} />
       )}
 
+      {/* ═══ SIDEBAR: flex flex-col h-screen ═══ */}
       <aside
         style={{ width }}
         className={cn(
-          'fixed left-0 top-0 bottom-0 z-[999]',
+          'fixed left-0 top-0 h-screen z-[999]',
+          'flex flex-col',
           isDark ? 'bg-[#0a0a0a]' : 'bg-white',
           isDark ? 'border-r border-zinc-800/50' : 'border-r border-zinc-200',
-          'flex flex-col overflow-hidden',
           'transition-[width] duration-300 ease-in-out',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        {/* Header */}
+        {/* ─── TOP: Logo + Collapse ─── */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-800/50 flex-shrink-0">
           {!isCollapsed ? (
             <>
@@ -96,7 +101,7 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
                   <span className={cn(
                     "text-xs truncate",
                     isDark ? "text-zinc-500" : "text-zinc-600"
-                  )}>{user?.name ?? 'User'}</span>
+                  )}>Workspace</span>
                 </div>
               </div>
               <button 
@@ -122,7 +127,7 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
           )}
         </div>
 
-        {/* Search */}
+        {/* ─── SEARCH ─── */}
         {!isCollapsed && (
           <div className="px-3 py-3 border-b border-zinc-800/50 flex-shrink-0">
             {!showSearch ? (
@@ -176,48 +181,56 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
           </div>
         )}
 
-        {/* Nav — flex column so sections spread across full height */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 flex flex-col">
-          {/* Main section */}
-          <section className="space-y-0.5">
-            {!isCollapsed && <p className="px-3 pb-1 pt-0 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Main</p>}
-            <NavItem icon={<Home className="w-[18px] h-[18px]" />}          label="My Day"       active={isActive('/dashboard') && location.pathname === '/dashboard'} onClick={() => navigate('/dashboard')}      collapsed={isCollapsed} />
-            <NavItem icon={<Folder className="w-[18px] h-[18px]" />}        label="All Projects" active={isActive('/board')}                                            onClick={() => navigate('/board')}          collapsed={isCollapsed} badge={totalCount} />
-            <NavItem icon={<MessageSquare className="w-[18px] h-[18px]" />} label="Chat"         active={isActive('/chat')}                                             onClick={() => setQuickAccessType('chat')}  collapsed={isCollapsed} />
-            <NavItem icon={<Users className="w-[18px] h-[18px]" />}         label="Teams"                                                                               onClick={() => setQuickAccessType('teams')} collapsed={isCollapsed} />
-          </section>
-
-          {/* Recent section */}
-          {!isCollapsed && recentProjects.length > 0 && (
-            <section className="space-y-0.5 mt-6">
-              <p className="px-3 pb-1 pt-0 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Recent</p>
-              {displayProjects.map((p) => (
-                <NavItem key={p.id} icon={<FolderOpen className="w-[16px] h-[16px]" />} label={p.title}
-                  active={location.pathname === `/dashboard/${p.id}`} onClick={() => navigate(`/dashboard/${p.id}`)} collapsed={isCollapsed} />
-              ))}
-              <NavItem icon={<Plus className="w-[16px] h-[16px]" />} label="New Project" onClick={() => setQuickAccessType('newProject')} collapsed={isCollapsed} />
+        {/* ─── SCROLLABLE NAV (flex-1 = fills remaining space) ─── */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4">
+          <div className="space-y-6">
+            {/* MAIN section */}
+            <section className="space-y-1">
+              {!isCollapsed && <p className="px-3 pb-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Main</p>}
+              <NavItem icon={<Home className="w-[18px] h-[18px]" />}          label="My Day"       active={isActive('/dashboard') && location.pathname === '/dashboard'} onClick={() => navigate('/dashboard')}      collapsed={isCollapsed} />
+              <NavItem icon={<Folder className="w-[18px] h-[18px]" />}        label="All Projects" active={isActive('/board')}                                            onClick={() => navigate('/board')}          collapsed={isCollapsed} badge={totalCount} />
+              <NavItem icon={<MessageSquare className="w-[18px] h-[18px]" />} label="Chat"         active={isActive('/chat')}                                             onClick={() => setQuickAccessType('chat')}  collapsed={isCollapsed} />
+              <NavItem icon={<Users className="w-[18px] h-[18px]" />}         label="Teams"                                                                               onClick={() => setQuickAccessType('teams')} collapsed={isCollapsed} />
             </section>
-          )}
 
-          {/* Spacer — pushes Tools to the bottom of the nav area */}
-          <div className="flex-1" />
+            {/* RECENT section */}
+            {!isCollapsed && recentProjects.length > 0 && (
+              <section className="space-y-1">
+                <p className="px-3 pb-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Recent</p>
+                {displayProjects.map((p) => (
+                  <NavItem key={p.id} icon={<FolderOpen className="w-[16px] h-[16px]" />} label={p.title}
+                    active={location.pathname === `/dashboard/${p.id}`} onClick={() => navigate(`/dashboard/${p.id}`)} collapsed={isCollapsed} />
+                ))}
+                <NavItem icon={<Plus className="w-[16px] h-[16px]" />} label="New Project" onClick={() => setQuickAccessType('newProject')} collapsed={isCollapsed} />
+              </section>
+            )}
 
-          {/* Tools section — pinned to bottom of scrollable nav */}
-          <section className="space-y-0.5 mb-2">
-            {!isCollapsed && <p className="px-3 pb-1 pt-0 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Tools</p>}
-            <NavItem icon={<Sparkles className="w-[18px] h-[18px]" />}  label="AI Assistant"  onClick={() => {}}                      collapsed={isCollapsed} />
-            <NavItem icon={<BarChart3 className="w-[18px] h-[18px]" />} label="Analytics"     onClick={() => navigate('/board')}      collapsed={isCollapsed} />
-            <NavItem icon={<Bell className="w-[18px] h-[18px]" />}      label="Notifications" onClick={() => onOpenNotifications?.()} collapsed={isCollapsed} badge={2} />
-          </section>
-        </nav>
+            {/* TOOLS section */}
+            <section className="space-y-1">
+              {!isCollapsed && <p className="px-3 pb-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Tools</p>}
+              <NavItem icon={<Sparkles className="w-[18px] h-[18px]" />}  label="AI Assistant"  active={isActive('/ai-assistant')} onClick={() => navigate('/ai-assistant')} collapsed={isCollapsed} />
+              <NavItem icon={<BarChart3 className="w-[18px] h-[18px]" />} label="Analytics"     active={isActive('/analytics')}    onClick={() => navigate('/analytics')}    collapsed={isCollapsed} />
+              <NavItem icon={<Bell className="w-[18px] h-[18px]" />}      label="Notifications" onClick={() => onOpenNotifications?.()} collapsed={isCollapsed} badge={2} />
+            </section>
+          </div>
+        </div>
 
-        {/* Footer */}
-        <div className="px-3 py-3 border-t border-zinc-800/50 flex-shrink-0 space-y-2">
-          <NavItem icon={<Settings className="w-[18px] h-[18px]" />} label="Settings" onClick={() => {}} collapsed={isCollapsed} />
+        {/* ─── BOTTOM: Settings + Profile (pinned) ─── */}
+        <div className={cn(
+          "p-3 border-t flex-shrink-0 space-y-2",
+          isDark ? "border-zinc-800/50" : "border-zinc-200"
+        )}>
+          <NavItem icon={<Settings className="w-[18px] h-[18px]" />} label="Settings" active={isActive('/settings')} onClick={() => navigate('/settings')} collapsed={isCollapsed} />
           {!isCollapsed && user && (
-            <div className="px-3 py-3 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
+            <div className={cn(
+              "px-3 py-3 rounded-lg border",
+              isDark ? "bg-zinc-900/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-200"
+            )}>
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
+                <div 
+                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: colors.primary }}
+                >
                   <span className="text-white font-semibold text-xs">
                     {(user.name ?? 'U').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
                   </span>
@@ -232,7 +245,12 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
                     isDark ? "text-zinc-500" : "text-zinc-600"
                   )}>{user.email}</p>
                 </div>
-                <button onClick={logout} title="Logout" className="flex-shrink-0 p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-red-400 transition-colors">
+                <button onClick={logout} title="Logout" className={cn(
+                  "flex-shrink-0 p-1.5 rounded-md transition-colors",
+                  isDark 
+                    ? "hover:bg-zinc-800 text-zinc-500 hover:text-red-400" 
+                    : "hover:bg-red-50 text-zinc-500 hover:text-red-600"
+                )}>
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
@@ -246,7 +264,7 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
   );
 }
 
-// NavItem
+// ═══ NavItem Component ═══
 interface NavItemProps {
   icon: React.ReactNode; label: string; active?: boolean;
   onClick?: () => void; collapsed?: boolean; badge?: number;

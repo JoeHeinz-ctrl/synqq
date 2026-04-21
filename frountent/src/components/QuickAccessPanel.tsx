@@ -85,7 +85,7 @@ export function QuickAccessPanel({ type, onClose }: QuickAccessPanelProps) {
 
       {/* Panel */}
       <div
-        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-[1001] overflow-hidden"
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(92vw,640px)] bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl z-[1001] overflow-hidden"
         style={{ animation: 'scaleIn 200ms ease-out' }}
       >
         {/* Header */}
@@ -134,7 +134,7 @@ export function QuickAccessPanel({ type, onClose }: QuickAccessPanelProps) {
         </div>
 
         {/* Content */}
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="max-h-[min(78vh,560px)] overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div 
@@ -146,7 +146,7 @@ export function QuickAccessPanel({ type, onClose }: QuickAccessPanelProps) {
             <>
               {/* Chat - Select Project */}
               {type === 'chat' && (
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {projects.length === 0 ? (
                     <div className="text-center py-8">
                       <MessageSquare className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
@@ -170,7 +170,7 @@ export function QuickAccessPanel({ type, onClose }: QuickAccessPanelProps) {
                   ) : (
                     <>
                       <p className="text-sm text-zinc-400 mb-4">Select a project to open chat</p>
-                      <div className="space-y-3">
+                      <div className="space-y-2.5">
                         {projects.map((project) => (
                           <button
                             key={project.id}
@@ -178,7 +178,7 @@ export function QuickAccessPanel({ type, onClose }: QuickAccessPanelProps) {
                               navigate(`/chat/${project.id}`);
                               onClose();
                             }}
-                            className="w-full flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 transition-all group"
+                            className="w-full flex items-center justify-between p-3.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 transition-all group"
                             style={{
                               borderColor: undefined
                             }}
@@ -208,7 +208,7 @@ export function QuickAccessPanel({ type, onClose }: QuickAccessPanelProps) {
 
               {/* Teams List */}
               {type === 'teams' && (
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {teams.length === 0 ? (
                     <div className="text-center py-8">
                       <Users className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
@@ -293,7 +293,7 @@ export function QuickAccessPanel({ type, onClose }: QuickAccessPanelProps) {
 
               {/* New Project */}
               {type === 'newProject' && (
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-zinc-300 mb-2">
                       Project Name

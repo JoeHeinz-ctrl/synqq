@@ -189,7 +189,7 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
         )}
 
         {/* ─── SCROLLABLE NAV (flex-1 = fills remaining space) ─── */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden py-6">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-5">
           {isCollapsed ? (
             /* COLLAPSED: Large centered icons with proper vertical distribution */
             <div className="flex flex-col h-full px-3">
@@ -204,6 +204,20 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
               {/* Spacer - pushes tools to bottom */}
               <div className="flex-1" />
 
+              {/* Filler utility card to use dead space in collapsed rail */}
+              <button
+                onClick={() => setQuickAccessType('newProject')}
+                className={cn(
+                  "mb-5 w-12 h-12 rounded-xl border transition-all flex items-center justify-center",
+                  isDark
+                    ? "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700"
+                    : "bg-zinc-100 border-zinc-200 hover:border-zinc-300"
+                )}
+                title="Quick create project"
+              >
+                <Plus className="w-5 h-5" style={{ color: colors.primary }} />
+              </button>
+
               {/* Tools icons */}
               <div className="flex flex-col gap-5">
                 <NavItem icon={<Sparkles className="w-5 h-5" />}  label="AI Assistant"  active={isActive('/ai-assistant')} onClick={() => navigate('/ai-assistant')} collapsed={isCollapsed} />
@@ -213,7 +227,7 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
             </div>
           ) : (
             /* EXPANDED: Sections with labels and better spacing */
-            <div className="space-y-7 px-2.5">
+            <div className="flex flex-col min-h-full px-2.5">
               {/* MAIN section */}
               <section className="space-y-2">
                 <p className={cn(
@@ -228,7 +242,7 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
 
               {/* RECENT section */}
               {recentProjects.length > 0 && (
-                <section className="space-y-2">
+                <section className="space-y-2 mt-7">
                   <p className={cn(
                     "px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em]",
                     isDark ? "text-zinc-600" : "text-zinc-500"
@@ -242,7 +256,7 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
               )}
 
               {/* TOOLS section */}
-              <section className="space-y-2">
+              <section className="space-y-2 mt-auto pt-7">
                 <p className={cn(
                   "px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em]",
                   isDark ? "text-zinc-600" : "text-zinc-500"

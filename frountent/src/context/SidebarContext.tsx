@@ -13,8 +13,8 @@ interface SidebarContextType {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-export const SIDEBAR_W_EXPANDED = 280;
-export const SIDEBAR_W_COLLAPSED = 72;
+export const SIDEBAR_W_EXPANDED = 248;
+export const SIDEBAR_W_COLLAPSED = 64;
 
 const STORAGE_KEY = 'sidebar-collapsed';
 
@@ -27,9 +27,11 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) === 'true';
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === null) return true;
+      return stored === 'true';
     } catch {
-      return false;
+      return true;
     }
   });
 

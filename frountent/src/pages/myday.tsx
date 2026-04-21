@@ -8,10 +8,9 @@ import {
   ChevronRight,
   Sparkles,
   Trash2,
-  Sun,
+  Star,
 } from 'lucide-react';
 import { PageContainer } from '../components/layout/PageContainer';
-import { StatCard } from '../components/layout/StatCard';
 import { cn } from '../lib/utils';
 
 interface Task {
@@ -98,108 +97,49 @@ export default function MyDay() {
   return (
     <div
       className={cn(
-        'min-h-screen',
+        'min-h-screen relative overflow-hidden pb-28',
         isDark
-          ? 'bg-[#0a0a0a]'
+          ? 'bg-[#040b0a]'
           : 'bg-gradient-to-br from-zinc-50 via-white to-zinc-100'
       )}
     >
+      {isDark && (
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(22,163,74,0.3),transparent_40%),radial-gradient(circle_at_80%_75%,rgba(34,197,94,0.26),transparent_45%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(2,10,8,0.35)_0%,rgba(3,10,7,0.72)_45%,rgba(1,8,6,0.8)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 opacity-[0.14] bg-[linear-gradient(32deg,transparent_0%,transparent_45%,rgba(255,255,255,0.7)_46%,transparent_47%,transparent_100%)] bg-[length:120px_120px]" />
+        </>
+      )}
       <PageContainer>
-        {/* ── Header ── */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div 
-              className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
-              style={{ background: colors.primary }}
-            >
-              <Sun className="w-6 h-6 text-white" />
-            </div>
+        <div className="mb-6">
+          <div className="flex items-start justify-between gap-4 mb-5">
             <div>
               <h1
                 className={cn(
-                  'text-4xl font-bold',
-                  isDark ? 'text-zinc-100' : 'text-zinc-900'
+                  'text-5xl font-bold leading-none',
+                  isDark ? 'text-zinc-100 drop-shadow-[0_8px_30px_rgba(0,0,0,0.55)]' : 'text-zinc-900'
                 )}
               >
                 My Day
               </h1>
               <p
                 className={cn(
-                  'text-sm mt-1',
-                  isDark ? 'text-zinc-500' : 'text-zinc-600'
+                  'text-2sm mt-2',
+                  isDark ? 'text-zinc-300/90' : 'text-zinc-600'
                 )}
               >
                 {dateString}
               </p>
             </div>
-          </div>
-
-          {/* Stats Row */}
-          {tasks.length > 0 && (
-            <div className="flex items-center gap-4">
-              <StatCard
-                label="Remaining"
-                value={activeTasks.length}
-                variant="default"
-                className="min-w-[140px]"
-              />
-              <StatCard
-                label="Completed"
-                value={completedTasks.length}
-                variant="primary"
-                className="min-w-[140px]"
-              />
+            <div className="flex items-center gap-2">
+              <button className={cn("inline-flex items-center justify-center w-10 h-10 rounded-md border", isDark ? "bg-black/35 border-white/10 text-zinc-300" : "bg-white border-zinc-200 text-zinc-700")}>
+                <Star className="w-4 h-4" />
+              </button>
+              <button className={cn("inline-flex items-center justify-center w-10 h-10 rounded-md border", isDark ? "bg-black/35 border-white/10 text-zinc-300" : "bg-white border-zinc-200 text-zinc-700")}>
+                <Sparkles className="w-4 h-4" />
+              </button>
             </div>
-          )}
-        </div>
-
-        {/* ── Add Task Input ── */}
-        <div
-          className={cn(
-            'mb-8 flex items-center gap-3 px-5 py-4 rounded-xl border transition-all',
-            isDark
-              ? 'bg-zinc-900/40 border-zinc-800/50 focus-within:bg-zinc-900/60'
-              : 'bg-white border-zinc-200 shadow-sm focus-within:shadow-md'
-          )}
-          style={{
-            borderColor: undefined
-          }}
-          onFocus={(e) => e.currentTarget.style.borderColor = colors.primary + '60'}
-          onBlur={(e) => e.currentTarget.style.borderColor = ''}
-        >
-          <Plus
-            className={cn(
-              'w-5 h-5 flex-shrink-0',
-              isDark ? 'text-zinc-500' : 'text-zinc-400'
-            )}
-          />
-          <input
-            type="text"
-            placeholder="Add a task for today..."
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addTask()}
-            className={cn(
-              'flex-1 bg-transparent outline-none text-base',
-              isDark
-                ? 'text-zinc-100 placeholder-zinc-600'
-                : 'text-zinc-900 placeholder-zinc-400'
-            )}
-          />
-          {newTaskTitle.trim() && (
-            <button
-              onClick={addTask}
-              className={cn(
-                'px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 text-white',
-                isDark ? 'shadow-sm' : 'shadow-md'
-              )}
-              style={{ backgroundColor: colors.primary }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-            >
-              Add
-            </button>
-          )}
+          </div>
         </div>
 
         {/* ── Empty State ── */}
@@ -241,10 +181,9 @@ export default function MyDay() {
 
         {/* ── Task List ── */}
         {tasks.length > 0 && (
-          <div className="space-y-3">
-            {/* Active Tasks */}
+          <div className="space-y-2.5">
             {activeTasks.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {activeTasks.map((task) => (
                   <TaskRow
                     key={task.id}
@@ -257,15 +196,14 @@ export default function MyDay() {
               </div>
             )}
 
-            {/* Completed Tasks */}
             {completedTasks.length > 0 && (
-              <div className="space-y-3 mt-6">
+              <div className="space-y-2.5 mt-3">
                 <button
                   onClick={() => setCompletedExpanded((v) => !v)}
                   className={cn(
-                    'flex items-center gap-2 text-sm font-semibold transition-colors',
+                    'w-fit flex items-center gap-2 px-3 py-1.5 rounded-md border text-sm font-semibold transition-colors',
                     isDark
-                      ? 'text-zinc-500 hover:text-zinc-400'
+                      ? 'bg-black/45 border-white/10 text-zinc-300 hover:text-zinc-100'
                       : 'text-zinc-600 hover:text-zinc-700'
                   )}
                 >
@@ -274,7 +212,7 @@ export default function MyDay() {
                   ) : (
                     <ChevronRight className="w-4 h-4" />
                   )}
-                  Completed ({completedTasks.length})
+                  Completed {completedTasks.length}
                 </button>
 
                 {completedExpanded && (
@@ -295,6 +233,38 @@ export default function MyDay() {
             )}
           </div>
         )}
+        <div className="fixed bottom-4 left-0 right-0 px-4 sm:px-6 lg:px-10 pointer-events-none">
+          <div className="max-w-[1320px] mx-auto">
+            <div
+              className={cn(
+                'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-md border backdrop-blur-xl',
+                isDark ? 'bg-black/45 border-white/10' : 'bg-white border-zinc-200'
+              )}
+            >
+              <Plus className={cn('w-5 h-5 flex-shrink-0', isDark ? 'text-zinc-300' : 'text-zinc-500')} />
+              <input
+                type="text"
+                placeholder="Add a task"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                className={cn(
+                  'flex-1 bg-transparent outline-none text-lg',
+                  isDark ? 'text-zinc-100 placeholder-zinc-400' : 'text-zinc-900 placeholder-zinc-500'
+                )}
+              />
+              {newTaskTitle.trim() && (
+                <button
+                  onClick={addTask}
+                  className="px-4 py-2 rounded-md text-sm font-semibold text-white"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Add
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </PageContainer>
     </div>
   );
@@ -317,10 +287,10 @@ function TaskRow({ task, isDark, onToggle, onDelete, muted = false }: TaskRowPro
   return (
     <div
       className={cn(
-        'group flex items-center gap-4 px-5 py-4 rounded-xl border transition-all',
+        'group flex items-center gap-4 px-4 py-3 rounded-md border transition-all',
         muted ? 'opacity-60' : '',
         isDark
-          ? 'bg-zinc-900/30 border-zinc-800/50 hover:bg-zinc-900/50 hover:border-zinc-700/50'
+          ? 'bg-[#2a2a2a]/90 border-white/10 hover:bg-[#323232]/95'
           : 'bg-white border-zinc-200 hover:shadow-md'
       )}
       style={{
@@ -368,31 +338,26 @@ function TaskRow({ task, isDark, onToggle, onDelete, muted = false }: TaskRowPro
         )}
       </button>
 
-      {/* Title */}
-      <p
-        className={cn(
-          'flex-1 text-base leading-relaxed',
-          task.completed ? 'line-through' : '',
-          isDark
-            ? task.completed
-              ? 'text-zinc-500'
-              : 'text-zinc-200'
-            : task.completed
-            ? 'text-zinc-500'
-            : 'text-zinc-800'
-        )}
-      >
-        {task.title}
-      </p>
-
-      {/* Delete */}
+      <div className="flex-1">
+        <p
+          className={cn(
+            'text-xl leading-tight',
+            task.completed ? 'line-through' : '',
+            isDark ? (task.completed ? 'text-zinc-500' : 'text-zinc-100') : (task.completed ? 'text-zinc-500' : 'text-zinc-800')
+          )}
+        >
+          {task.title}
+        </p>
+        <p className={cn('text-sm mt-0.5', isDark ? 'text-zinc-400' : 'text-zinc-600')}>Tasks</p>
+      </div>
+      <button className={cn('p-1.5 rounded-md', isDark ? 'text-zinc-300 hover:bg-white/5' : 'text-zinc-500 hover:bg-zinc-100')}>
+        <Star className="w-5 h-5" />
+      </button>
       <button
         onClick={() => onDelete(task.id)}
         className={cn(
-          'flex-shrink-0 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all',
-          isDark
-            ? 'hover:bg-zinc-800 text-zinc-500 hover:text-red-400'
-            : 'hover:bg-red-50 text-zinc-400 hover:text-red-600'
+          'p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-all',
+          isDark ? 'text-zinc-500 hover:text-red-400 hover:bg-white/5' : 'text-zinc-400 hover:text-red-600 hover:bg-red-50'
         )}
       >
         <Trash2 className="w-4 h-4" />

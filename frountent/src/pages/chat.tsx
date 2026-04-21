@@ -13,14 +13,14 @@ import { MessageSquare, Users, Paperclip, Send } from "lucide-react";
 const styles: any = {
   container: (colors: any) => ({
     background: colors.background,
-    height: "100vh",
+    minHeight: "100vh",
     width: "100%",
     overflow: "hidden",
     boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    paddingBottom: "70px",
+    paddingBottom: "0px",
   }),
 
   topBar: (colors: any, isDark: boolean) => ({
@@ -917,7 +917,7 @@ export default function Chat() {
       )}
 
 
-      <BottomNav projectId={projectId} />
+      {isMobile && <BottomNav projectId={projectId} />}
       
       {/* Edit Task Modal */}
       {showEditModal && (

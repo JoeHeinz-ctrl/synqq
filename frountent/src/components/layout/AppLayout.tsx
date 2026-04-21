@@ -49,7 +49,8 @@ export function AppLayout({ children }: AppLayoutProps) {
        */}
       <main
         style={{ marginLeft: sidebarWidth }}
-        className="relative transition-[margin] duration-300 ease-in-out min-h-screen
+        className="relative transition-[margin] duration-300 ease-in-out min-h-screen max-w-full overflow-x-hidden
+                   px-2 md:px-3 py-2
                    max-md:!ml-0"
       >
         <div className="pointer-events-none absolute inset-0 app-shell-noise" />

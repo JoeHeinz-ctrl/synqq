@@ -35,9 +35,9 @@ export default function Settings() {
       'min-h-screen',
       isDark ? 'bg-[#0a0a0a]' : 'bg-gradient-to-br from-zinc-50 via-white to-zinc-100'
     )}>
-      <PageContainer>
+      <PageContainer className="max-w-5xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-10">
           <div className="flex items-center gap-4 mb-2">
             <div 
               className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
@@ -62,12 +62,12 @@ export default function Settings() {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 pb-8">
           {/* Profile Section */}
           <section className={cn(
-            'p-6 rounded-xl border',
+            'p-6 md:p-7 rounded-2xl border shadow-sm',
             isDark 
-              ? 'bg-zinc-900/50 border-zinc-800/50' 
+              ? 'bg-zinc-900/65 border-zinc-800/70' 
               : 'bg-white border-zinc-200'
           )}>
             <div className="flex items-center gap-3 mb-6">
@@ -119,7 +119,7 @@ export default function Settings() {
                     type="text"
                     defaultValue={user?.name || ''}
                     className={cn(
-                      'w-full px-4 py-2.5 rounded-lg border transition-colors',
+                      'w-full px-4 py-3 rounded-xl border transition-colors',
                       isDark 
                         ? 'bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-600' 
                         : 'bg-white border-zinc-300 text-zinc-900 focus:border-zinc-400'
@@ -137,7 +137,7 @@ export default function Settings() {
                     type="email"
                     defaultValue={user?.email || ''}
                     className={cn(
-                      'w-full px-4 py-2.5 rounded-lg border transition-colors',
+                      'w-full px-4 py-3 rounded-xl border transition-colors',
                       isDark 
                         ? 'bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-600' 
                         : 'bg-white border-zinc-300 text-zinc-900 focus:border-zinc-400'
@@ -150,9 +150,9 @@ export default function Settings() {
 
           {/* Appearance Section */}
           <section className={cn(
-            'p-6 rounded-xl border',
+            'p-6 md:p-7 rounded-2xl border shadow-sm',
             isDark 
-              ? 'bg-zinc-900/50 border-zinc-800/50' 
+              ? 'bg-zinc-900/65 border-zinc-800/70' 
               : 'bg-white border-zinc-200'
           )}>
             <div className="flex items-center gap-3 mb-6">
@@ -177,7 +177,7 @@ export default function Settings() {
                 )}>
                   Theme Mode
                 </label>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     onClick={() => mode === 'dark' && toggleMode()}
                     className={cn(
@@ -281,9 +281,9 @@ export default function Settings() {
 
           {/* Notifications Section */}
           <section className={cn(
-            'p-6 rounded-xl border',
+            'p-6 md:p-7 rounded-2xl border shadow-sm',
             isDark 
-              ? 'bg-zinc-900/50 border-zinc-800/50' 
+              ? 'bg-zinc-900/65 border-zinc-800/70' 
               : 'bg-white border-zinc-200'
           )}>
             <div className="flex items-center gap-3 mb-6">
@@ -323,9 +323,9 @@ export default function Settings() {
 
           {/* Security Section */}
           <section className={cn(
-            'p-6 rounded-xl border',
+            'p-6 md:p-7 rounded-2xl border shadow-sm',
             isDark 
-              ? 'bg-zinc-900/50 border-zinc-800/50' 
+              ? 'bg-zinc-900/65 border-zinc-800/70' 
               : 'bg-white border-zinc-200'
           )}>
             <div className="flex items-center gap-3 mb-6">

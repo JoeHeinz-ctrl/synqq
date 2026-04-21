@@ -497,10 +497,16 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
-  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
+  const [viewMode, setViewMode] = useState<'board' | 'list'>('list');
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   const tasksRef = useRef(tasks);
   useEffect(() => { tasksRef.current = tasks; }, [tasks]);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   // Load project if missing
   useEffect(() => {
@@ -1531,7 +1537,7 @@ export default function Dashboard() {
       )}
       
       {/* Bottom Navigation */}
-      <BottomNav projectId={projectId} />
+      {isMobile && <BottomNav projectId={projectId} />}
     </div>
   );
 }

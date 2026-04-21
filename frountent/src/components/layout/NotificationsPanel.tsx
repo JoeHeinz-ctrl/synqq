@@ -68,7 +68,7 @@ export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps)
       {/* Panel — fixed right side, never shifts layout */}
       <div
         className={cn(
-          'fixed right-0 top-0 h-full w-[320px] bg-[#111111] border-l border-zinc-800/50 z-[1001] flex flex-col transition-transform duration-300 ease-in-out',
+          'fixed right-0 top-0 h-full w-full sm:w-[360px] bg-[#111111]/95 backdrop-blur-xl border-l border-zinc-800/50 z-[1001] flex flex-col transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >

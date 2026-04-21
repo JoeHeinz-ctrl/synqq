@@ -1,299 +1,321 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
-  Star, 
   Check, 
   Circle, 
   Calendar,
-  Clock,
   ChevronDown,
   ChevronRight,
-  MoreHorizontal
+  Sparkles
 } from 'lucide-react';
-import { fetchProjects } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
   completed: boolean;
-  project?: string;
-  priority?: 'low' | 'medium' | 'high';
-  dueDate?: string;
+  createdAt: string;
 }
 
-interface Project {
-  id: number;
-  title: string;
-  tasks: Task[];
-}
+const STORAGE_KEY = 'myday_tasks';
+const DATE_KEY = 'myday_date';
 
 export default function MyDay() {
-  const navigate = useNavigate();
-  
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [completedExpanded, setCompletedExpanded] = useState(false);
+  const theme = useTheme();
+  const isDark = theme.mode === 'dark';
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [completedExpanded, setCompletedExpanded] = useState(true);
 
-  // Get current date
+  // Get current date string (YYYY-MM-DD)
+  const getCurrentDate = () => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+
+  // Load tasks and check if date has changed
+  useEffect(() => {
+    const storedDate = localStorage.getItem(DATE_KEY);
+    const currentDate = getCurrentDate();
+
+    // If date has changed, clear tasks
+    if (storedDate !== currentDate) {
+      localStorage.setItem(DATE_KEY, currentDate);
+      localStorage.removeItem(STORAGE_KEY);
+      setTasks([]);
+    } else {
+      // Load tasks for today
+      const storedTasks = localStorage.getItem(STORAGE_KEY);
+      if (storedTasks) {
+        try {
+          setTasks(JSON.parse(storedTasks));
+        } catch (error) {
+          console.error('Failed to parse tasks:', error);
+          setTasks([]);
+        }
+      }
+    }
+  }, []);
+
+  // Save tasks whenever they change
+  useEffect(() => {
+    if (tasks.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+  }, [tasks]);
+
+  // Get current date info
   const today = new Date();
   const dateString = today.toLocaleDateString('en-US', { 
     weekday: 'long', 
-    day: 'numeric',
-    month: 'long'
+    month: 'long',
+    day: 'numeric'
   });
 
-  // Mock data for demonstration - replace with actual API calls
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load user's projects (for future use)
-        await fetchProjects();
-        
-        // Mock tasks for demonstration
-        const mockProjects: Project[] = [
-          {
-            id: 1,
-            title: 'Personal Tasks',
-            tasks: [
-              { id: 1, title: 'Review project proposals', completed: false, priority: 'high' },
-              { id: 2, title: 'Update team on progress', completed: false, priority: 'medium' },
-              { id: 3, title: 'Prepare presentation slides', completed: false, priority: 'low' }
-            ]
-          },
-          {
-            id: 2,
-            title: 'Work Projects',
-            tasks: [
-              { id: 4, title: 'Deploy the fe with renamed landing page by tomorrow', completed: true },
-              { id: 5, title: 'Fix authentication bug', completed: false, priority: 'high' },
-              { id: 6, title: 'Code review for new features', completed: false, priority: 'medium' }
-            ]
-          }
-        ];
-        
-        setProjects(mockProjects);
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
-
-  const activeTasks = projects.flatMap(p => 
-    p.tasks.filter(t => !t.completed).map(t => ({ ...t, project: p.title }))
-  );
-  
-  const completedTasks = projects.flatMap(p => 
-    p.tasks.filter(t => t.completed).map(t => ({ ...t, project: p.title }))
-  );
-
-  const toggleTask = (taskId: number) => {
-    setProjects(prev => prev.map(project => ({
-      ...project,
-      tasks: project.tasks.map(task => 
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
-    })));
-  };
+  const activeTasks = tasks.filter(t => !t.completed);
+  const completedTasks = tasks.filter(t => t.completed);
 
   const addTask = () => {
     if (!newTaskTitle.trim()) return;
     
     const newTask: Task = {
-      id: Date.now(),
+      id: Date.now().toString(),
       title: newTaskTitle.trim(),
       completed: false,
-      priority: 'medium'
+      createdAt: new Date().toISOString()
     };
 
-    setProjects(prev => {
-      const personalProject = prev.find(p => p.title === 'Personal Tasks');
-      if (personalProject) {
-        return prev.map(p => 
-          p.title === 'Personal Tasks' 
-            ? { ...p, tasks: [...p.tasks, newTask] }
-            : p
-        );
-      } else {
-        return [...prev, {
-          id: Date.now(),
-          title: 'Personal Tasks',
-          tasks: [newTask]
-        }];
-      }
-    });
-    
+    setTasks(prev => [...prev, newTask]);
     setNewTaskTitle('');
   };
 
-  const getPriorityColor = (priority?: string) => {
-    switch (priority) {
-      case 'high': return 'text-red-400';
-      case 'medium': return 'text-amber-400';
-      case 'low': return 'text-green-400';
-      default: return 'text-zinc-500';
-    }
+  const toggleTask = (taskId: string) => {
+    setTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    ));
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  const deleteTask = (taskId: string) => {
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-green-900 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}
-      />
-
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-8">
+    <div className={`min-h-screen ${isDark ? 'bg-[#0a0a0a]' : 'bg-gradient-to-br from-zinc-50 to-zinc-100'} ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
+      <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">My Day</h1>
-            <p className="text-emerald-200 text-lg">{dateString}</p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate('/board')}
-              className="p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all duration-200"
-              title="View all projects"
-            >
-              <Calendar className="w-5 h-5" />
-            </button>
-            <button className="p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all duration-200">
-              <Clock className="w-5 h-5" />
-            </button>
-            <button className="p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all duration-200">
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Active Tasks */}
-        <div className="space-y-3 mb-8">
-          {activeTasks.map((task) => (
-            <div
-              key={task.id}
-              className="group flex items-center gap-4 p-4 rounded-2xl bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/30 transition-all duration-200"
-            >
-              <button
-                onClick={() => toggleTask(task.id)}
-                className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-white/40 hover:border-white/60 transition-colors flex items-center justify-center"
-              >
-                <Circle className="w-4 h-4 text-white/60" />
-              </button>
-              
-              <div className="flex-1 min-w-0">
-                <h3 className="text-white font-medium text-lg leading-tight mb-1">
-                  {task.title}
-                </h3>
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="text-emerald-200">{task.project}</span>
-                  {task.priority && (
-                    <span className={`${getPriorityColor(task.priority)} capitalize`}>
-                      {task.priority} priority
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <button className="flex-shrink-0 p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-all opacity-0 group-hover:opacity-100">
-                <Star className="w-5 h-5" />
-              </button>
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-lg">
+              <Calendar className="w-5 h-5 text-white" />
             </div>
-          ))}
+            <div>
+              <h1 className={`text-3xl font-bold ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>My Day</h1>
+              <p className={`text-sm mt-0.5 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>{dateString}</p>
+            </div>
+          </div>
         </div>
 
-        {/* Completed Tasks */}
-        {completedTasks.length > 0 && (
-          <div className="mb-8">
-            <button
-              onClick={() => setCompletedExpanded(!completedExpanded)}
-              className="flex items-center gap-2 mb-4 text-emerald-200 hover:text-white transition-colors"
-            >
-              {completedExpanded ? (
-                <ChevronDown className="w-5 h-5" />
-              ) : (
-                <ChevronRight className="w-5 h-5" />
-              )}
-              <span className="font-medium">Completed {completedTasks.length}</span>
-            </button>
+        {/* Empty State */}
+        {tasks.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className={`w-20 h-20 rounded-2xl border flex items-center justify-center mb-6 ${
+              isDark ? 'bg-zinc-900/50 border-zinc-800/50' : 'bg-white border-zinc-200 shadow-sm'
+            }`}>
+              <Sparkles className={`w-10 h-10 ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`} />
+            </div>
+            <h2 className={`text-2xl font-semibold mb-3 ${isDark ? 'text-zinc-300' : 'text-zinc-800'}`}>
+              Start your day
+            </h2>
+            <p className={`max-w-md mb-8 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+              Add tasks to focus on today. Your list resets each day for a fresh start.
+            </p>
+            <div className="w-full max-w-md">
+              <div className={`flex items-center gap-3 p-4 rounded-xl border ${
+                isDark 
+                  ? 'bg-zinc-900/50 border-zinc-800/50' 
+                  : 'bg-white border-zinc-200 shadow-sm'
+              }`}>
+                <Plus className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`} />
+                <input
+                  type="text"
+                  placeholder="Add your first task..."
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                  className={`flex-1 bg-transparent outline-none text-[15px] ${
+                    isDark 
+                      ? 'text-zinc-100 placeholder-zinc-600' 
+                      : 'text-zinc-900 placeholder-zinc-400'
+                  }`}
+                  autoFocus
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
-            {completedExpanded && (
+        {/* Task List */}
+        {tasks.length > 0 && (
+          <div className="space-y-8">
+            {/* Active Tasks */}
+            {activeTasks.length > 0 && (
               <div className="space-y-2">
-                {completedTasks.map((task) => (
+                {activeTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="group flex items-center gap-4 p-4 rounded-2xl bg-black/10 backdrop-blur-sm border border-white/5 opacity-75"
+                    className={`group flex items-center gap-4 p-4 rounded-xl border transition-all ${
+                      isDark
+                        ? 'bg-zinc-900/30 border-zinc-800/50 hover:bg-zinc-900/50 hover:border-zinc-700/50'
+                        : 'bg-white border-zinc-200 hover:border-teal-300 hover:shadow-md'
+                    }`}
                   >
                     <button
                       onClick={() => toggleTask(task.id)}
-                      className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 border-2 border-emerald-500 transition-colors flex items-center justify-center"
+                      className={`flex-shrink-0 w-5 h-5 rounded-full border-2 transition-colors flex items-center justify-center ${
+                        isDark
+                          ? 'border-zinc-600 hover:border-teal-500'
+                          : 'border-zinc-400 hover:border-teal-500'
+                      }`}
                     >
-                      <Check className="w-4 h-4 text-white" />
+                      <Circle className="w-3 h-3 text-transparent" />
                     </button>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white/70 font-medium text-lg leading-tight line-through mb-1">
+                      <p className={`text-[15px] leading-snug ${
+                        isDark ? 'text-zinc-200' : 'text-zinc-800'
+                      }`}>
                         {task.title}
-                      </h3>
-                      <span className="text-emerald-200/70 text-sm">{task.project}</span>
+                      </p>
                     </div>
 
-                    <button className="flex-shrink-0 p-2 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/60 transition-all opacity-0 group-hover:opacity-100">
-                      <Star className="w-5 h-5" />
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className={`flex-shrink-0 opacity-0 group-hover:opacity-100 p-2 rounded-lg transition-all text-xs ${
+                        isDark
+                          ? 'hover:bg-zinc-800 text-zinc-500 hover:text-red-400'
+                          : 'hover:bg-red-50 text-zinc-400 hover:text-red-600'
+                      }`}
+                    >
+                      ×
                     </button>
                   </div>
                 ))}
               </div>
             )}
+
+            {/* Completed Tasks */}
+            {completedTasks.length > 0 && (
+              <div className="space-y-2">
+                <button
+                  onClick={() => setCompletedExpanded(!completedExpanded)}
+                  className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                    isDark 
+                      ? 'text-zinc-500 hover:text-zinc-400' 
+                      : 'text-zinc-600 hover:text-zinc-700'
+                  }`}
+                >
+                  {completedExpanded ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                  <span>Completed ({completedTasks.length})</span>
+                </button>
+
+                {completedExpanded && (
+                  <div className="space-y-2">
+                    {completedTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className={`group flex items-center gap-4 p-4 rounded-xl border opacity-60 ${
+                          isDark
+                            ? 'bg-zinc-900/20 border-zinc-800/30'
+                            : 'bg-zinc-50 border-zinc-200'
+                        }`}
+                      >
+                        <button
+                          onClick={() => toggleTask(task.id)}
+                          className="flex-shrink-0 w-5 h-5 rounded-full bg-teal-500 border-2 border-teal-500 transition-colors flex items-center justify-center"
+                        >
+                          <Check className="w-3 h-3 text-white" />
+                        </button>
+                        
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-[15px] leading-snug line-through ${
+                            isDark ? 'text-zinc-500' : 'text-zinc-500'
+                          }`}>
+                            {task.title}
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={() => deleteTask(task.id)}
+                          className={`flex-shrink-0 opacity-0 group-hover:opacity-100 p-2 rounded-lg transition-all text-xs ${
+                            isDark
+                              ? 'hover:bg-zinc-800 text-zinc-600 hover:text-red-400'
+                              : 'hover:bg-red-50 text-zinc-400 hover:text-red-600'
+                          }`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Add Task Input */}
+            <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+              isDark
+                ? 'bg-zinc-900/30 border-zinc-800/50 hover:bg-zinc-900/50 hover:border-zinc-700/50'
+                : 'bg-white border-zinc-200 hover:border-teal-300 hover:shadow-md'
+            }`}>
+              <Plus className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`} />
+              <input
+                type="text"
+                placeholder="Add a task"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                className={`flex-1 bg-transparent outline-none text-[15px] ${
+                  isDark 
+                    ? 'text-zinc-100 placeholder-zinc-600' 
+                    : 'text-zinc-900 placeholder-zinc-400'
+                }`}
+              />
+            </div>
+
+            {/* Stats */}
+            <div className={`grid grid-cols-2 gap-4 pt-8 ${isDark ? 'border-t border-zinc-900' : 'border-t border-zinc-200'}`}>
+              <div className={`p-4 rounded-xl border ${
+                isDark 
+                  ? 'bg-zinc-900/30 border-zinc-800/50' 
+                  : 'bg-white border-zinc-200 shadow-sm'
+              }`}>
+                <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-zinc-100' : 'text-zinc-900'}`}>
+                  {activeTasks.length}
+                </div>
+                <div className={`text-xs uppercase tracking-wide ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                  Remaining
+                </div>
+              </div>
+              
+              <div className={`p-4 rounded-xl border ${
+                isDark 
+                  ? 'bg-zinc-900/30 border-zinc-800/50' 
+                  : 'bg-white border-zinc-200 shadow-sm'
+              }`}>
+                <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>
+                  {completedTasks.length}
+                </div>
+                <div className={`text-xs uppercase tracking-wide ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                  Completed
+                </div>
+              </div>
+            </div>
           </div>
         )}
-
-        {/* Add Task */}
-        <div className="flex items-center gap-4 p-4 rounded-2xl bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/30 transition-all duration-200">
-          <Plus className="w-6 h-6 text-white/60 flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="Add a task"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addTask()}
-            className="flex-1 bg-transparent text-white placeholder-white/50 text-lg outline-none"
-          />
-        </div>
-
-        {/* Quick Stats */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl bg-black/20 backdrop-blur-sm border border-white/10">
-            <div className="text-3xl font-bold text-white mb-2">{activeTasks.length}</div>
-            <div className="text-emerald-200">Tasks remaining</div>
-          </div>
-          
-          <div className="p-6 rounded-2xl bg-black/20 backdrop-blur-sm border border-white/10">
-            <div className="text-3xl font-bold text-white mb-2">{completedTasks.length}</div>
-            <div className="text-emerald-200">Tasks completed</div>
-          </div>
-          
-          <div className="p-6 rounded-2xl bg-black/20 backdrop-blur-sm border border-white/10">
-            <div className="text-3xl font-bold text-white mb-2">{projects.length}</div>
-            <div className="text-emerald-200">Active projects</div>
-          </div>
-        </div>
       </div>
     </div>
   );

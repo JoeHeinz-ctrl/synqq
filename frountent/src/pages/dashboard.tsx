@@ -22,15 +22,16 @@ const styles: any = {
   topBar: (colors: any, isDark: boolean) => ({
     background: colors.headerBg,
     borderBottom: `1px solid ${colors.border}`,
-    padding: "12px 24px",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "12px",
+    padding: "16px 24px",
+    display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
+    gap: "16px",
     position: "sticky",
     top: 0,
     zIndex: 50,
     flexShrink: 0,
+    height: "64px",
     boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)",
   }),
 
@@ -38,19 +39,22 @@ const styles: any = {
     display: "flex",
     alignItems: "center",
     gap: "16px",
-    justifyContent: "flex-start",
+    flex: "0 1 auto",
+    minWidth: 0,
   },
 
   headerCenter: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    flex: "0 0 auto",
   },
 
   headerRight: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
+    flex: "0 1 auto",
     justifyContent: "flex-end",
   },
 
@@ -178,17 +182,17 @@ const styles: any = {
 
   column: (colors: any, isDark: boolean) => ({
     background: colors.surface,
-    padding: "12px",
+    padding: "16px",
     borderRadius: "12px",
     display: "flex",
     flexDirection: "column",
-    minHeight: "300px",
+    minHeight: "400px",
     maxHeight: "calc(100vh - 220px)",
-    transition: "all 0.25s ease",
+    transition: "all 0.2s ease",
     border: `1px solid ${colors.border}`,
     position: "relative",
     overflow: "hidden",
-    boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.08)",
+    boxShadow: isDark ? "0 1px 3px rgba(0,0,0,0.3)" : "0 1px 3px rgba(0,0,0,0.08)",
   }),
 
   columnHighlight: {
@@ -197,50 +201,48 @@ const styles: any = {
     borderRadius: "inherit",
     pointerEvents: "none",
     opacity: 0,
-    transition: "opacity 120ms ease",
-    boxShadow: "inset 0 0 0 1px rgba(99,102,241,0.4)",
-    background: "rgba(99,102,241,0.04)",
+    transition: "opacity 150ms ease",
+    border: "2px solid",
     zIndex: 1,
   },
 
-  columnHighlightActive: {
+  columnHighlightActive: (colors: any) => ({
     opacity: 1,
-  },
-
-  columnHeaderDivider: {
-    height: "1px",
-    background: "rgba(255,255,255,0.05)",
-    margin: "0 -12px 12px -12px",
-    position: "relative",
-    zIndex: 2,
-  },
+    borderColor: colors.primary,
+    background: colors.primaryLight,
+  }),
 
   columnHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: "12px",
+    marginBottom: "16px",
     paddingBottom: "12px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+    borderBottom: "1px solid",
     position: "relative",
     zIndex: 2,
   },
 
   columnTitle: (colors: any) => ({
     fontWeight: "600",
-    fontSize: "13px",
-    letterSpacing: "0.5px",
+    fontSize: "12px",
+    letterSpacing: "0.8px",
     color: colors.textSecondary,
     textTransform: "uppercase",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
   }),
 
   columnCount: (colors: any) => ({
     background: colors.primaryLight,
-    padding: "4px 10px",
-    borderRadius: "12px",
+    padding: "3px 8px",
+    borderRadius: "10px",
     fontSize: "11px",
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.primary,
+    minWidth: "20px",
+    textAlign: "center",
   }),
 
   taskList: {
@@ -259,10 +261,10 @@ const styles: any = {
 
   card: (colors: any, isDark: boolean) => ({
     background: colors.cardBg,
-    padding: "14px 16px",
-    borderRadius: "10px",
+    padding: "12px 14px",
+    borderRadius: "8px",
     cursor: "grab",
-    transition: "transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease",
+    transition: "all 0.2s ease",
     color: colors.text,
     fontSize: "14px",
     fontWeight: "500",
@@ -274,27 +276,27 @@ const styles: any = {
     border: `1px solid ${colors.border}`,
     position: "relative",
     zIndex: 3,
-    boxShadow: isDark ? "0 1px 3px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.08)",
-    minHeight: "48px",
+    boxShadow: isDark ? "0 1px 2px rgba(0,0,0,0.2)" : "0 1px 2px rgba(0,0,0,0.06)",
+    minHeight: "44px",
   }),
 
   cardDragging: (isDark: boolean) => ({
-    transform: "scale(1.02)",
-    boxShadow: isDark ? "0 20px 40px rgba(0,0,0,0.45)" : "0 20px 40px rgba(0,0,0,0.15)",
+    transform: "rotate(2deg) scale(1.03)",
+    boxShadow: isDark ? "0 12px 24px rgba(0,0,0,0.4)" : "0 12px 24px rgba(0,0,0,0.15)",
     cursor: "grabbing",
-    opacity: 0.95,
+    opacity: 0.9,
     zIndex: 999,
   }),
 
-  dragPlaceholder: {
+  dragPlaceholder: (colors: any) => ({
     height: "2px",
-    background: "#6366f1",
+    background: colors.primary,
     borderRadius: "2px",
-    boxShadow: "0 0 8px rgba(99,102,241,0.6)",
-    margin: "6px 0",
+    boxShadow: `0 0 8px ${colors.primary}60`,
+    margin: "8px 0",
     transition: "all 150ms ease",
     animation: "insertionLineFadeIn 150ms ease",
-  },
+  }),
 
   inlineInput: {
     width: "100%",
@@ -838,7 +840,7 @@ export default function Dashboard() {
           <div key={t.id}>
             {/* Insertion line indicator */}
             {dragOverTaskId === t.id && draggedTask?.id !== t.id && (
-              <div style={styles.dragPlaceholder} className="insertion-line" />
+              <div style={styles.dragPlaceholder(colors)} className="insertion-line" />
             )}
 
             <div
@@ -1389,12 +1391,15 @@ export default function Dashboard() {
                   <div 
                     style={{
                       ...styles.columnHighlight,
-                      ...(dragOverCol === col ? styles.columnHighlightActive : {}),
+                      ...(dragOverCol === col ? styles.columnHighlightActive(colors) : {}),
                     }}
                     className="column-highlight"
                   />
                   
-                  <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
+                  <div style={{
+                    ...styles.columnHeader,
+                    borderBottomColor: isDark ? 'rgba(255,255,255,0.05)' : colors.border
+                  }} className={col === "doing" ? "column-header-doing" : ""}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <StatusIcon size={16} style={{ color: config.color }} />
                       <div style={styles.columnTitle(colors)}>{config.title}</div>
@@ -1411,9 +1416,6 @@ export default function Dashboard() {
                       >+</button>
                     </div>
                   </div>
-                  
-                  {/* Column header divider */}
-                  <div style={styles.columnHeaderDivider} />
                   
                   <div style={styles.taskList} className="task-list">
                     {renderTasks(col)}

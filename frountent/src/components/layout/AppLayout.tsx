@@ -34,7 +34,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const sidebarWidth = isCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen app-shell-bg">
       {/* ── Sidebar (fixed, never in document flow) ── */}
       <Sidebar onOpenNotifications={() => setNotificationsOpen(true)} />
 
@@ -49,9 +49,10 @@ export function AppLayout({ children }: AppLayoutProps) {
        */}
       <main
         style={{ marginLeft: sidebarWidth }}
-        className="transition-[margin] duration-300 ease-in-out min-h-screen
+        className="relative transition-[margin] duration-300 ease-in-out min-h-screen
                    max-md:!ml-0"
       >
+        <div className="pointer-events-none absolute inset-0 app-shell-noise" />
         {children}
       </main>
 

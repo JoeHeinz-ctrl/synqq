@@ -18,18 +18,17 @@ import { useNavigate } from "react-router-dom";
 import SettingsDropdown from "../components/SettingsDropdown";
 import { UsageIndicator } from "../components/ui/UsageIndicator";
 import { LimitAlert } from "../components/ui/UpgradePrompt";
+import { PageContainer } from "../components/layout/PageContainer";
 import { Folder, Check, Edit3, Trash2, Link2, Users, FolderKanban, Copy, AlertTriangle } from "lucide-react";
 
 /* ─────────────────────────── styles ─────────────────────────── */
 const s: any = {
   page: (colors: any) => ({
-    padding: "40px",
-    minHeight: "100vh",
-    background: colors.background,
+    minHeight: "100%",
+    background: "transparent",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     color: colors.text,
     boxSizing: "border-box",
-    overflowY: "auto",
   }),
 
   /* top bar */
@@ -543,7 +542,8 @@ export default function ProjectBoard() {
 
   /* ── JSX ─────────────────────────────────────────────────────── */
   return (
-    <div style={s.page(colors)}>
+    <div style={s.page(colors)} className={isDark ? "bg-transparent" : "bg-gradient-to-br from-zinc-50 via-white to-zinc-100"}>
+      <PageContainer>
       <style>{`
         input::placeholder { color: ${colors.textSecondary}; }
         
@@ -983,6 +983,7 @@ export default function ProjectBoard() {
           </div>
         </div>
       )}
+      </PageContainer>
     </div>
   );
 }

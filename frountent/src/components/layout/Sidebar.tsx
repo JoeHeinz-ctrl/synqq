@@ -76,14 +76,18 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
         className={cn(
           'fixed left-0 top-0 h-screen z-[999]',
           'flex flex-col',
-          isDark ? 'bg-[#0a0a0a]' : 'bg-white',
-          isDark ? 'border-r border-zinc-800/50' : 'border-r border-zinc-200',
+          isDark ? 'bg-[#0a0a0a]/92 backdrop-blur-xl' : 'bg-white/95 backdrop-blur-xl',
+          isDark ? 'border-r border-zinc-800/70' : 'border-r border-zinc-200',
+          'shadow-[0_0_45px_rgba(0,0,0,0.35)]',
           'transition-[width] duration-300 ease-in-out',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
         {/* ─── TOP: Logo + Collapse ─── */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-800/50 flex-shrink-0">
+        <div className={cn(
+          "h-16 flex items-center justify-between px-4 border-b flex-shrink-0",
+          isDark ? "border-zinc-800/70" : "border-zinc-200"
+        )}>
           {!isCollapsed ? (
             <>
               <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -129,7 +133,10 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
 
         {/* ─── SEARCH ─── */}
         {!isCollapsed && (
-          <div className="px-3 py-3 border-b border-zinc-800/50 flex-shrink-0">
+          <div className={cn(
+            "px-3 py-3 border-b flex-shrink-0",
+            isDark ? "border-zinc-800/70" : "border-zinc-200"
+          )}>
             {!showSearch ? (
               <button 
                 onClick={() => setShowSearch(true)} 
@@ -206,10 +213,13 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
             </div>
           ) : (
             /* EXPANDED: Sections with labels and better spacing */
-            <div className="space-y-8 px-2">
+            <div className="space-y-7 px-2.5">
               {/* MAIN section */}
               <section className="space-y-2">
-                <p className="px-3 pb-2 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Main</p>
+                <p className={cn(
+                  "px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em]",
+                  isDark ? "text-zinc-600" : "text-zinc-500"
+                )}>Main</p>
                 <NavItem icon={<Home className="w-5 h-5" />}          label="My Day"       active={isActive('/dashboard') && location.pathname === '/dashboard'} onClick={() => navigate('/dashboard')}      collapsed={isCollapsed} />
                 <NavItem icon={<Folder className="w-5 h-5" />}        label="All Projects" active={isActive('/board')}                                            onClick={() => navigate('/board')}          collapsed={isCollapsed} badge={totalCount} />
                 <NavItem icon={<MessageSquare className="w-5 h-5" />} label="Chat"         active={isActive('/chat')}                                             onClick={() => setQuickAccessType('chat')}  collapsed={isCollapsed} />
@@ -219,7 +229,10 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
               {/* RECENT section */}
               {recentProjects.length > 0 && (
                 <section className="space-y-2">
-                  <p className="px-3 pb-2 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Recent</p>
+                  <p className={cn(
+                    "px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em]",
+                    isDark ? "text-zinc-600" : "text-zinc-500"
+                  )}>Recent</p>
                   {displayProjects.map((p) => (
                     <NavItem key={p.id} icon={<FolderOpen className="w-[18px] h-[18px]" />} label={p.title}
                       active={location.pathname === `/dashboard/${p.id}`} onClick={() => navigate(`/dashboard/${p.id}`)} collapsed={isCollapsed} />
@@ -230,7 +243,10 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
 
               {/* TOOLS section */}
               <section className="space-y-2">
-                <p className="px-3 pb-2 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Tools</p>
+                <p className={cn(
+                  "px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em]",
+                  isDark ? "text-zinc-600" : "text-zinc-500"
+                )}>Tools</p>
                 <NavItem icon={<Sparkles className="w-5 h-5" />}  label="AI Assistant"  active={isActive('/ai-assistant')} onClick={() => navigate('/ai-assistant')} collapsed={isCollapsed} />
                 <NavItem icon={<BarChart3 className="w-5 h-5" />} label="Analytics"     active={isActive('/analytics')}    onClick={() => navigate('/analytics')}    collapsed={isCollapsed} />
                 <NavItem icon={<Bell className="w-5 h-5" />}      label="Notifications" onClick={() => onOpenNotifications?.()} collapsed={isCollapsed} badge={2} />
@@ -298,18 +314,15 @@ function NavItem({ icon, label, active = false, onClick, collapsed = false, badg
   const { mode, getThemeColors } = useTheme();
   const isDark = mode === 'dark';
   const colors = getThemeColors();
-  const [showTooltip, setShowTooltip] = useState(false);
 
   if (collapsed) {
     // COLLAPSED MODE: Large icon container
     return (
-      <div className="relative">
+      <div className="relative group">
         <button 
           onClick={onClick} 
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
           className={cn(
-            'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 ease-out relative group',
+            'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 ease-out relative',
             active 
               ? '' 
               : isDark 
@@ -341,36 +354,20 @@ function NavItem({ icon, label, active = false, onClick, collapsed = false, badg
         </button>
 
         {/* Tooltip */}
-        {showTooltip && (
-          <div 
+        <div
+          className={cn(
+            "absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap pointer-events-none z-[1000] shadow-xl opacity-0 translate-x-[-2px] group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150",
+            isDark ? "bg-zinc-800 text-zinc-100 border border-zinc-700" : "bg-white text-zinc-900 border border-zinc-200"
+          )}
+        >
+          {label}
+          <div
             className={cn(
-              "absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap pointer-events-none z-[1000] shadow-xl",
-              isDark ? "bg-zinc-800 text-zinc-100 border border-zinc-700" : "bg-white text-zinc-900 border border-zinc-200"
+              "absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent",
+              isDark ? "border-r-zinc-800" : "border-r-white"
             )}
-            style={{ animation: 'tooltipFadeIn 150ms ease-out' }}
-          >
-            {label}
-            <div 
-              className={cn(
-                "absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent",
-                isDark ? "border-r-zinc-800" : "border-r-white"
-              )}
-            />
-          </div>
-        )}
-
-        <style>{`
-          @keyframes tooltipFadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(-50%) translateX(-4px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(-50%) translateX(0);
-            }
-          }
-        `}</style>
+          />
+        </div>
       </div>
     );
   }

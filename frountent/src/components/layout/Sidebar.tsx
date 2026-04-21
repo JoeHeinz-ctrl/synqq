@@ -182,58 +182,58 @@ export function Sidebar({ onOpenNotifications }: SidebarProps) {
         )}
 
         {/* ─── SCROLLABLE NAV (flex-1 = fills remaining space) ─── */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-6">
           {isCollapsed ? (
-            /* COLLAPSED: Centered icons with spacing */
-            <div className="flex flex-col gap-2">
+            /* COLLAPSED: Large centered icons with proper vertical distribution */
+            <div className="flex flex-col h-full px-3">
               {/* Main icons */}
-              <div className="space-y-1">
-                <NavItem icon={<Home className="w-[18px] h-[18px]" />}          label="My Day"       active={isActive('/dashboard') && location.pathname === '/dashboard'} onClick={() => navigate('/dashboard')}      collapsed={isCollapsed} />
-                <NavItem icon={<Folder className="w-[18px] h-[18px]" />}        label="All Projects" active={isActive('/board')}                                            onClick={() => navigate('/board')}          collapsed={isCollapsed} badge={totalCount} />
-                <NavItem icon={<MessageSquare className="w-[18px] h-[18px]" />} label="Chat"         active={isActive('/chat')}                                             onClick={() => setQuickAccessType('chat')}  collapsed={isCollapsed} />
-                <NavItem icon={<Users className="w-[18px] h-[18px]" />}         label="Teams"                                                                               onClick={() => setQuickAccessType('teams')} collapsed={isCollapsed} />
+              <div className="flex flex-col gap-5 mb-6">
+                <NavItem icon={<Home className="w-5 h-5" />}          label="My Day"       active={isActive('/dashboard') && location.pathname === '/dashboard'} onClick={() => navigate('/dashboard')}      collapsed={isCollapsed} />
+                <NavItem icon={<Folder className="w-5 h-5" />}        label="All Projects" active={isActive('/board')}                                            onClick={() => navigate('/board')}          collapsed={isCollapsed} badge={totalCount} />
+                <NavItem icon={<MessageSquare className="w-5 h-5" />} label="Chat"         active={isActive('/chat')}                                             onClick={() => setQuickAccessType('chat')}  collapsed={isCollapsed} />
+                <NavItem icon={<Users className="w-5 h-5" />}         label="Teams"                                                                               onClick={() => setQuickAccessType('teams')} collapsed={isCollapsed} />
               </div>
 
-              {/* Spacer */}
+              {/* Spacer - pushes tools to bottom */}
               <div className="flex-1" />
 
               {/* Tools icons */}
-              <div className="space-y-1">
-                <NavItem icon={<Sparkles className="w-[18px] h-[18px]" />}  label="AI Assistant"  active={isActive('/ai-assistant')} onClick={() => navigate('/ai-assistant')} collapsed={isCollapsed} />
-                <NavItem icon={<BarChart3 className="w-[18px] h-[18px]" />} label="Analytics"     active={isActive('/analytics')}    onClick={() => navigate('/analytics')}    collapsed={isCollapsed} />
-                <NavItem icon={<Bell className="w-[18px] h-[18px]" />}      label="Notifications" onClick={() => onOpenNotifications?.()} collapsed={isCollapsed} badge={2} />
+              <div className="flex flex-col gap-5">
+                <NavItem icon={<Sparkles className="w-5 h-5" />}  label="AI Assistant"  active={isActive('/ai-assistant')} onClick={() => navigate('/ai-assistant')} collapsed={isCollapsed} />
+                <NavItem icon={<BarChart3 className="w-5 h-5" />} label="Analytics"     active={isActive('/analytics')}    onClick={() => navigate('/analytics')}    collapsed={isCollapsed} />
+                <NavItem icon={<Bell className="w-5 h-5" />}      label="Notifications" onClick={() => onOpenNotifications?.()} collapsed={isCollapsed} badge={2} />
               </div>
             </div>
           ) : (
-            /* EXPANDED: Sections with labels */
-            <div className="space-y-6">
+            /* EXPANDED: Sections with labels and better spacing */
+            <div className="space-y-8 px-2">
               {/* MAIN section */}
-              <section className="space-y-1">
-                <p className="px-3 pb-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Main</p>
-                <NavItem icon={<Home className="w-[18px] h-[18px]" />}          label="My Day"       active={isActive('/dashboard') && location.pathname === '/dashboard'} onClick={() => navigate('/dashboard')}      collapsed={isCollapsed} />
-                <NavItem icon={<Folder className="w-[18px] h-[18px]" />}        label="All Projects" active={isActive('/board')}                                            onClick={() => navigate('/board')}          collapsed={isCollapsed} badge={totalCount} />
-                <NavItem icon={<MessageSquare className="w-[18px] h-[18px]" />} label="Chat"         active={isActive('/chat')}                                             onClick={() => setQuickAccessType('chat')}  collapsed={isCollapsed} />
-                <NavItem icon={<Users className="w-[18px] h-[18px]" />}         label="Teams"                                                                               onClick={() => setQuickAccessType('teams')} collapsed={isCollapsed} />
+              <section className="space-y-2">
+                <p className="px-3 pb-2 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Main</p>
+                <NavItem icon={<Home className="w-5 h-5" />}          label="My Day"       active={isActive('/dashboard') && location.pathname === '/dashboard'} onClick={() => navigate('/dashboard')}      collapsed={isCollapsed} />
+                <NavItem icon={<Folder className="w-5 h-5" />}        label="All Projects" active={isActive('/board')}                                            onClick={() => navigate('/board')}          collapsed={isCollapsed} badge={totalCount} />
+                <NavItem icon={<MessageSquare className="w-5 h-5" />} label="Chat"         active={isActive('/chat')}                                             onClick={() => setQuickAccessType('chat')}  collapsed={isCollapsed} />
+                <NavItem icon={<Users className="w-5 h-5" />}         label="Teams"                                                                               onClick={() => setQuickAccessType('teams')} collapsed={isCollapsed} />
               </section>
 
               {/* RECENT section */}
               {recentProjects.length > 0 && (
-                <section className="space-y-1">
-                  <p className="px-3 pb-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Recent</p>
+                <section className="space-y-2">
+                  <p className="px-3 pb-2 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Recent</p>
                   {displayProjects.map((p) => (
-                    <NavItem key={p.id} icon={<FolderOpen className="w-[16px] h-[16px]" />} label={p.title}
+                    <NavItem key={p.id} icon={<FolderOpen className="w-[18px] h-[18px]" />} label={p.title}
                       active={location.pathname === `/dashboard/${p.id}`} onClick={() => navigate(`/dashboard/${p.id}`)} collapsed={isCollapsed} />
                   ))}
-                  <NavItem icon={<Plus className="w-[16px] h-[16px]" />} label="New Project" onClick={() => setQuickAccessType('newProject')} collapsed={isCollapsed} />
+                  <NavItem icon={<Plus className="w-[18px] h-[18px]" />} label="New Project" onClick={() => setQuickAccessType('newProject')} collapsed={isCollapsed} />
                 </section>
               )}
 
               {/* TOOLS section */}
-              <section className="space-y-1">
-                <p className="px-3 pb-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Tools</p>
-                <NavItem icon={<Sparkles className="w-[18px] h-[18px]" />}  label="AI Assistant"  active={isActive('/ai-assistant')} onClick={() => navigate('/ai-assistant')} collapsed={isCollapsed} />
-                <NavItem icon={<BarChart3 className="w-[18px] h-[18px]" />} label="Analytics"     active={isActive('/analytics')}    onClick={() => navigate('/analytics')}    collapsed={isCollapsed} />
-                <NavItem icon={<Bell className="w-[18px] h-[18px]" />}      label="Notifications" onClick={() => onOpenNotifications?.()} collapsed={isCollapsed} badge={2} />
+              <section className="space-y-2">
+                <p className="px-3 pb-2 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Tools</p>
+                <NavItem icon={<Sparkles className="w-5 h-5" />}  label="AI Assistant"  active={isActive('/ai-assistant')} onClick={() => navigate('/ai-assistant')} collapsed={isCollapsed} />
+                <NavItem icon={<BarChart3 className="w-5 h-5" />} label="Analytics"     active={isActive('/analytics')}    onClick={() => navigate('/analytics')}    collapsed={isCollapsed} />
+                <NavItem icon={<Bell className="w-5 h-5" />}      label="Notifications" onClick={() => onOpenNotifications?.()} collapsed={isCollapsed} badge={2} />
               </section>
             </div>
           )}
@@ -300,93 +300,117 @@ function NavItem({ icon, label, active = false, onClick, collapsed = false, badg
   const colors = getThemeColors();
   const [showTooltip, setShowTooltip] = useState(false);
 
-  return (
-    <div className="relative">
-      <button 
-        onClick={onClick} 
-        onMouseEnter={() => collapsed && setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        className={cn(
-          'w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 relative group',
-          collapsed ? 'justify-center' : '',
-          active 
-            ? 'font-medium' 
-            : isDark 
-              ? 'text-zinc-400 hover:bg-white/5 hover:text-white' 
-              : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900',
-        )}
-        style={active ? {
-          backgroundColor: colors.primaryLight,
-          color: colors.primary
-        } : undefined}
-      >
-        {active && !collapsed && (
-          <div 
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full transition-all duration-200" 
-            style={{ backgroundColor: colors.primary }}
-          />
-        )}
-        <span className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110">{icon}</span>
-        {!collapsed && (
-          <>
-            <span className="flex-1 text-left text-sm font-medium truncate">{label}</span>
-            {badge !== undefined && badge > 0 && (
-              <span 
-                className="flex-shrink-0 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold rounded-full"
-                style={{
-                  backgroundColor: colors.primary,
-                  color: 'white'
-                }}
-              >
-                {badge > 99 ? '99' : badge}
-              </span>
-            )}
-          </>
-        )}
-        {collapsed && badge !== undefined && badge > 0 && (
+  if (collapsed) {
+    // COLLAPSED MODE: Large icon container
+    return (
+      <div className="relative">
+        <button 
+          onClick={onClick} 
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className={cn(
+            'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 ease-out relative group',
+            active 
+              ? '' 
+              : isDark 
+                ? 'hover:bg-white/5 hover:scale-[1.05]' 
+                : 'hover:bg-zinc-100 hover:scale-[1.05]',
+          )}
+          style={active ? {
+            backgroundColor: colors.primaryLight,
+          } : undefined}
+        >
+          <span 
+            className="transition-transform duration-200 ease-out group-hover:scale-110"
+            style={active ? { color: colors.primary } : undefined}
+          >
+            {icon}
+          </span>
+          
+          {badge !== undefined && badge > 0 && (
+            <div 
+              className={cn(
+                "absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold rounded-full text-white border-2",
+                isDark ? "border-[#0a0a0a]" : "border-white"
+              )}
+              style={{ backgroundColor: colors.primary }}
+            >
+              {badge > 9 ? '9' : badge}
+            </div>
+          )}
+        </button>
+
+        {/* Tooltip */}
+        {showTooltip && (
           <div 
             className={cn(
-              "absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full text-white border-2",
-              isDark ? "border-[#0a0a0a]" : "border-white"
+              "absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap pointer-events-none z-[1000] shadow-xl",
+              isDark ? "bg-zinc-800 text-zinc-100 border border-zinc-700" : "bg-white text-zinc-900 border border-zinc-200"
             )}
-            style={{ backgroundColor: colors.primary }}
+            style={{ animation: 'tooltipFadeIn 150ms ease-out' }}
           >
-            {badge > 9 ? '9' : badge}
+            {label}
+            <div 
+              className={cn(
+                "absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent",
+                isDark ? "border-r-zinc-800" : "border-r-white"
+              )}
+            />
           </div>
         )}
-      </button>
 
-      {/* Tooltip for collapsed state */}
-      {collapsed && showTooltip && (
-        <div 
-          className={cn(
-            "absolute left-full ml-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap pointer-events-none z-[1000] shadow-lg",
-            isDark ? "bg-zinc-800 text-zinc-100 border border-zinc-700" : "bg-white text-zinc-900 border border-zinc-200"
-          )}
-          style={{ animation: 'tooltipFadeIn 150ms ease-out' }}
-        >
-          {label}
-          <div 
-            className={cn(
-              "absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent",
-              isDark ? "border-r-zinc-800" : "border-r-white"
-            )}
-          />
-        </div>
+        <style>{`
+          @keyframes tooltipFadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(-50%) translateX(-4px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(-50%) translateX(0);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // EXPANDED MODE: Full width with label
+  return (
+    <button 
+      onClick={onClick} 
+      className={cn(
+        'w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 ease-out relative group',
+        active 
+          ? 'font-medium' 
+          : isDark 
+            ? 'text-zinc-400 hover:bg-white/5 hover:text-white hover:scale-[1.02]' 
+            : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 hover:scale-[1.02]',
       )}
-
-      <style>{`
-        @keyframes tooltipFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-50%) translateX(-4px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(-50%) translateX(0);
-          }
-        }
-      `}</style>
-    </div>
+      style={active ? {
+        backgroundColor: colors.primaryLight,
+        color: colors.primary
+      } : undefined}
+    >
+      {active && (
+        <div 
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full transition-all duration-200" 
+          style={{ backgroundColor: colors.primary }}
+        />
+      )}
+      <span className="flex-shrink-0 transition-transform duration-200 ease-out group-hover:scale-110">{icon}</span>
+      <span className="flex-1 text-left text-base font-medium truncate">{label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span 
+          className="flex-shrink-0 min-w-[20px] h-[20px] px-1.5 flex items-center justify-center text-[10px] font-bold rounded-full"
+          style={{
+            backgroundColor: colors.primary,
+            color: 'white'
+          }}
+        >
+          {badge > 99 ? '99' : badge}
+        </span>
+      )}
+    </button>
   );
 }

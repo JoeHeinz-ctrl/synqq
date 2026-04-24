@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { ChevronDown, ChevronRight } from 'lucide-react';
 import { SoftListItem } from './SoftListItem';
-import { cn } from '../lib/utils';
 
 interface Task {
   id: number;
@@ -48,17 +46,17 @@ export function SoftListView({
   });
 
   return (
-    <div className="w-full max-w-[1100px] mx-auto px-8 py-8 space-y-8">
+    <div className="w-full h-full px-12 py-8 overflow-y-auto">
       {/* Active Tasks Section */}
       {activeTasks.length > 0 && (
-        <div className="space-y-4">
-          <div className={cn(
-            "text-xs font-semibold uppercase tracking-wider px-3",
-            isDark ? "text-zinc-500" : "text-zinc-600"
-          )}>
+        <div className="mb-8">
+          <div 
+            className="text-sm font-semibold mb-4"
+            style={{ color: isDark ? '#888' : '#666' }}
+          >
             Tasks · {activeTasks.length}
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {activeTasks.map((task) => (
               <SoftListItem
                 key={task.id}
@@ -74,33 +72,14 @@ export function SoftListView({
         </div>
       )}
 
-      {/* Empty State for Active Tasks */}
+      {/* Empty State */}
       {activeTasks.length === 0 && completedTasks.length === 0 && (
-        <div 
-          className={cn(
-            "flex flex-col items-center justify-center py-20 rounded-xl border",
-            isDark 
-              ? "bg-white/[0.02] border-white/[0.08]" 
-              : "bg-black/[0.02] border-black/[0.08]"
-          )}
-          style={{ backdropFilter: 'blur(8px)' }}
-        >
-          <div className={cn(
-            "text-4xl mb-4",
-            isDark ? "opacity-20" : "opacity-30"
-          )}>
-            ✨
-          </div>
-          <div className={cn(
-            "text-base font-medium mb-2",
-            isDark ? "text-zinc-400" : "text-zinc-600"
-          )}>
+        <div className="flex flex-col items-center justify-center h-full">
+          <div style={{ fontSize: '48px', opacity: 0.3, marginBottom: '16px' }}>✨</div>
+          <div style={{ fontSize: '16px', fontWeight: '500', color: isDark ? '#888' : '#666', marginBottom: '8px' }}>
             No tasks yet
           </div>
-          <div className={cn(
-            "text-sm",
-            isDark ? "text-zinc-600" : "text-zinc-500"
-          )}>
+          <div style={{ fontSize: '14px', color: isDark ? '#666' : '#999' }}>
             Create a task to get started
           </div>
         </div>
@@ -108,26 +87,20 @@ export function SoftListView({
 
       {/* Completed Tasks Section */}
       {completedTasks.length > 0 && (
-        <div className="space-y-4">
+        <div>
           <button
             onClick={() => setCompletedExpanded(!completedExpanded)}
-            className={cn(
-              "flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 transition-colors",
-              isDark 
-                ? "text-zinc-500 hover:text-zinc-400" 
-                : "text-zinc-600 hover:text-zinc-700"
-            )}
+            className="flex items-center gap-2 text-sm font-semibold mb-4 hover:opacity-80 transition-opacity"
+            style={{ color: isDark ? '#888' : '#666' }}
           >
-            {completedExpanded ? (
-              <ChevronDown className="w-4 h-4" />
-            ) : (
-              <ChevronRight className="w-4 h-4" />
-            )}
+            <span style={{ fontSize: '12px' }}>
+              {completedExpanded ? '▼' : '▶'}
+            </span>
             Completed · {completedTasks.length}
           </button>
 
           {completedExpanded && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {completedTasks.map((task) => (
                 <SoftListItem
                   key={task.id}

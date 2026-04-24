@@ -1,6 +1,4 @@
 import { useTheme } from '../context/ThemeContext';
-import { Circle, CheckCircle2, Star } from 'lucide-react';
-import { cn } from '../lib/utils';
 
 interface Task {
   id: number;
@@ -46,124 +44,143 @@ export function SoftListItem({
   return (
     <div
       onClick={onClick}
-      className={cn(
-        "group relative rounded-xl border transition-all duration-200 cursor-pointer",
-        isDark 
-          ? "bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12]" 
-          : "bg-black/[0.03] border-black/[0.08] hover:bg-black/[0.05] hover:border-black/[0.12]",
-        isSelected && "ring-2 ring-offset-0",
-        isCompleted && "opacity-60"
-      )}
       style={{
-        backdropFilter: 'blur(8px)',
-        ...(isSelected && { ringColor: colors.primary + '60' }),
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        padding: '16px 20px',
+        borderRadius: '8px',
+        background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+        border: isSelected ? `2px solid ${colors.primary}` : `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
+        cursor: 'pointer',
+        transition: 'all 0.15s ease',
+        opacity: isCompleted ? 0.6 : 1,
+        position: 'relative',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
+        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
+        if (!isSelected) {
+          e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+        }
       }}
     >
-      <div className="flex items-center gap-5 px-5 py-4">
-        {/* Checkbox */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleComplete();
-          }}
-          className={cn(
-            "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200",
-            isCompleted
-              ? "border-transparent"
-              : isDark
-              ? "border-zinc-600 hover:border-zinc-500"
-              : "border-zinc-400 hover:border-zinc-500"
-          )}
-          style={isCompleted ? {
-            backgroundColor: statusColor,
-            borderColor: statusColor,
-          } : undefined}
-          onMouseEnter={(e) => {
-            if (!isCompleted) {
-              e.currentTarget.style.backgroundColor = colors.primaryLight;
-              e.currentTarget.style.borderColor = colors.primary;
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isCompleted) {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.borderColor = isDark ? '#52525b' : '#a1a1aa';
-            }
+      {/* Checkbox */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleComplete();
+        }}
+        style={{
+          width: '20px',
+          height: '20px',
+          borderRadius: '50%',
+          border: isCompleted ? 'none' : `2px solid ${isDark ? '#666' : '#999'}`,
+          background: isCompleted ? statusColor : 'transparent',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          flexShrink: 0,
+          transition: 'all 0.15s ease',
+        }}
+        onMouseEnter={(e) => {
+          if (!isCompleted) {
+            e.currentTarget.style.borderColor = colors.primary;
+            e.currentTarget.style.background = colors.primaryLight;
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isCompleted) {
+            e.currentTarget.style.borderColor = isDark ? '#666' : '#999';
+            e.currentTarget.style.background = 'transparent';
+          }
+        }}
+      >
+        {isCompleted && <span style={{ color: '#fff', fontSize: '12px' }}>✓</span>}
+      </button>
+
+      {/* Task Content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: '15px',
+            fontWeight: '500',
+            color: isDark ? (isCompleted ? '#666' : '#fff') : (isCompleted ? '#999' : '#000'),
+            textDecoration: isCompleted ? 'line-through' : 'none',
+            marginBottom: task.description ? '4px' : 0,
           }}
         >
-          {isCompleted ? (
-            <CheckCircle2 className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-          ) : (
-            <Circle className="w-3 h-3 text-transparent" />
-          )}
-        </button>
-
-        {/* Task Content */}
-        <div className="flex-1 min-w-0">
-          <div className={cn(
-            "text-base font-medium leading-relaxed transition-colors",
-            isCompleted && "line-through",
-            isDark 
-              ? isCompleted ? "text-zinc-500" : "text-zinc-100"
-              : isCompleted ? "text-zinc-500" : "text-zinc-900"
-          )}>
-            {task.title}
-          </div>
-          {task.description && (
-            <div className={cn(
-              "text-sm mt-1.5 line-clamp-1",
-              isDark ? "text-zinc-500" : "text-zinc-600"
-            )}>
-              {task.description}
-            </div>
-          )}
+          {task.title}
         </div>
-
-        {/* Status Badge */}
-        {!isCompleted && (
+        {task.description && (
           <div
-            className={cn(
-              "flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider",
-              isDark ? "bg-white/[0.08]" : "bg-black/[0.08]"
-            )}
-            style={{ color: statusColor }}
-          >
-            {task.status}
-          </div>
-        )}
-
-        {/* Favorite Star */}
-        {onToggleFavorite && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite();
+            style={{
+              fontSize: '13px',
+              color: isDark ? '#666' : '#999',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
-            className={cn(
-              "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100",
-              isDark 
-                ? "hover:bg-white/[0.08]" 
-                : "hover:bg-black/[0.08]",
-              isFavorite && "opacity-100"
-            )}
-            style={isFavorite ? { color: colors.primary } : undefined}
           >
-            <Star 
-              className={cn("w-4 h-4", isFavorite && "fill-current")} 
-              strokeWidth={2}
-            />
-          </button>
+            {task.description}
+          </div>
         )}
       </div>
 
-      {/* Hover Indicator */}
-      <div 
-        className={cn(
-          "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 rounded-r-full transition-all duration-200 group-hover:h-12",
-          "opacity-0 group-hover:opacity-100"
-        )}
-        style={{ backgroundColor: colors.primary }}
-      />
+      {/* Status Badge */}
+      {!isCompleted && (
+        <div
+          style={{
+            padding: '4px 10px',
+            borderRadius: '6px',
+            fontSize: '11px',
+            fontWeight: '600',
+            textTransform: 'uppercase',
+            background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+            color: statusColor,
+            flexShrink: 0,
+          }}
+        >
+          {task.status}
+        </div>
+      )}
+
+      {/* Favorite Star */}
+      {onToggleFavorite && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite();
+          }}
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            color: isFavorite ? colors.primary : isDark ? '#666' : '#999',
+            fontSize: '16px',
+            flexShrink: 0,
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          {isFavorite ? '★' : '☆'}
+        </button>
+      )}
     </div>
   );
 }

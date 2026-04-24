@@ -58,7 +58,7 @@ export function SoftListView({
           >
             Tasks · {activeTasks.length}
           </div>
-          <div className="space-y-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {activeTasks.map((task) => (
               <SoftListItem
                 key={task.id}
@@ -117,7 +117,7 @@ export function SoftListView({
           </button>
 
           {completedExpanded && (
-            <div className="space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {completedTasks.map((task) => (
                 <SoftListItem
                   key={task.id}

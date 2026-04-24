@@ -5,6 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 import BottomNav from "../components/BottomNav";
 import TaskDetailModal from "../components/TaskDetailModal";
 import SettingsDropdown from "../components/SettingsDropdown";
+import { SoftListView } from "../components/SoftListView";
 
 const styles: any = {
   container: {
@@ -491,9 +492,20 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
+  
+  const [viewMode, setViewMode] = useState<'board' | 'list'>(() => {
+    const saved = localStorage.getItem('synq:viewMode');
+    return (saved === 'list' ? 'list' : 'board') as 'board' | 'list';
+  });
+  const [favoriteTaskIds, setFavoriteTaskIds] = useState<Set<number>>(new Set());
 
   const tasksRef = useRef(tasks);
   useEffect(() => { tasksRef.current = tasks; }, [tasks]);
+
+  // Persist viewMode to localStorage
+  useEffect(() => {
+    localStorage.setItem('synq:viewMode', viewMode);
+  }, [viewMode]);
 
   // Load project if missing
   useEffect(() => {
@@ -1235,6 +1247,66 @@ export default function Dashboard() {
 
         {/* Right Section - Shortcuts + Avatars + Actions */}
         <div style={styles.headerRight} className="header-right">
+          {/* View Mode Toggle */}
+          <div style={{ display: 'flex', gap: '4px', padding: '4px', borderRadius: '8px', background: colors.surface, border: `1px solid ${colors.border}` }}>
+            <button
+              onClick={() => setViewMode('board')}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: 'none',
+                background: viewMode === 'board' ? colors.primary : 'transparent',
+                color: viewMode === 'board' ? '#ffffff' : colors.textSecondary,
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (viewMode !== 'board') {
+                  e.currentTarget.style.background = colors.surfaceHover;
+                  e.currentTarget.style.color = colors.text;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (viewMode !== 'board') {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = colors.textSecondary;
+                }
+              }}
+            >
+              Board
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: 'none',
+                background: viewMode === 'list' ? colors.primary : 'transparent',
+                color: viewMode === 'list' ? '#ffffff' : colors.textSecondary,
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (viewMode !== 'list') {
+                  e.currentTarget.style.background = colors.surfaceHover;
+                  e.currentTarget.style.color = colors.text;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (viewMode !== 'list') {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = colors.textSecondary;
+                }
+              }}
+            >
+              List
+            </button>
+          </div>
+          
           {/* Keyboard shortcuts */}
           <div style={styles.shortcuts(colors)} className="shortcuts-badge">
             <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
@@ -1311,60 +1383,93 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div style={styles.mainContent}>
-        <div style={styles.board} className="board-grid">
-          {(["todo", "doing", "done"] as const).map((col) => {
-            const config = getColumnConfig(col);
-            return (
-              <div
-                key={col}
-                style={{
-                  ...styles.column(colors, isDark),
-                  border: dragOverCol === col 
-                    ? `1px solid ${colors.primary}` 
-                    : `1px solid ${colors.border}`,
-                }}
-                className={`column-${col}`}
-                onDragOver={(e) => onDragOverColumn(e, col)}
-                onDragLeave={onDragLeaveColumn}
-                onDrop={() => onDropColumn(col)}
-              >
-                {/* Drag-over highlight layer */}
-                <div 
+        {viewMode === 'board' && (
+          <div style={styles.board} className="board-grid">
+            {(["todo", "doing", "done"] as const).map((col) => {
+              const config = getColumnConfig(col);
+              return (
+                <div
+                  key={col}
                   style={{
-                    ...styles.columnHighlight,
-                    ...(dragOverCol === col ? styles.columnHighlightActive : {}),
+                    ...styles.column(colors, isDark),
+                    border: dragOverCol === col 
+                      ? `1px solid ${colors.primary}` 
+                      : `1px solid ${colors.border}`,
                   }}
-                  className="column-highlight"
-                />
-                
-                <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "16px" }}>{config.emoji}</span>
-                    <div style={styles.columnTitle(colors)}>{config.title}</div>
+                  className={`column-${col}`}
+                  onDragOver={(e) => onDragOverColumn(e, col)}
+                  onDragLeave={onDragLeaveColumn}
+                  onDrop={() => onDropColumn(col)}
+                >
+                  {/* Drag-over highlight layer */}
+                  <div 
+                    style={{
+                      ...styles.columnHighlight,
+                      ...(dragOverCol === col ? styles.columnHighlightActive : {}),
+                    }}
+                    className="column-highlight"
+                  />
+                  
+                  <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ fontSize: "16px" }}>{config.emoji}</span>
+                      <div style={styles.columnTitle(colors)}>{config.title}</div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={styles.columnCount(colors)} className="column-count">{getColumnTasks(col).length}</div>
+                      <button
+                        style={styles.addBtn}
+                        className="add-btn"
+                        title={`Add to ${config.title}`}
+                        onClick={() => promptCreateTask(col)}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#3a3a3a"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "transparent"; }}
+                      >+</button>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={styles.columnCount(colors)} className="column-count">{getColumnTasks(col).length}</div>
-                    <button
-                      style={styles.addBtn}
-                      className="add-btn"
-                      title={`Add to ${config.title}`}
-                      onClick={() => promptCreateTask(col)}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.background = "#3a3a3a"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = "#b3b3b3"; e.currentTarget.style.background = "transparent"; }}
-                    >+</button>
+                  
+                  {/* Column header divider */}
+                  <div style={styles.columnHeaderDivider} />
+                  
+                  <div style={styles.taskList} className="task-list">
+                    {renderTasks(col)}
                   </div>
                 </div>
-                
-                {/* Column header divider */}
-                <div style={styles.columnHeaderDivider} />
-                
-                <div style={styles.taskList} className="task-list">
-                  {renderTasks(col)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
+
+        {viewMode === 'list' && (
+          <SoftListView
+            tasks={tasks}
+            onTaskClick={(taskId) => {
+              setSelectedTaskId(taskId);
+              setShowTaskDetail(true);
+            }}
+            onToggleComplete={async (taskId) => {
+              const task = tasks.find(t => t.id === taskId);
+              if (!task) return;
+              const newStatus = task.status.toLowerCase() === 'done' ? 'todo' : 'done';
+              try {
+                const updated = await moveTask(taskId, newStatus);
+                setTasks(prev => prev.map(t => t.id === taskId ? updated : t));
+              } catch {
+                setAlertMessage("Failed to update task");
+              }
+            }}
+            onToggleFavorite={(taskId) => {
+              setFavoriteTaskIds(prev => {
+                const next = new Set(prev);
+                if (next.has(taskId)) next.delete(taskId);
+                else next.add(taskId);
+                return next;
+              });
+            }}
+            selectedTaskId={selectedTaskId}
+            favoriteTaskIds={favoriteTaskIds}
+          />
+        )}
       </div>
 
       {/* Delete Modal */}

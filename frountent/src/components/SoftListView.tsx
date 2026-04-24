@@ -9,7 +9,7 @@ interface Task {
   description?: string;
   priority?: string;
   due_date?: string;
-  assigned_to?: number;
+  assigned_tosss?: number;
 }
 
 interface SoftListViewProps {
@@ -46,12 +46,12 @@ export function SoftListView({
   });
 
   return (
-    <div className="w-full h-full px-12 py-4 overflow-y-auto">
+    <div className="w-full h-full px-12 py-2 overflow-y-auto">
       {/* Active Tasks Section */}
       {activeTasks.length > 0 && (
-        <div className="mb-8">
+        <div className="mb-6">
           <div 
-            className="text-sm font-semibold mb-4"
+            className="text-sm font-semibold mb-3"
             style={{ color: isDark ? '#888' : '#666' }}
           >
             Tasks · {activeTasks.length}
@@ -90,7 +90,7 @@ export function SoftListView({
         <div>
           <button
             onClick={() => setCompletedExpanded(!completedExpanded)}
-            className="flex items-center gap-2 text-sm font-semibold mb-4 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-sm font-semibold mb-3 hover:opacity-80 transition-opacity"
             style={{ color: isDark ? '#888' : '#666' }}
           >
             <span style={{ fontSize: '12px' }}>

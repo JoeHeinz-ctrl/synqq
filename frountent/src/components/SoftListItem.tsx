@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 
 interface Task {
@@ -31,6 +32,49 @@ export function SoftListItem({
   const { mode, getThemeColors } = useTheme();
   const isDark = mode === 'dark';
   const colors = getThemeColors();
+  
+  // Double-tap/double-click detection
+  const lastTapRef = useRef<number>(0);
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't trigger if clicking on buttons
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.closest('button')) {
+      return;
+    }
+
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapRef.current;
+
+    if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+      // Double click detected - open editor
+      e.preventDefault();
+      onClick();
+      lastTapRef.current = 0; // Reset
+    } else {
+      lastTapRef.current = now;
+    }
+  };
+
+  const handleTouch = (e: React.TouchEvent) => {
+    // Don't trigger if touching buttons
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.closest('button')) {
+      return;
+    }
+
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapRef.current;
+
+    if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+      // Double tap detected - open editor
+      e.preventDefault();
+      onClick();
+      lastTapRef.current = 0; // Reset
+    } else {
+      lastTapRef.current = now;
+    }
+  };
 
   const getStatusColor = () => {
     const status = task.status.toLowerCase();
@@ -43,10 +87,8 @@ export function SoftListItem({
 
   return (
     <div
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
+      onClick={handleClick}
+      onTouchEnd={handleTouch}
       style={{
         display: 'flex',
         alignItems: 'center',

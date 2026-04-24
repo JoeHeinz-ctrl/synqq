@@ -53,7 +53,7 @@ export function SoftListView({
       {activeTasks.length > 0 && (
         <div style={{ marginBottom: '32px' }}>
           <div 
-            className="text-sm font-semibold mb-4"
+            className="text-sm font-semibold mb-6"
             style={{ 
               color: isDark ? '#888' : '#666',
               paddingLeft: '4px',
@@ -102,7 +102,7 @@ export function SoftListView({
         <div>
           <button
             onClick={() => setCompletedExpanded(!completedExpanded)}
-            className="flex items-center gap-2 text-sm font-semibold mb-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-sm font-semibold mb-6 hover:opacity-80 transition-opacity"
             style={{ color: isDark ? '#888' : '#666' }}
           >
             <svg 

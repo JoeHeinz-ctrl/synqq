@@ -1352,6 +1352,7 @@ export default function Dashboard() {
             flex-wrap: wrap;
             gap: 8px !important;
             align-items: center !important;
+            justify-content: center !important;
           }
           .header-center { 
             order: 0;
@@ -1361,7 +1362,7 @@ export default function Dashboard() {
           }
           .header-right {
             order: 2;
-            justify-content: space-between !important;
+            justify-content: center !important;
             flex-wrap: wrap;
             gap: 8px !important;
             align-items: center !important;
@@ -1378,12 +1379,13 @@ export default function Dashboard() {
           .project-meta {
             flex-wrap: wrap !important;
             gap: 4px !important;
+            justify-content: center !important;
           }
           
-          /* Adjust view toggle for mobile */
+          /* Center view toggle for mobile */
           .view-toggle-container {
-            order: -1 !important;
-            margin-bottom: 8px !important;
+            justify-content: center !important;
+            width: 100% !important;
           }
         }
       `}</style>
@@ -1427,7 +1429,16 @@ export default function Dashboard() {
         {/* Right Section - Shortcuts + Avatars + Actions */}
         <div style={styles.headerRight} className="header-right">
           {/* View Mode Toggle */}
-          <div className="view-toggle-container" style={{ display: 'flex', gap: '4px', padding: '4px', borderRadius: '8px', background: colors.surface, border: `1px solid ${colors.border}` }}>
+          <div className="view-toggle-container" style={{ 
+            display: 'flex', 
+            gap: '4px', 
+            padding: '4px', 
+            borderRadius: '8px', 
+            background: colors.surface, 
+            border: `1px solid ${colors.border}`,
+            justifyContent: 'center',
+            width: 'auto'
+          }}>
             <button
               onClick={() => setViewMode('board')}
               className="view-toggle-btn"

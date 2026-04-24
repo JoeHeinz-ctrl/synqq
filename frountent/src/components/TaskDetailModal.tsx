@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 interface TaskDetailPanelProps {
   task: {
@@ -15,6 +16,9 @@ interface TaskDetailPanelProps {
 }
 
 export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }: TaskDetailPanelProps) {
+  const { getThemeColors } = useTheme();
+  const colors = getThemeColors();
+  
   const [isSaving, setIsSaving] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
   const [formData, setFormData] = useState(task ? {
@@ -82,7 +86,7 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
             width: "32px", 
             height: "32px", 
             borderRadius: "10px", 
-            background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+            background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -297,7 +301,7 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
             resize: "vertical",
             transition: "all 0.2s ease",
           }}
-          onFocus={(e) => e.currentTarget.style.border = "1px solid rgba(139, 92, 246, 0.4)"}
+          onFocus={(e) => e.currentTarget.style.border = `1px solid ${colors.primary}66`}
           onBlur={(e) => e.currentTarget.style.border = "1px solid rgba(255, 255, 255, 0.05)"}
           placeholder="Add task description..."
         />
@@ -313,24 +317,24 @@ export default function TaskDetailModal({ task, onClose, onUpdate, teamMembers }
             padding: "12px 16px",
             borderRadius: "10px",
             border: "none",
-            background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+            background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
             color: "#fff",
             fontWeight: "700",
             fontSize: "13px",
             cursor: isSaving ? "not-allowed" : "pointer",
-            boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
+            boxShadow: `0 4px 12px ${colors.primary}30`,
             transition: "all 0.3s ease",
           }}
           onMouseEnter={(e) => {
             if (!isSaving) {
               e.currentTarget.style.transform = "translateY(-1px)";
-              e.currentTarget.style.boxShadow = "0 6px 16px rgba(139, 92, 246, 0.4)";
+              e.currentTarget.style.boxShadow = `0 6px 16px ${colors.primary}40`;
             }
           }}
           onMouseLeave={(e) => {
             if (!isSaving) {
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(139, 92, 246, 0.3)";
+              e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}30`;
             }
           }}
         >

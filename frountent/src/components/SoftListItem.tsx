@@ -75,20 +75,14 @@ export function SoftListItem({
           : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : '#f8f8f8';
-        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.18)' : '#d0d0d0';
-        e.currentTarget.style.boxShadow = isDark 
-          ? '0 2px 8px rgba(0,0,0,0.3)' 
-          : '0 2px 6px rgba(0,0,0,0.08)';
+        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : '#f9f9f9';
+        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.15)' : '#d5d5d5';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
-        e.currentTarget.style.boxShadow = isDark 
-          ? '0 2px 8px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' 
-          : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)';
-        if (!isSelected) {
-          e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.12)' : '#e5e5e5';
-        }
+        e.currentTarget.style.borderColor = isSelected 
+          ? colors.primary 
+          : (isDark ? 'rgba(255,255,255,0.12)' : '#e5e5e5');
       }}
     >
       {/* Checkbox */}

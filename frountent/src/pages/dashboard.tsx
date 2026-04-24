@@ -28,7 +28,7 @@ const styles: any = {
     alignItems: "center",
     position: "sticky",
     top: 0,
-    zIndex: 50,
+    zIndex: 100,
     flexShrink: 0,
     boxShadow: isDark 
       ? "0 2px 8px rgba(0,0,0,0.4)" 
@@ -897,28 +897,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Show detail panel if this task is selected */}
-            {selectedTaskId === t.id && showTaskDetail && (
-              <TaskDetailModal
-                task={t}
-                onClose={() => {
-                  setShowTaskDetail(false);
-                  setSelectedTaskId(null);
-                }}
-                onUpdate={async (taskId, updates) => {
-                  try {
-                    await updateTask(taskId, updates);
-                    if (projectId) {
-                      const updated = await fetchTasks(parseInt(projectId));
-                      setTasks(updated);
-                    }
-                  } catch (err) {
-                    console.error("Failed to update task:", err);
-                  }
-                }}
-                teamMembers={teamMembers}
-              />
-            )}
+            {/* Don't render inline modal here - use global modal instead */}
           </div>
         ))}
 
@@ -980,28 +959,30 @@ export default function Dashboard() {
         
         /* Epic card hover effects */
         .task-card {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
           will-change: transform, box-shadow;
         }
         
         .task-card:hover {
-          transform: translateY(-3px) scale(1.01) !important;
+          transform: translateY(-1px) !important;
           box-shadow: ${isDark 
-            ? '0 12px 30px rgba(0,0,0,0.6), 0 4px 15px rgba(0,0,0,0.4)' 
-            : '0 8px 25px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)'} !important;
+            ? '0 4px 15px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3)' 
+            : '0 3px 12px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08)'} !important;
         }
         
         /* Enhanced column hover effects */
         .board-grid > div {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
           will-change: transform, box-shadow;
+          position: relative;
         }
         
         .board-grid > div:hover {
-          transform: translateY(-6px) !important;
+          transform: translateY(-2px) !important;
           box-shadow: ${isDark 
-            ? '0 20px 40px rgba(0,0,0,0.6), 0 8px 20px rgba(0,0,0,0.4)' 
-            : '0 15px 35px rgba(0,0,0,0.15), 0 6px 15px rgba(0,0,0,0.1)'} !important;
+            ? '0 12px 30px rgba(0,0,0,0.5), 0 6px 15px rgba(0,0,0,0.3)' 
+            : '0 8px 25px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08)'} !important;
+          z-index: 5 !important;
         }
         
         /* Glowing primary buttons */
@@ -1655,7 +1636,7 @@ export default function Dashboard() {
             }}
             selectedTaskId={selectedTaskId}
             favoriteTaskIds={favoriteTaskIds}
-            onAddTask={() => promptCreateTask('todo')}
+            onAddTask={() => setCreatePromptCol('todo')}
           />
         )}
       </div>
@@ -1747,7 +1728,7 @@ export default function Dashboard() {
         </div>
       )}
       
-      {/* Global Task Detail Modal (for list view) */}
+      {/* Global Task Detail Modal (for both board and list view) */}
       {selectedTaskId !== null && showTaskDetail && (
         <TaskDetailModal
           task={tasks.find(t => t.id === selectedTaskId)!}

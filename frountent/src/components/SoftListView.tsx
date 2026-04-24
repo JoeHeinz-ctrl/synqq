@@ -46,7 +46,7 @@ export function SoftListView({
   });
 
   return (
-    <div className="w-full h-full px-12 py-8 overflow-y-auto">
+    <div className="w-full h-full px-12 py-4 overflow-y-auto">
       {/* Active Tasks Section */}
       {activeTasks.length > 0 && (
         <div className="mb-8">

@@ -43,7 +43,10 @@ export function SoftListItem({
 
   return (
     <div
-      onClick={onClick}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       style={{
         display: 'flex',
         alignItems: 'center',

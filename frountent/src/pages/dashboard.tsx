@@ -1190,6 +1190,7 @@ export default function Dashboard() {
           }
           .header-left {
             order: 1;
+            flex-wrap: wrap;
           }
           .header-center { 
             order: 0;
@@ -1199,9 +1200,11 @@ export default function Dashboard() {
           .header-right {
             order: 2;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px !important;
           }
           .shortcuts-badge {
-            font-size: 9px !important;
+            display: none !important;
           }
           .board-grid { 
             grid-template-columns: 1fr !important; 

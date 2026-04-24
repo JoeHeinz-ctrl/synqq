@@ -155,7 +155,6 @@ const styles: any = {
     flexDirection: "column",
     overflow: "hidden",
     marginTop: "0",
-    justifyContent: "center",
   },
 
   shortcuts: (colors: any) => ({
@@ -1576,6 +1575,29 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Global Task Detail Modal (for list view) */}
+      {selectedTaskId !== null && showTaskDetail && (
+        <TaskDetailModal
+          task={tasks.find(t => t.id === selectedTaskId)!}
+          onClose={() => {
+            setShowTaskDetail(false);
+            setSelectedTaskId(null);
+          }}
+          onUpdate={async (taskId, updates) => {
+            try {
+              await updateTask(taskId, updates);
+              if (projectId) {
+                const updated = await fetchTasks(parseInt(projectId));
+                setTasks(updated);
+              }
+            } catch (err) {
+              console.error("Failed to update task:", err);
+            }
+          }}
+          teamMembers={teamMembers}
+        />
       )}
       
       {/* Bottom Navigation */}

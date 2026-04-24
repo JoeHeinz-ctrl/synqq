@@ -30,7 +30,9 @@ const styles: any = {
     top: 0,
     zIndex: 50,
     flexShrink: 0,
-    boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)",
+    boxShadow: isDark 
+      ? "0 2px 8px rgba(0,0,0,0.4)" 
+      : "0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)",
   }),
 
   headerLeft: {
@@ -188,7 +190,9 @@ const styles: any = {
     border: `1px solid ${colors.border}`,
     position: "relative",
     overflow: "hidden",
-    boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.08)",
+    boxShadow: isDark 
+      ? "0 2px 8px rgba(0,0,0,0.3)" 
+      : "0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)",
   }),
 
   columnHighlight: {
@@ -273,12 +277,16 @@ const styles: any = {
     border: `1px solid ${colors.border}`,
     position: "relative",
     zIndex: 3,
-    boxShadow: isDark ? "none" : "0 1px 2px rgba(0,0,0,0.05)",
+    boxShadow: isDark 
+      ? "0 1px 3px rgba(0,0,0,0.3)" 
+      : "0 1px 2px rgba(0,0,0,0.05)",
   }),
 
   cardDragging: (isDark: boolean) => ({
     transform: "scale(1.02)",
-    boxShadow: isDark ? "0 20px 40px rgba(0,0,0,0.45)" : "0 20px 40px rgba(0,0,0,0.15)",
+    boxShadow: isDark 
+      ? "0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1)" 
+      : "0 20px 40px rgba(0,0,0,0.2)",
     cursor: "grabbing",
     opacity: 0.95,
     zIndex: 999,
@@ -496,7 +504,10 @@ export default function Dashboard() {
   
   const [viewMode, setViewMode] = useState<'board' | 'list'>(() => {
     const saved = localStorage.getItem('synq:viewMode');
-    return (saved === 'list' ? 'list' : 'board') as 'board' | 'list';
+    // Default to list view on mobile, board on desktop
+    const isMobile = window.innerWidth <= 768;
+    const defaultMode = isMobile ? 'list' : 'board';
+    return (saved === 'list' || saved === 'board' ? saved : defaultMode) as 'board' | 'list';
   });
   const [favoriteTaskIds, setFavoriteTaskIds] = useState<Set<number>>(new Set());
 
@@ -996,11 +1007,13 @@ export default function Dashboard() {
         }
         
         .task-card:hover {
-          border-color: ${isDark ? 'rgba(255,255,255,0.12)' : colors.border} !important;
+          border-color: ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.2)'} !important;
           background: ${colors.surfaceHover} !important;
           transform: translateY(-1px);
           z-index: 4;
-          box-shadow: ${isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.08)'} !important;
+          box-shadow: ${isDark 
+            ? '0 4px 12px rgba(0,0,0,0.4)' 
+            : '0 2px 8px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.08)'} !important;
         }
         
         .task-card.dragging {
@@ -1045,8 +1058,10 @@ export default function Dashboard() {
         
         .board-grid > div:hover {
           transform: translateY(-4px);
-          box-shadow: ${isDark ? '0 10px 25px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08)' : '0 10px 25px rgba(0,0,0,0.12)'};
-          border-color: ${isDark ? 'rgba(255,255,255,0.15)' : colors.border};
+          box-shadow: ${isDark 
+            ? '0 12px 32px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1)' 
+            : '0 10px 25px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.08)'};
+          border-color: ${isDark ? 'rgba(255,255,255,0.18)' : colors.border};
           z-index: 10;
         }
         

@@ -80,28 +80,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     
     if (mode === 'dark') {
       return {
-        background: '#1a1a1a',
-        surface: '#242424',
-        surfaceHover: '#2c2c2c',
-        text: '#ffffff',
-        textSecondary: '#b3b3b3',
-        border: 'rgba(255,255,255,0.05)',
+        background: '#0f0f0f',        // Darker background for better contrast
+        surface: '#1a1a1a',           // Elevated surface
+        surfaceHover: '#252525',      // Hover state
+        text: '#ffffff',              // Pure white text
+        textSecondary: '#a0a0a0',     // Lighter secondary text
+        border: 'rgba(255,255,255,0.12)', // More visible borders
         input: '#1a1a1a',
-        inputBorder: 'rgba(255,255,255,0.1)',
-        cardBg: 'rgba(255,255,255,0.02)',
-        headerBg: '#242424',
+        inputBorder: 'rgba(255,255,255,0.15)',
+        cardBg: 'rgba(255,255,255,0.04)', // More visible cards
+        headerBg: '#1a1a1a',
         ...palette,
       };
     } else {
       return {
-        background: '#f8fafc',
-        surface: '#ffffff',
-        surfaceHover: '#f1f5f9',
-        text: '#0f172a',
-        textSecondary: '#64748b',
-        border: '#e2e8f0',
+        background: '#fafafa',        // Slightly darker than pure white
+        surface: '#ffffff',           // Pure white surface
+        surfaceHover: '#f5f5f5',      // Subtle hover
+        text: '#0a0a0a',              // Near black for maximum contrast
+        textSecondary: '#525252',     // Darker secondary text
+        border: '#d4d4d4',            // More visible borders
         input: '#ffffff',
-        inputBorder: '#cbd5e1',
+        inputBorder: '#a3a3a3',       // Darker input borders
         cardBg: '#ffffff',
         headerBg: '#ffffff',
         ...palette,

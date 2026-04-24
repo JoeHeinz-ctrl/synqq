@@ -44,9 +44,24 @@ export function UpgradePrompt({
           </p>
           <div className="flex items-center justify-between">
             <div className="text-xs text-gray-500">
-              ✓ Unlimited personal projects<br />
-              ✓ Unlimited groups<br />
-              ✓ Unlimited group projects
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Unlimited personal projects
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Unlimited groups
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Unlimited group projects
+              </div>
             </div>
             <button
               onClick={handleUpgrade}

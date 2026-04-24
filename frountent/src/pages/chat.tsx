@@ -621,11 +621,19 @@ export default function Chat() {
                 padding: "4px",
               }}
             >
-              👥
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
             </button>
           )}
           <div style={styles.title(colors)}>
-            💬 Team Chat
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px', display: 'inline-block', verticalAlign: 'middle' }}>
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Team Chat
             {isConnected && <div style={styles.statusDot} title="Connected" />}
           </div>
         </div>
@@ -729,7 +737,9 @@ export default function Chat() {
           <div style={styles.messagesContainer}>
             {messages.length === 0 ? (
               <div style={styles.emptyState(colors)}>
-                <div style={{ fontSize: "48px" }}>💬</div>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.3 }}>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
                 <div style={{ fontSize: "16px" }}>No messages yet</div>
                 <div style={{ fontSize: "13px" }}>
                   Start the conversation!

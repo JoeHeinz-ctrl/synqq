@@ -39,19 +39,17 @@ export function SoftListItem({
   const handleClick = (e: React.MouseEvent) => {
     // Don't trigger if clicking on buttons
     const target = e.target as HTMLElement;
-    if (target.tagName === 'BUTTON' || target.closest('button')) {
+    if (target.tagName === 'BUTTON' || target.closest('button') || target.tagName === 'svg' || target.closest('svg')) {
       return;
     }
 
     const now = Date.now();
     const timeSinceLastTap = now - lastTapRef.current;
 
-    console.log('Click detected:', { timeSinceLastTap, now, last: lastTapRef.current });
-
-    if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+    if (timeSinceLastTap < 400 && timeSinceLastTap > 0) {
       // Double click detected - open editor
-      console.log('Double-click detected! Opening editor...');
       e.preventDefault();
+      e.stopPropagation();
       onClick();
       lastTapRef.current = 0; // Reset
     } else {
@@ -62,16 +60,17 @@ export function SoftListItem({
   const handleTouch = (e: React.TouchEvent) => {
     // Don't trigger if touching buttons
     const target = e.target as HTMLElement;
-    if (target.tagName === 'BUTTON' || target.closest('button')) {
+    if (target.tagName === 'BUTTON' || target.closest('button') || target.tagName === 'svg' || target.closest('svg')) {
       return;
     }
 
     const now = Date.now();
     const timeSinceLastTap = now - lastTapRef.current;
 
-    if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+    if (timeSinceLastTap < 400 && timeSinceLastTap > 0) {
       // Double tap detected - open editor
       e.preventDefault();
+      e.stopPropagation();
       onClick();
       lastTapRef.current = 0; // Reset
     } else {

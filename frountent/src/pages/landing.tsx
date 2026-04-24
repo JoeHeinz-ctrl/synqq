@@ -5,10 +5,49 @@ import { PricingSection } from "@/components/PricingSection";
 import { useNavigate } from "react-router-dom";
 
 const features = [
-    { icon: "🤖", title: "Chat → Task AI", desc: "Automatically detect tasks from conversations and convert them into project tasks with one click." },
-    { icon: "📋", title: "Kanban Project Boards", desc: "Organize work with simple boards: Todo, Doing, Done. Drag and drop tasks with smooth animations." },
-    { icon: "👥", title: "Team Collaboration", desc: "Work together with integrated team chat and shared projects. Real-time updates across all devices." },
-    { icon: "⚡", title: "Instant Team Setup", desc: "Create a workspace and invite teammates in seconds. Share team codes and start collaborating immediately." },
+    { 
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M9 10h.01M15 10h.01"></path>
+        </svg>
+      ), 
+      title: "Chat → Task AI", 
+      desc: "Automatically detect tasks from conversations and convert them into project tasks with one click." 
+    },
+    { 
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+      ), 
+      title: "Kanban Project Boards", 
+      desc: "Organize work with simple boards: Todo, Doing, Done. Drag and drop tasks with smooth animations." 
+    },
+    { 
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      ), 
+      title: "Team Collaboration", 
+      desc: "Work together with integrated team chat and shared projects. Real-time updates across all devices." 
+    },
+    { 
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+      ), 
+      title: "Instant Team Setup", 
+      desc: "Create a workspace and invite teammates in seconds. Share team codes and start collaborating immediately." 
+    },
 ];
 
 const navLinks = ["Features", "About", "Pricing", "Blog"];

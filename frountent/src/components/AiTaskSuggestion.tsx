@@ -67,7 +67,9 @@ export default function AiTaskSuggestion({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-        <span style={{ fontSize: "16px" }}>⚡</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
         <span
           style={{
             fontSize: "12px",
@@ -89,7 +91,10 @@ export default function AiTaskSuggestion({
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", fontSize: "13px", color: "#aaa" }}>
           {suggestion.assignee && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <span>👤</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
               <span>Assigned to: {suggestion.assignee.name}</span>
             </div>
           )}

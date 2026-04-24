@@ -19,6 +19,7 @@ interface SoftListViewProps {
   onToggleFavorite?: (taskId: number) => void;
   selectedTaskId: number | null;
   favoriteTaskIds?: Set<number>;
+  onAddTask?: () => void;
 }
 
 export function SoftListView({
@@ -28,6 +29,7 @@ export function SoftListView({
   onToggleFavorite,
   selectedTaskId,
   favoriteTaskIds = new Set(),
+  onAddTask,
 }: SoftListViewProps) {
   const { mode } = useTheme();
   const isDark = mode === 'dark';
@@ -131,6 +133,43 @@ export function SoftListView({
             </div>
           )}
         </div>
+      )}
+
+      {/* Add Task Button */}
+      {onAddTask && (
+        <button
+          onClick={onAddTask}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '12px 16px',
+            marginTop: activeTasks.length > 0 || completedTasks.length > 0 ? '16px' : '0',
+            borderRadius: '8px',
+            border: `1px dashed ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}`,
+            background: 'transparent',
+            color: isDark ? '#888' : '#666',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            width: '100%',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+            e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Task
+        </button>
       )}
     </div>
   );

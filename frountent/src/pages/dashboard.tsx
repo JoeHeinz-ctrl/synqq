@@ -1494,6 +1494,7 @@ export default function Dashboard() {
             }}
             selectedTaskId={selectedTaskId}
             favoriteTaskIds={favoriteTaskIds}
+            onAddTask={() => promptCreateTask('todo')}
           />
         )}
       </div>

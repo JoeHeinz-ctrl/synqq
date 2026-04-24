@@ -1344,23 +1344,27 @@ export default function Dashboard() {
           .top-bar { 
             flex-direction: column; 
             align-items: stretch !important; 
-            padding: 10px 16px !important;
-            gap: 10px !important;
+            padding: 12px 16px !important;
+            gap: 12px !important;
           }
           .header-left {
             order: 1;
             flex-wrap: wrap;
+            gap: 8px !important;
+            align-items: center !important;
           }
           .header-center { 
             order: 0;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: center !important;
+            margin-bottom: 4px;
           }
           .header-right {
             order: 2;
-            justify-content: space-between;
+            justify-content: space-between !important;
             flex-wrap: wrap;
             gap: 8px !important;
+            align-items: center !important;
           }
           .shortcuts-badge {
             display: none !important;
@@ -1368,6 +1372,18 @@ export default function Dashboard() {
           .board-grid { 
             grid-template-columns: 1fr !important; 
             gap: 10px !important;
+          }
+          
+          /* Better mobile spacing for project info */
+          .project-meta {
+            flex-wrap: wrap !important;
+            gap: 4px !important;
+          }
+          
+          /* Adjust view toggle for mobile */
+          .view-toggle-container {
+            order: -1 !important;
+            margin-bottom: 8px !important;
           }
         }
       `}</style>
@@ -1389,7 +1405,7 @@ export default function Dashboard() {
             {project ? project.title : "Loading..."}
           </div>
           
-          <div style={styles.projectMeta(colors)}>
+          <div style={styles.projectMeta(colors)} className="project-meta">
             <div style={styles.metaBadge(colors)}>
               <span>{tasks.length} tasks</span>
             </div>
@@ -1411,7 +1427,7 @@ export default function Dashboard() {
         {/* Right Section - Shortcuts + Avatars + Actions */}
         <div style={styles.headerRight} className="header-right">
           {/* View Mode Toggle */}
-          <div style={{ display: 'flex', gap: '4px', padding: '4px', borderRadius: '8px', background: colors.surface, border: `1px solid ${colors.border}` }}>
+          <div className="view-toggle-container" style={{ display: 'flex', gap: '4px', padding: '4px', borderRadius: '8px', background: colors.surface, border: `1px solid ${colors.border}` }}>
             <button
               onClick={() => setViewMode('board')}
               className="view-toggle-btn"

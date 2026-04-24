@@ -67,28 +67,25 @@ export function SoftListItem({
           ? `2px solid ${colors.primary}` 
           : `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : '#e5e5e5'}`,
         cursor: 'pointer',
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.2s ease',
         opacity: isCompleted ? 0.6 : 1,
         position: 'relative',
         boxShadow: isDark 
           ? '0 2px 8px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' 
           : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
-        transform: 'translateY(0px)',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : '#f8f8f8';
-        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.2)' : '#b0b0b0';
+        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : '#f8f8f8';
+        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.18)' : '#d0d0d0';
         e.currentTarget.style.boxShadow = isDark 
-          ? '0 8px 25px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3)' 
-          : '0 4px 15px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)';
-        e.currentTarget.style.transform = 'translateY(-2px)';
+          ? '0 2px 8px rgba(0,0,0,0.3)' 
+          : '0 2px 6px rgba(0,0,0,0.08)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
         e.currentTarget.style.boxShadow = isDark 
           ? '0 2px 8px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' 
           : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)';
-        e.currentTarget.style.transform = 'translateY(0px)';
         if (!isSelected) {
           e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.12)' : '#e5e5e5';
         }

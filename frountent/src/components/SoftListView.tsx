@@ -48,17 +48,21 @@ export function SoftListView({
   });
 
   return (
-    <div className="w-full h-full px-12 py-2 overflow-y-auto">
+    <div className="w-full h-full px-6 py-6 overflow-y-auto">
       {/* Active Tasks Section */}
       {activeTasks.length > 0 && (
-        <div style={{ marginBottom: '48px' }}>
+        <div style={{ marginBottom: '32px' }}>
           <div 
-            className="text-sm font-semibold mb-3"
-            style={{ color: isDark ? '#888' : '#666' }}
+            className="text-sm font-semibold mb-4"
+            style={{ 
+              color: isDark ? '#888' : '#666',
+              paddingLeft: '4px',
+              letterSpacing: '0.5px'
+            }}
           >
             Tasks · {activeTasks.length}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {activeTasks.map((task) => (
               <SoftListItem
                 key={task.id}
@@ -117,7 +121,7 @@ export function SoftListView({
           </button>
 
           {completedExpanded && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {completedTasks.map((task) => (
                 <SoftListItem
                   key={task.id}

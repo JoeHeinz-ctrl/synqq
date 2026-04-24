@@ -75,7 +75,13 @@ export function SoftListView({
       {/* Empty State */}
       {activeTasks.length === 0 && completedTasks.length === 0 && (
         <div className="flex flex-col items-center justify-center h-full">
-          <div style={{ fontSize: '48px', opacity: 0.3, marginBottom: '16px' }}>✨</div>
+          <div style={{ fontSize: '48px', opacity: 0.3, marginBottom: '16px' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="9" x2="15" y2="9"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
           <div style={{ fontSize: '16px', fontWeight: '500', color: isDark ? '#888' : '#666', marginBottom: '8px' }}>
             No tasks yet
           </div>
@@ -93,9 +99,18 @@ export function SoftListView({
             className="flex items-center gap-2 text-sm font-semibold mb-3 hover:opacity-80 transition-opacity"
             style={{ color: isDark ? '#888' : '#666' }}
           >
-            <span style={{ fontSize: '12px' }}>
-              {completedExpanded ? '▼' : '▶'}
-            </span>
+            <svg 
+              width="12" 
+              height="12" 
+              viewBox="0 0 24 24" 
+              fill="currentColor"
+              style={{ 
+                transform: completedExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                transition: 'transform 0.2s ease'
+              }}
+            >
+              <path d="M7 10l5 5 5-5z"></path>
+            </svg>
             Completed · {completedTasks.length}
           </button>
 

@@ -813,19 +813,19 @@ export default function Dashboard() {
   const getColumnConfig = (status: string) => {
     const configs: any = {
       todo: { 
-        emoji: "📋", 
+        icon: "○", 
         color: "#0b7de0",
         title: "Todo",
         emptyText: "Drag tasks here to get started"
       },
       doing: { 
-        emoji: "⚡", 
+        icon: "◐", 
         color: "#f59e0b",
         title: "In Progress",
         emptyText: "Drag tasks here to start working"
       },
       done: { 
-        emoji: "✓", 
+        icon: "●", 
         color: "#10b981",
         title: "Done",
         emptyText: "Completed tasks will appear here"
@@ -844,7 +844,7 @@ export default function Dashboard() {
     if (colTasks.length === 0 && inlineCreateCol !== status) {
       return (
         <div style={styles.emptyState} className="empty-state">
-          <div style={styles.emptyIcon}>{config.emoji}</div>
+          <div style={styles.emptyIcon}>{config.icon}</div>
           <div style={styles.emptyText}>{config.emptyText}</div>
         </div>
       );
@@ -1392,7 +1392,10 @@ export default function Dashboard() {
             onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '0.8'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '1'; }}
           >
-            💬 Chat
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Chat
           </button>
           
           <SettingsDropdown />
@@ -1430,7 +1433,7 @@ export default function Dashboard() {
                   
                   <div style={styles.columnHeader} className={col === "doing" ? "column-header-doing" : ""}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ fontSize: "16px" }}>{config.emoji}</span>
+                      <span style={{ fontSize: "18px", fontWeight: "600", color: config.color }}>{config.icon}</span>
                       <div style={styles.columnTitle(colors)}>{config.title}</div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

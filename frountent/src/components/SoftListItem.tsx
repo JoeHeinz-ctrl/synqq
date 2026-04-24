@@ -46,8 +46,11 @@ export function SoftListItem({
     const now = Date.now();
     const timeSinceLastTap = now - lastTapRef.current;
 
+    console.log('Click detected:', { timeSinceLastTap, now, last: lastTapRef.current });
+
     if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
       // Double click detected - open editor
+      console.log('Double-click detected! Opening editor...');
       e.preventDefault();
       onClick();
       lastTapRef.current = 0; // Reset

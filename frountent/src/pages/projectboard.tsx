@@ -522,7 +522,16 @@ export default function ProjectBoard() {
             onClick={(e) => editingId === p.id ? commitRename(p.id) : startEdit(e, p)}
             onMouseEnter={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.28)" : `${colors.primary}40`; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = editingId === p.id ? "rgba(16,185,129,0.15)" : colors.primaryLight; }}
-          >{editingId === p.id ? "✓" : "✏️"}</button>
+          >{editingId === p.id ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          )}</button>
 
           <button
             title="Delete project"
@@ -530,7 +539,12 @@ export default function ProjectBoard() {
             onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(p.id); }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,68,68,0.25)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,68,68,0.1)"; }}
-          >🗑️</button>
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
         </div>
       </div>
     );
@@ -642,7 +656,12 @@ export default function ProjectBoard() {
       <div style={s.topBar}>
         <div style={{ display: "flex", flexDirection: "column" }}>
           {greeting && <div style={{ color: colors.textSecondary, fontSize: 14, marginBottom: 6 }}>{greeting}</div>}
-          <h2 style={s.pageTitle(colors)}>🗂️ Projects</h2>
+          <h2 style={s.pageTitle(colors)}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }}>
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Projects
+          </h2>
         </div>
         <div style={s.topActions}>
           <SettingsDropdown />
@@ -666,7 +685,13 @@ export default function ProjectBoard() {
 
       {/* ── Personal Projects ── */}
       <div style={s.sectionHeader}>
-        <h3 style={s.sectionTitle(colors)}>👤 My Projects</h3>
+        <h3 style={s.sectionTitle(colors)}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }}>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          My Projects
+        </h3>
         <UsageIndicator type="personal_projects" />
       </div>
 

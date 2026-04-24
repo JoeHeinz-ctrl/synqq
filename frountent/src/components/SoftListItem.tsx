@@ -47,10 +47,10 @@ export function SoftListItem({
     <div
       onClick={onClick}
       className={cn(
-        "group relative rounded-lg border transition-all duration-200 cursor-pointer",
+        "group relative rounded-xl border transition-all duration-200 cursor-pointer",
         isDark 
-          ? "bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.06]" 
-          : "bg-black/[0.03] border-black/[0.08] hover:bg-black/[0.05]",
+          ? "bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12]" 
+          : "bg-black/[0.03] border-black/[0.08] hover:bg-black/[0.05] hover:border-black/[0.12]",
         isSelected && "ring-2 ring-offset-0",
         isCompleted && "opacity-60"
       )}
@@ -59,7 +59,7 @@ export function SoftListItem({
         ...(isSelected && { ringColor: colors.primary + '60' }),
       }}
     >
-      <div className="flex items-center gap-4 px-4 py-3.5">
+      <div className="flex items-center gap-5 px-5 py-4">
         {/* Checkbox */}
         <button
           onClick={(e) => {
@@ -67,7 +67,7 @@ export function SoftListItem({
             onToggleComplete();
           }}
           className={cn(
-            "flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200",
+            "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200",
             isCompleted
               ? "border-transparent"
               : isDark
@@ -101,18 +101,18 @@ export function SoftListItem({
         {/* Task Content */}
         <div className="flex-1 min-w-0">
           <div className={cn(
-            "text-[15px] font-medium leading-snug transition-colors",
+            "text-base font-medium leading-relaxed transition-colors",
             isCompleted && "line-through",
             isDark 
-              ? isCompleted ? "text-zinc-500" : "text-zinc-200"
-              : isCompleted ? "text-zinc-500" : "text-zinc-800"
+              ? isCompleted ? "text-zinc-500" : "text-zinc-100"
+              : isCompleted ? "text-zinc-500" : "text-zinc-900"
           )}>
             {task.title}
           </div>
           {task.description && (
             <div className={cn(
-              "text-xs mt-1 line-clamp-1",
-              isDark ? "text-zinc-600" : "text-zinc-500"
+              "text-sm mt-1.5 line-clamp-1",
+              isDark ? "text-zinc-500" : "text-zinc-600"
             )}>
               {task.description}
             </div>
@@ -123,8 +123,8 @@ export function SoftListItem({
         {!isCompleted && (
           <div
             className={cn(
-              "flex-shrink-0 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
-              isDark ? "bg-white/[0.06]" : "bg-black/[0.06]"
+              "flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider",
+              isDark ? "bg-white/[0.08]" : "bg-black/[0.08]"
             )}
             style={{ color: statusColor }}
           >
@@ -159,7 +159,7 @@ export function SoftListItem({
       {/* Hover Indicator */}
       <div 
         className={cn(
-          "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 rounded-r-full transition-all duration-200 group-hover:h-8",
+          "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 rounded-r-full transition-all duration-200 group-hover:h-12",
           "opacity-0 group-hover:opacity-100"
         )}
         style={{ backgroundColor: colors.primary }}

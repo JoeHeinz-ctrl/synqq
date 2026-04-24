@@ -153,6 +153,7 @@ const styles: any = {
     flexDirection: "column",
     overflow: "hidden",
     marginTop: "0",
+    justifyContent: "center",
   },
 
   shortcuts: (colors: any) => ({

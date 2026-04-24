@@ -48,17 +48,17 @@ export function SoftListView({
   });
 
   return (
-    <div className="w-full max-w-[900px] mx-auto px-6 py-6 space-y-6">
+    <div className="w-full max-w-[1100px] mx-auto px-8 py-8 space-y-8">
       {/* Active Tasks Section */}
       {activeTasks.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className={cn(
-            "text-xs font-semibold uppercase tracking-wider px-2",
+            "text-xs font-semibold uppercase tracking-wider px-3",
             isDark ? "text-zinc-500" : "text-zinc-600"
           )}>
             Tasks · {activeTasks.length}
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {activeTasks.map((task) => (
               <SoftListItem
                 key={task.id}
@@ -108,11 +108,11 @@ export function SoftListView({
 
       {/* Completed Tasks Section */}
       {completedTasks.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <button
             onClick={() => setCompletedExpanded(!completedExpanded)}
             className={cn(
-              "flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-2 transition-colors",
+              "flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 transition-colors",
               isDark 
                 ? "text-zinc-500 hover:text-zinc-400" 
                 : "text-zinc-600 hover:text-zinc-700"
@@ -127,7 +127,7 @@ export function SoftListView({
           </button>
 
           {completedExpanded && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {completedTasks.map((task) => (
                 <SoftListItem
                   key={task.id}

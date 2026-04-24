@@ -80,28 +80,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     
     if (mode === 'dark') {
       return {
-        background: '#0f0f0f',        // Darker background for better contrast
+        background: '#0a0a0a',        // Even darker background
         surface: '#1a1a1a',           // Elevated surface
         surfaceHover: '#252525',      // Hover state
         text: '#ffffff',              // Pure white text
         textSecondary: '#a0a0a0',     // Lighter secondary text
-        border: 'rgba(255,255,255,0.12)', // More visible borders
+        border: 'rgba(255,255,255,0.15)', // More visible borders
         input: '#1a1a1a',
-        inputBorder: 'rgba(255,255,255,0.15)',
-        cardBg: 'rgba(255,255,255,0.04)', // More visible cards
-        headerBg: '#1a1a1a',
+        inputBorder: 'rgba(255,255,255,0.2)',
+        cardBg: 'rgba(255,255,255,0.05)', // More visible cards
+        headerBg: '#141414',
         ...palette,
       };
     } else {
       return {
-        background: '#fafafa',        // Slightly darker than pure white
+        background: '#ffffff',        // Pure white background
         surface: '#ffffff',           // Pure white surface
-        surfaceHover: '#f5f5f5',      // Subtle hover
-        text: '#0a0a0a',              // Near black for maximum contrast
-        textSecondary: '#525252',     // Darker secondary text
-        border: '#d4d4d4',            // More visible borders
+        surfaceHover: '#f8f8f8',      // Very subtle hover
+        text: '#000000',              // Pure black for maximum contrast
+        textSecondary: '#404040',     // Much darker secondary text
+        border: '#c0c0c0',            // Darker, more visible borders
         input: '#ffffff',
-        inputBorder: '#a3a3a3',       // Darker input borders
+        inputBorder: '#909090',       // Much darker input borders
         cardBg: '#ffffff',
         headerBg: '#ffffff',
         ...palette,

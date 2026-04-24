@@ -144,24 +144,31 @@ export function SoftListView({
             alignItems: 'center',
             gap: '8px',
             padding: '12px 16px',
-            marginTop: activeTasks.length > 0 || completedTasks.length > 0 ? '16px' : '0',
-            borderRadius: '8px',
-            border: `1px dashed ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}`,
+            marginTop: activeTasks.length > 0 || completedTasks.length > 0 ? '24px' : '0',
+            borderRadius: '12px',
+            border: `2px dashed ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}`,
             background: 'transparent',
             color: isDark ? '#888' : '#666',
             fontSize: '14px',
-            fontWeight: '500',
+            fontWeight: '600',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             width: '100%',
+            transform: 'scale(1)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
-            e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+            e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+            e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+            e.currentTarget.style.transform = 'scale(1.02)';
+            e.currentTarget.style.boxShadow = isDark 
+              ? '0 4px 15px rgba(0,0,0,0.3)' 
+              : '0 2px 10px rgba(0,0,0,0.1)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'transparent';
             e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

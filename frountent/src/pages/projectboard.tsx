@@ -493,7 +493,11 @@ export default function ProjectBoard() {
         onMouseLeave={() => setHoveredId(null)}
       >
         <div style={s.cardLeft}>
-          <span style={s.projectEmoji}>📂</span>
+          <span style={s.projectEmoji}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </span>
           {editingId === p.id ? (
             <input
               ref={editInputRef}
@@ -671,7 +675,13 @@ export default function ProjectBoard() {
             onClick={() => { setShowJoinTeam(true); setJoinCode(""); }}
             onMouseEnter={(e) => { e.currentTarget.style.color = colors.text; e.currentTarget.style.borderColor = colors.border; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = colors.textSecondary; e.currentTarget.style.borderColor = colors.border; }}
-          >🔗 Join Team</button>
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            Join Team
+          </button>
 
           <button
             style={s.btnSuccess}
@@ -990,7 +1000,17 @@ export default function ProjectBoard() {
                 disabled={joinLoading}
                 onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryHover; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = colors.primary; }}
-              >{joinLoading ? "Joining…" : "🔗 Join Team"}</button>
+              >
+                {joinLoading ? "Joining…" : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                    Join Team
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

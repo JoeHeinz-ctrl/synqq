@@ -961,7 +961,166 @@ export default function Dashboard() {
         /* Hide scrollbar in task lists */
         .task-list::-webkit-scrollbar { display: none; }
 
-        /* ─────────────────── LAYOUT & Z-INDEX ─────────────────── */
+        /* ─────────────────── EPIC VISUAL ENHANCEMENTS ─────────────────── */
+        
+        /* Smooth page transitions */
+        * {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Enhanced button interactions */
+        button {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        button:active {
+          transform: scale(0.98) !important;
+        }
+        
+        /* Epic card hover effects */
+        .task-card {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          will-change: transform, box-shadow;
+        }
+        
+        .task-card:hover {
+          transform: translateY(-3px) scale(1.01) !important;
+          box-shadow: ${isDark 
+            ? '0 12px 30px rgba(0,0,0,0.6), 0 4px 15px rgba(0,0,0,0.4)' 
+            : '0 8px 25px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)'} !important;
+        }
+        
+        /* Enhanced column hover effects */
+        .board-grid > div {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          will-change: transform, box-shadow;
+        }
+        
+        .board-grid > div:hover {
+          transform: translateY(-6px) !important;
+          box-shadow: ${isDark 
+            ? '0 20px 40px rgba(0,0,0,0.6), 0 8px 20px rgba(0,0,0,0.4)' 
+            : '0 15px 35px rgba(0,0,0,0.15), 0 6px 15px rgba(0,0,0,0.1)'} !important;
+        }
+        
+        /* Glowing primary buttons */
+        .chat-btn-animated {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .chat-btn-animated::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transition: left 0.5s;
+        }
+        
+        .chat-btn-animated:hover::before {
+          left: 100%;
+        }
+        
+        /* Enhanced view toggle buttons */
+        .view-toggle-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .view-toggle-btn::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          background: rgba(255,255,255,0.1);
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          transition: width 0.3s, height 0.3s;
+        }
+        
+        .view-toggle-btn:hover::after {
+          width: 100px;
+          height: 100px;
+        }
+        
+        /* Floating animation for empty states */
+        .empty-state svg {
+          animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        /* Pulse animation for active elements */
+        .pulse {
+          animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+          0% { box-shadow: 0 0 0 0 ${colors.primary}40; }
+          70% { box-shadow: 0 0 0 10px ${colors.primary}00; }
+          100% { box-shadow: 0 0 0 0 ${colors.primary}00; }
+        }
+        
+        /* Smooth scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: ${colors.background};
+          border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: ${colors.border};
+          border-radius: 4px;
+          transition: background 0.2s;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${colors.textSecondary};
+        }
+        
+        /* Enhanced modal animations */
+        .modal-overlay {
+          animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes modalFadeIn {
+          from {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+          }
+          to {
+            opacity: 1;
+            backdrop-filter: blur(8px);
+          }
+        }
+        
+        .modal-content {
+          animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
         
         /* Proper vertical layout structure */
         .top-bar {
@@ -1274,6 +1433,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', gap: '4px', padding: '4px', borderRadius: '8px', background: colors.surface, border: `1px solid ${colors.border}` }}>
             <button
               onClick={() => setViewMode('board')}
+              className="view-toggle-btn"
               style={{
                 padding: '6px 12px',
                 borderRadius: '6px',
@@ -1302,6 +1462,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setViewMode('list')}
+              className="view-toggle-btn"
               style={{
                 padding: '6px 12px',
                 borderRadius: '6px',

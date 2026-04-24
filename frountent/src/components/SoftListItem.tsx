@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 
 interface Task {
@@ -32,50 +31,17 @@ export function SoftListItem({
   const { mode, getThemeColors } = useTheme();
   const isDark = mode === 'dark';
   const colors = getThemeColors();
-  
-  // Double-tap/double-click detection
-  const lastTapRef = useRef<number>(0);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleDoubleClick = (e: React.MouseEvent) => {
     // Don't trigger if clicking on buttons
     const target = e.target as HTMLElement;
     if (target.tagName === 'BUTTON' || target.closest('button') || target.tagName === 'svg' || target.closest('svg')) {
       return;
     }
-
-    const now = Date.now();
-    const timeSinceLastTap = now - lastTapRef.current;
-
-    if (timeSinceLastTap < 400 && timeSinceLastTap > 0) {
-      // Double click detected - open editor
-      e.preventDefault();
-      e.stopPropagation();
-      onClick();
-      lastTapRef.current = 0; // Reset
-    } else {
-      lastTapRef.current = now;
-    }
-  };
-
-  const handleTouch = (e: React.TouchEvent) => {
-    // Don't trigger if touching buttons
-    const target = e.target as HTMLElement;
-    if (target.tagName === 'BUTTON' || target.closest('button') || target.tagName === 'svg' || target.closest('svg')) {
-      return;
-    }
-
-    const now = Date.now();
-    const timeSinceLastTap = now - lastTapRef.current;
-
-    if (timeSinceLastTap < 400 && timeSinceLastTap > 0) {
-      // Double tap detected - open editor
-      e.preventDefault();
-      e.stopPropagation();
-      onClick();
-      lastTapRef.current = 0; // Reset
-    } else {
-      lastTapRef.current = now;
-    }
+    
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
   };
 
   const getStatusColor = () => {
@@ -89,8 +55,7 @@ export function SoftListItem({
 
   return (
     <div
-      onClick={handleClick}
-      onTouchEnd={handleTouch}
+      onDoubleClick={handleDoubleClick}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -102,25 +67,28 @@ export function SoftListItem({
           ? `2px solid ${colors.primary}` 
           : `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : '#e5e5e5'}`,
         cursor: 'pointer',
-        transition: 'all 0.15s ease',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         opacity: isCompleted ? 0.6 : 1,
         position: 'relative',
         boxShadow: isDark 
-          ? '0 1px 3px rgba(0,0,0,0.3)' 
-          : '0 1px 2px rgba(0,0,0,0.05)',
+          ? '0 2px 8px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' 
+          : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
+        transform: 'translateY(0px)',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : '#fafafa';
-        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.18)' : '#d4d4d4';
+        e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : '#f8f8f8';
+        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.2)' : '#b0b0b0';
         e.currentTarget.style.boxShadow = isDark 
-          ? '0 4px 12px rgba(0,0,0,0.4)' 
-          : '0 2px 8px rgba(0,0,0,0.1)';
+          ? '0 8px 25px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3)' 
+          : '0 4px 15px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)';
+        e.currentTarget.style.transform = 'translateY(-2px)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
         e.currentTarget.style.boxShadow = isDark 
-          ? '0 1px 3px rgba(0,0,0,0.3)' 
-          : '0 1px 2px rgba(0,0,0,0.05)';
+          ? '0 2px 8px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3)' 
+          : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)';
+        e.currentTarget.style.transform = 'translateY(0px)';
         if (!isSelected) {
           e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.12)' : '#e5e5e5';
         }
@@ -143,18 +111,23 @@ export function SoftListItem({
           justifyContent: 'center',
           cursor: 'pointer',
           flexShrink: 0,
-          transition: 'all 0.15s ease',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: 'scale(1)',
         }}
         onMouseEnter={(e) => {
           if (!isCompleted) {
             e.currentTarget.style.borderColor = colors.primary;
             e.currentTarget.style.background = colors.primaryLight;
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.boxShadow = `0 0 0 3px ${colors.primaryLight}`;
           }
         }}
         onMouseLeave={(e) => {
           if (!isCompleted) {
             e.currentTarget.style.borderColor = isDark ? '#666' : '#999';
             e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = 'none';
           }
         }}
       >
@@ -231,13 +204,18 @@ export function SoftListItem({
             color: isFavorite ? colors.primary : isDark ? '#666' : '#999',
             fontSize: '16px',
             flexShrink: 0,
-            transition: 'all 0.15s ease',
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: 'scale(1)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+            e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.boxShadow = `0 0 0 2px ${colors.primaryLight}`;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
           <svg 

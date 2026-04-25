@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { getUsageStats, getSubscriptionLimits } from "../services/api";
+import { useAuth } from "./AuthContext";
 
 interface UsageStats {
   subscription_tier: "free" | "premium";
@@ -38,9 +39,19 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
   const [limits, setLimits] = useState<SubscriptionLimits | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Start as false
+  const { isAuthenticated } = useAuth(); // Get auth status
 
   const refreshUsage = async () => {
+    // Only fetch if user is authenticated
+    if (!isAuthenticated) {
+      setUsageStats(null);
+      setLimits(null);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
     try {
       const [usageData, limitsData] = await Promise.all([
         getUsageStats(),
@@ -51,6 +62,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       setLimits(limitsData);
     } catch (error) {
       console.error("Failed to fetch subscription data:", error);
+      // Don't throw error, just log it
+      setUsageStats(null);
+      setLimits(null);
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +72,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     refreshUsage();
-  }, []);
+  }, [isAuthenticated]); // Re-run when auth status changes
 
   const isAtLimit = (type: 'personal_projects' | 'teams' | 'team_projects'): boolean => {
     if (!usageStats || !limits) return false;

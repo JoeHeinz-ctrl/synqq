@@ -41,29 +41,57 @@ export async function registerUser(name: string, email: string, password: string
 }
 
 export async function googleLogin(token: string) {
-  const res = await fetch(`${API_URL}/auth/google`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ code: token }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.detail || "Google login failed");
-  }
-
-  localStorage.setItem("token", data.access_token);
+  console.log("🔑 Attempting Google login with backend...");
+  console.log("🌐 Backend URL:", `${API_URL}/auth/google`);
+  
   try {
-    const variants = [0,1,2,3,4];
-    const pick = variants[Math.floor(Math.random() * variants.length)];
-    localStorage.setItem("greeting_variant", String(pick));
-    localStorage.setItem("greeting_ts", String(Date.now()));
-  } catch {}
+    const res = await fetch(`${API_URL}/auth/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code: token }),
+    });
 
-  return data;
+    console.log("📥 Backend response status:", res.status);
+    console.log("📥 Backend response headers:", Object.fromEntries(res.headers.entries()));
+
+    const data = await res.json();
+    console.log("📥 Backend response data:", data);
+
+    if (!res.ok) {
+      console.error("❌ Backend error response:", data);
+      throw new Error(data.detail || `Google login failed (${res.status})`);
+    }
+
+    if (!data?.access_token) {
+      throw new Error("Invalid server response - no access token received");
+    }
+
+    localStorage.setItem("token", data.access_token);
+    
+    try {
+      const variants = [0,1,2,3,4];
+      const pick = variants[Math.floor(Math.random() * variants.length)];
+      localStorage.setItem("greeting_variant", String(pick));
+      localStorage.setItem("greeting_ts", String(Date.now()));
+    } catch {}
+
+    console.log("✅ Google login successful");
+    return data;
+    
+  } catch (error: any) {
+    console.error("❌ Google login fetch error:", error);
+    
+    // Handle different types of errors
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error("Network error: Unable to connect to authentication server");
+    } else if (error.message?.includes('CORS')) {
+      throw new Error("CORS error: Authentication service configuration issue");
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function loginUser(email: string, password: string) {

@@ -1,5 +1,6 @@
 import token
 import requests
+import os
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -10,9 +11,10 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from fastapi import HTTPException
 
-GOOGLE_CLIENT_ID = "335846643539-am8i2gne8ajsu3sbgfomb61pp26dr6ir.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
-FRONTEND_URL = "http://localhost:5173"
+# Use environment variables with fallbacks
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "335846643539-am8i2gne8ajsu3sbgfomb61pp26dr6ir.apps.googleusercontent.com")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "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")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://dozzl.xyz")
 from app.core.config import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -91,57 +93,90 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/google")
 def google_auth(payload: dict, db: Session = Depends(get_db)):
+    print(f"🔍 Google auth request received: {payload}")
+    
     code = payload.get("code")
-
     if not code:
+        print("❌ Missing Google code in payload")
         raise HTTPException(status_code=400, detail="Missing Google code")
     
-    token_res = requests.post(
-        "https://oauth2.googleapis.com/token",
-        data={
+    print(f"🔑 Using Google Client ID: {GOOGLE_CLIENT_ID[:20]}...")
+    print(f"🌐 Frontend URL: {FRONTEND_URL}")
+    
+    try:
+        # Exchange code for tokens
+        token_data = {
             "code": code,
             "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uri": "postmessage",  # ✅ USE ENV VAR
+            "redirect_uri": "postmessage",  # Required for @react-oauth/google
             "grant_type": "authorization_code",
-        },
-    )
+        }
+        
+        print(f"📤 Sending token request to Google...")
+        token_res = requests.post(
+            "https://oauth2.googleapis.com/token",
+            data=token_data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"}
+        )
 
-    print("GOOGLE STATUS:", token_res.status_code)   # ⭐ ADD
-    print("GOOGLE BODY:", token_res.text)            # ⭐ ADD
+        print(f"📥 Google token response status: {token_res.status_code}")
+        
+        if token_res.status_code != 200:
+            print(f"❌ Google token exchange failed: {token_res.text}")
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Google token exchange failed: {token_res.text}"
+            )
 
-    if token_res.status_code != 200:
-        raise HTTPException(status_code=400, detail="Google token exchange failed")
+        tokens = token_res.json()
+        print(f"✅ Received tokens from Google: {list(tokens.keys())}")
 
-    tokens = token_res.json()
+        if "id_token" not in tokens:
+            print("❌ No id_token in Google response")
+            raise HTTPException(status_code=400, detail="No id_token returned by Google")
 
-    if "id_token" not in tokens:
-        raise HTTPException(status_code=400, detail="No id_token returned by Google")
+        # Verify the ID token
+        print("🔐 Verifying Google ID token...")
+        idinfo = id_token.verify_oauth2_token(
+            tokens["id_token"],
+            grequests.Request(),
+            GOOGLE_CLIENT_ID,
+            clock_skew_in_seconds=10,
+        )
 
-    idinfo = id_token.verify_oauth2_token(
-        tokens["id_token"],
-        grequests.Request(),
-        GOOGLE_CLIENT_ID,
-        clock_skew_in_seconds=10,
-    )
+        email = idinfo["email"]
+        name = idinfo.get("name", "Google User")
+        print(f"👤 Google user verified: {email}")
 
-    email = idinfo["email"]
-    name = idinfo.get("name", "Google User")
+        # Find or create user
+        user = db.query(User).filter(User.email == email).first()
 
-    user = db.query(User).filter(User.email == email).first()
+        if not user:
+            print(f"🆕 Creating new user: {email}")
+            user = User(name=name, email=email, password="")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        else:
+            print(f"✅ Existing user found: {email}")
 
-    if not user:
-        user = User(name=name, email=email, password="")
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        # Create access token
+        access_token = create_access_token({"sub": str(user.id)})
+        print(f"🎫 Access token created for user {user.id}")
 
-    access_token = create_access_token({"sub": str(user.id)})
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
+        
+    except Exception as e:
+        print(f"❌ Google auth error: {str(e)}")
+        print(f"❌ Error type: {type(e).__name__}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Google authentication failed: {str(e)}"
+        )
 
 @router.get("/health")
 def auth_health():

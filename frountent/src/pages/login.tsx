@@ -40,8 +40,11 @@ export default function Login() {
     flow: "auth-code",
     onSuccess: async (codeResponse) => {
       setIsLoading(true);
+      setError(""); // Clear any previous errors
+      
       try {
         console.log("🛡️ Google Code Response:", codeResponse);
+        console.log("🌐 API URL:", import.meta.env.VITE_API_URL || "https://api.dozzl.xyz");
 
         const data = await googleLogin(codeResponse.code);
         console.log("🔍 Backend Response:", data);
@@ -54,14 +57,29 @@ export default function Login() {
         navigate("/board");
       } catch (err: any) {
         console.error("❌ Google login error:", err);
-        setError(err.message || "Google login failed. Please try again.");
+        
+        // More specific error messages
+        let errorMessage = "Google login failed. Please try again.";
+        
+        if (err.message?.includes("CORS")) {
+          errorMessage = "Network error: Please check your internet connection and try again.";
+        } else if (err.message?.includes("token")) {
+          errorMessage = "Authentication failed: Invalid response from Google.";
+        } else if (err.message?.includes("fetch")) {
+          errorMessage = "Connection error: Unable to reach authentication server.";
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+        
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
     },
     onError: (error) => {
       console.error("❌ Google OAuth error:", error);
-      setError("Google authentication failed. Please try again.");
+      setError("Google authentication failed. Please try again or use email/password login.");
+      setIsLoading(false);
     }
   });
 
@@ -86,12 +104,6 @@ export default function Login() {
     setIsLoading(false);
   }
 };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleLogin();
-    }
-  };
 
   return (
     <div style={getStyles(isDarkTheme).container} className="container">
@@ -204,7 +216,11 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleLogin();
+                  }
+                }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#0ea5e9";
                   e.target.style.boxShadow = "0 0 0 3px rgba(14, 165, 233, 0.1)";
@@ -224,7 +240,11 @@ export default function Login() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleLogin();
+                  }
+                }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#0ea5e9";
                   e.target.style.boxShadow = "0 0 0 3px rgba(14, 165, 233, 0.1)";
@@ -296,6 +316,33 @@ export default function Login() {
               </svg>
               Continue with Google
             </button>
+
+            {/* Debug button - only show in development */}
+            {window.location.hostname === 'localhost' && (
+              <button 
+                style={{
+                  ...getStyles(isDarkTheme).googleButton,
+                  background: isDarkTheme ? "#374151" : "#f3f4f6",
+                  color: isDarkTheme ? "#9ca3af" : "#6b7280",
+                  fontSize: "12px",
+                  padding: "8px 12px",
+                  marginBottom: "12px"
+                }}
+                onClick={async () => {
+                  try {
+                    const response = await fetch(`${import.meta.env.VITE_API_URL || "https://api.dozzl.xyz"}/debug/google-oauth`);
+                    const data = await response.json();
+                    console.log("🔧 Google OAuth Debug:", data);
+                    alert(`Debug Info:\n${JSON.stringify(data, null, 2)}`);
+                  } catch (err) {
+                    console.error("Debug failed:", err);
+                    alert("Debug request failed - check console");
+                  }
+                }}
+              >
+                🔧 Debug Google OAuth
+              </button>
+            )}
 
             <div style={getStyles(isDarkTheme).links}>
               <a
@@ -417,7 +464,8 @@ export default function Login() {
             .right-side {
               flex: 1 !important;
               min-width: auto !important;
-              padding: 16px !important;
+              padding: 20px 16px !important;
+              align-items: stretch !important;
             }
             
             .login-card {
@@ -586,9 +634,9 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
     rightSide: {
       flex: 1,
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-start",
       justifyContent: "center",
-      padding: "20px",
+      padding: "40px 20px 20px 20px",
       minWidth: "400px",
     },
 

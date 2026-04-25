@@ -191,7 +191,9 @@ app.add_middleware(
         "https://dozzl.xyz",
         "https://www.dozzl.xyz",
         "http://localhost:5173",  # Keep for local development
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "https://accounts.google.com",  # Allow Google OAuth
+        "https://oauth2.googleapis.com"  # Allow Google OAuth API
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -256,7 +258,9 @@ def debug_cors():
             "https://dozzl.xyz",
             "https://www.dozzl.xyz",
             "http://localhost:5173",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "https://accounts.google.com",
+            "https://oauth2.googleapis.com"
         ],
         "allowed_methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         "allowed_headers": ["*"],
@@ -264,6 +268,20 @@ def debug_cors():
         "preflight_handler": "enabled",
         "backend_url": "https://api.dozzl.xyz",
         "frontend_url": "https://dozzl.xyz"
+    }
+
+@app.get("/debug/google-oauth")
+def debug_google_oauth():
+    """Debug endpoint to check Google OAuth configuration"""
+    import os
+    return {
+        "google_client_id": os.getenv("GOOGLE_CLIENT_ID", "NOT_SET")[:20] + "...",
+        "google_client_secret_set": bool(os.getenv("GOOGLE_CLIENT_SECRET")),
+        "frontend_url": os.getenv("FRONTEND_URL", "NOT_SET"),
+        "oauth_endpoint": "/auth/google",
+        "redirect_uri": "postmessage",
+        "cors_includes_google": True,
+        "message": "Google OAuth should work if client ID is configured for dozzl.xyz domain"
     }
 
 @app.get("/socket-test")

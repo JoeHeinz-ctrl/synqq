@@ -153,7 +153,7 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(project_routes.router)
 app.include_router(task_routes.router)
-app.include_router(ai_routes.router, prefix="/api/ai", tags=["ai"])
+app.include_router(ai_routes.router)
 app.include_router(team_routes.router)
 app.include_router(subscription_routes.router)
 
@@ -172,7 +172,22 @@ def health_check():
     return {
         "status": "healthy",
         "message": "Backend is running with CORS enabled",
-        "cors_enabled": True
+        "cors_enabled": True,
+        "ai_routes_loaded": True
+    }
+
+@app.get("/debug/cors")
+def debug_cors():
+    """Debug endpoint to check CORS configuration"""
+    return {
+        "cors_origins": [
+            "https://www.dozzl.xyz",
+            "https://dozzl.xyz", 
+            "https://api.dozzl.xyz"
+        ],
+        "methods_allowed": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
+        "headers_allowed": "all",
+        "credentials_allowed": True
     }
 
 @app.get("/socket-test")

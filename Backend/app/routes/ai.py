@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import HTTPBearer
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from typing import List, Optional
-from app.models.task import Task
-from app.services.ai_engine import AIEngine
-from app.core.dependencies import get_current_user
-from app.db.session import get_db
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-router = APIRouter()
-security = HTTPBearer()
+from app.models.task import Task
+from app.services.ai_engine import AIEngine
+from app.db.session import get_db
+from app.routes.auth_routes import get_current_user
+
+router = APIRouter(prefix="/api/ai", tags=["AI"])
 ai_engine = AIEngine()
 
 class ChatRequest(BaseModel):

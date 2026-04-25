@@ -8,7 +8,6 @@ import { useAuth } from "../context/AuthContext";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(0);
@@ -93,7 +92,25 @@ export default function Login() {
     <div style={styles.container} className="container">
       {/* Desktop: Left side with quotes and animations */}
       <div style={styles.leftSide} className="left-side">
-        <div style={styles.brandSection}>
+        {/* Floating creative elements */}
+        <div className="floating-element floating-1">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2">
+            <polygon points="12,2 15.09,8.26 22,9 17,14 18.18,21 12,17.77 5.82,21 7,14 2,9 8.91,8.26"/>
+          </svg>
+        </div>
+        <div className="floating-element floating-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/>
+          </svg>
+        </div>
+        <div className="floating-element floating-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
+        </div>
+
+        <div style={styles.brandSection} className="brand-section">
           <div style={styles.logo}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0b7de0" strokeWidth="2">
               <path d="M9 12l2 2 4-4"></path>
@@ -107,7 +124,7 @@ export default function Login() {
 
         <div style={styles.quoteSection}>
           <div style={styles.quoteCard} className="quote-card" key={currentQuote}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0b7de0" strokeWidth="2" style={styles.quoteIcon}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" style={styles.quoteIcon}>
               <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path>
               <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path>
             </svg>
@@ -166,11 +183,11 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#0b7de0";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(11, 125, 224, 0.1)";
+                  e.target.style.borderColor = "#0ea5e9";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(14, 165, 233, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "#3a3a3a";
+                  e.target.style.borderColor = "#cbd5e1";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -186,26 +203,14 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#0b7de0";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(11, 125, 224, 0.1)";
+                  e.target.style.borderColor = "#0ea5e9";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(14, 165, 233, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "#3a3a3a";
+                  e.target.style.borderColor = "#cbd5e1";
                   e.target.style.boxShadow = "none";
                 }}
               />
-            </div>
-
-            <div style={styles.checkboxContainer}>
-              <label style={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  style={styles.checkbox}
-                />
-                <span style={styles.checkboxText}>Remember me</span>
-              </label>
             </div>
 
             {error && (
@@ -224,13 +229,13 @@ export default function Login() {
               disabled={isLoading || !email || !password}
               onMouseEnter={(e) => {
                 if (!isLoading && email && password) {
-                  e.currentTarget.style.background = "#0a6bc2";
+                  e.currentTarget.style.background = "#0284c7";
                   e.currentTarget.style.transform = "translateY(-1px)";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isLoading && email && password) {
-                  e.currentTarget.style.background = "#0b7de0";
+                  e.currentTarget.style.background = "#0ea5e9";
                   e.currentTarget.style.transform = "translateY(0)";
                 }
               }}
@@ -295,7 +300,7 @@ export default function Login() {
           @keyframes fadeInUp {
             from {
               opacity: 0;
-              transform: translateY(20px);
+              transform: translateY(30px);
             }
             to {
               opacity: 1;
@@ -304,26 +309,72 @@ export default function Login() {
           }
 
           @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-8px) rotate(1deg); }
+            50% { transform: translateY(-15px) rotate(0deg); }
+            75% { transform: translateY(-8px) rotate(-1deg); }
+          }
+
+          @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            33% { transform: translateY(-10px) translateX(5px); }
+            66% { transform: translateY(-5px) translateX(-3px); }
           }
 
           @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+          }
+
+          @keyframes slideInLeft {
+            from {
+              opacity: 0;
+              transform: translateX(-50px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
           }
 
           .quote-card {
-            animation: fadeInUp 0.6s ease-out;
+            animation: fadeInUp 1s ease-out;
           }
 
           .feature-icon {
-            animation: float 3s ease-in-out infinite;
+            animation: float 4s ease-in-out infinite;
           }
 
           .feature-icon:nth-child(1) { animation-delay: 0s; }
-          .feature-icon:nth-child(2) { animation-delay: 1s; }
-          .feature-icon:nth-child(3) { animation-delay: 2s; }
+          .feature-icon:nth-child(2) { animation-delay: 1.3s; }
+          .feature-icon:nth-child(3) { animation-delay: 2.6s; }
+
+          .brand-section {
+            animation: slideInLeft 0.8s ease-out;
+          }
+
+          .floating-element {
+            position: absolute;
+            animation: floatSlow 6s ease-in-out infinite;
+          }
+
+          .floating-1 {
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+          }
+
+          .floating-2 {
+            top: 60%;
+            right: 5%;
+            animation-delay: 2s;
+          }
+
+          .floating-3 {
+            top: 30%;
+            left: 5%;
+            animation-delay: 4s;
+          }
 
           /* Mobile responsiveness */
           @media (max-width: 768px) {
@@ -381,7 +432,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     minHeight: "100vh",
     display: "flex",
-    background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
+    background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     position: "relative",
     overflow: "hidden",
@@ -395,7 +446,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "center",
     alignItems: "center",
     padding: "40px",
-    background: "linear-gradient(135deg, #0b7de0 0%, #1e40af 100%)",
+    background: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
     position: "relative",
   },
 
@@ -429,31 +480,33 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 
   quoteCard: {
-    background: "rgba(255, 255, 255, 0.1)",
+    background: "rgba(255, 255, 255, 0.95)",
     backdropFilter: "blur(10px)",
     padding: "30px",
     borderRadius: "20px",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
     textAlign: "center",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
   },
 
   quoteIcon: {
     marginBottom: "20px",
-    opacity: 0.8,
+    opacity: 0.7,
   },
 
   quote: {
     fontSize: "18px",
-    color: "#ffffff",
+    color: "#1e293b",
     fontStyle: "italic",
     lineHeight: "1.6",
     margin: "0 0 15px 0",
+    fontWeight: "500",
   },
 
   author: {
     fontSize: "14px",
-    color: "rgba(255, 255, 255, 0.8)",
-    fontWeight: "500",
+    color: "#64748b",
+    fontWeight: "600",
   },
 
   features: {
@@ -489,11 +542,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   loginCard: {
     width: "100%",
     maxWidth: "380px",
-    background: "#242424",
+    background: "#ffffff",
     borderRadius: "16px",
     padding: "40px 32px",
-    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
+    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
+    border: "1px solid #e2e8f0",
   },
 
   header: {
@@ -504,14 +557,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   title: {
     fontSize: "24px",
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#0f172a",
     margin: "0 0 8px 0",
     letterSpacing: "-0.5px",
   },
 
   subtitle: {
     fontSize: "14px",
-    color: "#b3b3b3",
+    color: "#64748b",
     margin: "0",
     fontWeight: "400",
   },
@@ -529,9 +582,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     padding: "14px 16px",
     fontSize: "15px",
-    color: "#ffffff",
-    background: "#1a1a1a",
-    border: "1px solid #3a3a3a",
+    color: "#0f172a",
+    background: "#f8fafc",
+    border: "1px solid #cbd5e1",
     borderRadius: "8px",
     outline: "none",
     transition: "all 0.2s ease",
@@ -539,41 +592,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxSizing: "border-box",
   } as React.CSSProperties,
 
-  checkboxContainer: {
-    marginBottom: "24px",
-  },
-
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer",
-  },
-
-  checkbox: {
-    width: "16px",
-    height: "16px",
-    marginRight: "8px",
-    cursor: "pointer",
-    accentColor: "#0b7de0",
-  },
-
-  checkboxText: {
-    fontSize: "14px",
-    color: "#cccccc",
-    userSelect: "none",
-  },
-
   errorContainer: {
     padding: "12px 16px",
     marginBottom: "20px",
-    background: "rgba(220, 53, 69, 0.1)",
-    border: "1px solid rgba(220, 53, 69, 0.3)",
+    background: "#fef2f2",
+    border: "1px solid #fecaca",
     borderRadius: "8px",
   },
 
   errorText: {
     fontSize: "14px",
-    color: "#ff6b6b",
+    color: "#dc2626",
   },
 
   button: {
@@ -582,7 +611,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "15px",
     fontWeight: "600",
     color: "#ffffff",
-    background: "#0b7de0",
+    background: "#0ea5e9",
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
@@ -592,7 +621,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   } as React.CSSProperties,
 
   buttonDisabled: {
-    background: "#2a5580",
+    background: "#94a3b8",
     cursor: "not-allowed",
     opacity: 0.6,
   },
@@ -618,8 +647,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     flex: 1,
     textAlign: "center",
     fontSize: "12px",
-    color: "#666666",
-    background: "#242424",
+    color: "#94a3b8",
+    background: "#ffffff",
     padding: "0 16px",
     position: "relative",
     zIndex: 1,
@@ -630,9 +659,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "12px",
     fontSize: "14px",
     fontWeight: "500",
-    color: "#e0e0e0",
-    background: "#3a3a3a",
-    border: "1px solid #4a4a4a",
+    color: "#374151",
+    background: "#f9fafb",
+    border: "1px solid #d1d5db",
     borderRadius: "8px",
     cursor: "pointer",
     transition: "all 0.2s ease",
@@ -649,7 +678,7 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   link: {
     fontSize: "14px",
-    color: "#b3b3b3",
+    color: "#64748b",
     textDecoration: "none",
     cursor: "pointer",
     transition: "color 0.2s ease",

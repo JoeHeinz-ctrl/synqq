@@ -24,11 +24,11 @@ export default function Register() {
     { text: "The best time to plant a tree was 20 years ago. The second best time is now.", icon: "🌳" }
   ];
 
-  // Rotate tips every 5 seconds
+  // Rotate tips every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTip((prev) => (prev + 1) % tips.length);
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -56,6 +56,25 @@ export default function Register() {
     <div style={styles.container} className="container">
       {/* Desktop: Left side with tips and animations */}
       <div style={styles.leftSide} className="left-side">
+        {/* Floating creative elements */}
+        <div className="floating-element floating-1">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2">
+            <path d="M12 2l3.09 6.26L22 9l-5 4.87 1.18 6.88L12 17.77l-6.18 2.98L7 14.87 2 9l6.91-0.74L12 2z"/>
+          </svg>
+        </div>
+        <div className="floating-element floating-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22,4 12,14.01 9,11.01"/>
+          </svg>
+        </div>
+        <div className="floating-element floating-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2">
+            <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4l3 3h3V8h-3l-3 3z"/>
+            <path d="M22 9c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2z"/>
+          </svg>
+        </div>
+
         <div style={styles.brandSection}>
           <div style={styles.logo}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
@@ -64,14 +83,14 @@ export default function Register() {
               <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
             </svg>
           </div>
-          <h1 style={styles.brandName}>Join Synq</h1>
+          <h1 style={styles.brandName}>Join Dozzl</h1>
           <p style={styles.brandTagline}>Start your productivity journey today</p>
         </div>
 
         <div style={styles.tipSection}>
           <div style={styles.tipCard} className="tip-card" key={currentTip}>
             <div style={styles.tipIcon}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">
                 <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4l3 3h3V8h-3l-3 3z"/>
                 <path d="M22 9c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2z"/>
               </svg>
@@ -147,11 +166,11 @@ export default function Register() {
                 onChange={(e) => setName(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#10b981";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
+                  e.target.style.borderColor = "#059669";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "#3a3a3a";
+                  e.target.style.borderColor = "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -167,11 +186,11 @@ export default function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#10b981";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
+                  e.target.style.borderColor = "#059669";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "#3a3a3a";
+                  e.target.style.borderColor = "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -187,11 +206,11 @@ export default function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#10b981";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(16, 185, 129, 0.1)";
+                  e.target.style.borderColor = "#059669";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "#3a3a3a";
+                  e.target.style.borderColor = "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -222,13 +241,13 @@ export default function Register() {
               disabled={isLoading || !name || !email || !password}
               onMouseEnter={(e) => {
                 if (!isLoading && name && email && password) {
-                  e.currentTarget.style.background = "#059669";
+                  e.currentTarget.style.background = "#047857";
                   e.currentTarget.style.transform = "translateY(-1px)";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isLoading && name && email && password) {
-                  e.currentTarget.style.background = "#10b981";
+                  e.currentTarget.style.background = "#059669";
                   e.currentTarget.style.transform = "translateY(0)";
                 }
               }}
@@ -262,7 +281,7 @@ export default function Register() {
           @keyframes fadeInUp {
             from {
               opacity: 0;
-              transform: translateY(20px);
+              transform: translateY(30px);
             }
             to {
               opacity: 1;
@@ -271,19 +290,27 @@ export default function Register() {
           }
 
           @keyframes bounce {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-6px) rotate(2deg); }
+            50% { transform: translateY(-12px) rotate(0deg); }
+            75% { transform: translateY(-6px) rotate(-2deg); }
+          }
+
+          @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            33% { transform: translateY(-12px) translateX(8px); }
+            66% { transform: translateY(-6px) translateX(-5px); }
           }
 
           @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
           }
 
           @keyframes slideIn {
             from {
               opacity: 0;
-              transform: translateX(-20px);
+              transform: translateX(-40px);
             }
             to {
               opacity: 1;
@@ -292,24 +319,47 @@ export default function Register() {
           }
 
           .tip-card {
-            animation: fadeInUp 0.6s ease-out;
+            animation: fadeInUp 1.2s ease-out;
           }
 
           .benefit-icon {
-            animation: bounce 2s ease-in-out infinite;
+            animation: bounce 3s ease-in-out infinite;
           }
 
           .benefit-icon:nth-child(1) { animation-delay: 0s; }
-          .benefit-icon:nth-child(2) { animation-delay: 0.5s; }
-          .benefit-icon:nth-child(3) { animation-delay: 1s; }
+          .benefit-icon:nth-child(2) { animation-delay: 1s; }
+          .benefit-icon:nth-child(3) { animation-delay: 2s; }
 
           .stat {
             animation: slideIn 0.8s ease-out;
           }
 
-          .stat:nth-child(1) { animation-delay: 0.2s; }
-          .stat:nth-child(2) { animation-delay: 0.4s; }
-          .stat:nth-child(3) { animation-delay: 0.6s; }
+          .stat:nth-child(1) { animation-delay: 0.3s; }
+          .stat:nth-child(2) { animation-delay: 0.6s; }
+          .stat:nth-child(3) { animation-delay: 0.9s; }
+
+          .floating-element {
+            position: absolute;
+            animation: floatSlow 7s ease-in-out infinite;
+          }
+
+          .floating-1 {
+            top: 15%;
+            right: 8%;
+            animation-delay: 0s;
+          }
+
+          .floating-2 {
+            top: 70%;
+            right: 12%;
+            animation-delay: 2.5s;
+          }
+
+          .floating-3 {
+            top: 40%;
+            left: 8%;
+            animation-delay: 5s;
+          }
 
           /* Mobile responsiveness */
           @media (max-width: 768px) {
@@ -367,7 +417,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     minHeight: "100vh",
     display: "flex",
-    background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
+    background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     position: "relative",
     overflow: "hidden",
@@ -381,7 +431,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "center",
     alignItems: "center",
     padding: "40px",
-    background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
     position: "relative",
   },
 
@@ -415,12 +465,13 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 
   tipCard: {
-    background: "rgba(255, 255, 255, 0.1)",
+    background: "rgba(255, 255, 255, 0.95)",
     backdropFilter: "blur(10px)",
     padding: "30px",
     borderRadius: "20px",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
     textAlign: "center",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
   },
 
   tipIcon: {
@@ -431,10 +482,10 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   tip: {
     fontSize: "16px",
-    color: "#ffffff",
+    color: "#1f2937",
     lineHeight: "1.6",
     margin: "0",
-    fontWeight: "400",
+    fontWeight: "500",
   },
 
   benefits: {
@@ -497,11 +548,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   registerCard: {
     width: "100%",
     maxWidth: "380px",
-    background: "#242424",
+    background: "#ffffff",
     borderRadius: "16px",
     padding: "40px 32px",
-    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
+    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
+    border: "1px solid #e5e7eb",
   },
 
   header: {
@@ -512,14 +563,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   title: {
     fontSize: "24px",
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
     margin: "0 0 8px 0",
     letterSpacing: "-0.5px",
   },
 
   subtitle: {
     fontSize: "14px",
-    color: "#b3b3b3",
+    color: "#6b7280",
     margin: "0",
     fontWeight: "400",
   },
@@ -537,9 +588,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     padding: "14px 16px",
     fontSize: "15px",
-    color: "#ffffff",
-    background: "#1a1a1a",
-    border: "1px solid #3a3a3a",
+    color: "#111827",
+    background: "#f9fafb",
+    border: "1px solid #d1d5db",
     borderRadius: "8px",
     outline: "none",
     transition: "all 0.2s ease",
@@ -553,14 +604,14 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   termsText: {
     fontSize: "12px",
-    color: "#999999",
+    color: "#6b7280",
     lineHeight: "1.4",
     margin: "0",
     textAlign: "center",
   },
 
   termsLink: {
-    color: "#10b981",
+    color: "#059669",
     textDecoration: "none",
     fontWeight: "500",
   },
@@ -568,14 +619,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   errorContainer: {
     padding: "12px 16px",
     marginBottom: "20px",
-    background: "rgba(220, 53, 69, 0.1)",
-    border: "1px solid rgba(220, 53, 69, 0.3)",
+    background: "#fef2f2",
+    border: "1px solid #fecaca",
     borderRadius: "8px",
   },
 
   errorText: {
     fontSize: "14px",
-    color: "#ff6b6b",
+    color: "#dc2626",
   },
 
   button: {
@@ -584,7 +635,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "15px",
     fontWeight: "600",
     color: "#ffffff",
-    background: "#10b981",
+    background: "#059669",
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
@@ -594,7 +645,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   } as React.CSSProperties,
 
   buttonDisabled: {
-    background: "#2a5d4a",
+    background: "#9ca3af",
     cursor: "not-allowed",
     opacity: 0.6,
   },
@@ -615,7 +666,7 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   link: {
     fontSize: "14px",
-    color: "#b3b3b3",
+    color: "#6b7280",
     textDecoration: "none",
     cursor: "pointer",
     transition: "color 0.2s ease",

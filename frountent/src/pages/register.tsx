@@ -189,7 +189,7 @@ export default function Register() {
                   e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = isDarkTheme ? "#334155" : "#d1d5db";
+                  e.target.style.borderColor = isDarkTheme ? "#404040" : "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -209,7 +209,7 @@ export default function Register() {
                   e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = isDarkTheme ? "#334155" : "#d1d5db";
+                  e.target.style.borderColor = isDarkTheme ? "#404040" : "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -229,7 +229,7 @@ export default function Register() {
                   e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = isDarkTheme ? "#334155" : "#d1d5db";
+                  e.target.style.borderColor = isDarkTheme ? "#404040" : "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -458,7 +458,7 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
       minHeight: "100vh",
       display: "flex",
       background: isDark 
-        ? "linear-gradient(135deg, #111827 0%, #1f2937 100%)" 
+        ? "#1a1a1a" // Black background like dashboard
         : "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       position: "relative",
@@ -473,7 +473,7 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
       justifyContent: "center",
       alignItems: "center",
       padding: "40px",
-      background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
+      background: "linear-gradient(135deg, #6366f1 0%, #818cf8 100%)", // Dark purple gradient
       position: "relative",
     },
 
@@ -510,7 +510,7 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
 
     tipCard: {
       background: isDark 
-        ? "rgba(15, 23, 42, 0.8)" 
+        ? "rgba(26, 26, 26, 0.8)" // Dark card matching dashboard
         : "rgba(255, 255, 255, 0.95)",
       backdropFilter: "blur(10px)",
       padding: "30px",
@@ -597,13 +597,13 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
     registerCard: {
       width: "100%",
       maxWidth: "380px",
-      background: isDark ? "#0f172a" : "#ffffff",
+      background: isDark ? "#1a1a1a" : "#ffffff", // Same black as dashboard
       borderRadius: "16px",
       padding: "40px 32px",
       boxShadow: isDark 
         ? "0 20px 40px rgba(0, 0, 0, 0.6)" 
         : "0 20px 40px rgba(0, 0, 0, 0.1)",
-      border: isDark ? "1px solid #1e293b" : "1px solid #e5e7eb",
+      border: isDark ? "1px solid #2d2d2d" : "1px solid #e5e7eb", // Slightly lighter border
     },
 
     header: {
@@ -640,8 +640,8 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
       padding: "14px 16px",
       fontSize: "15px",
       color: isDark ? "#ffffff" : "#111827",
-      background: isDark ? "#1e293b" : "#f9fafb",
-      border: isDark ? "1px solid #334155" : "1px solid #d1d5db",
+      background: isDark ? "#2d2d2d" : "#f9fafb", // Slightly lighter than card
+      border: isDark ? "1px solid #404040" : "1px solid #d1d5db",
       borderRadius: "8px",
       outline: "none",
       transition: "all 0.2s ease",

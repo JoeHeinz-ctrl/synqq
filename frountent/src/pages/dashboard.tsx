@@ -6,6 +6,7 @@ import BottomNav from "../components/BottomNav";
 import TaskDetailModal from "../components/TaskDetailModal";
 import SettingsDropdown from "../components/SettingsDropdown";
 import { SoftListView } from "../components/SoftListView";
+import { AIPanel } from "../components/AIPanel";
 
 const styles: any = {
   container: {
@@ -509,6 +510,7 @@ export default function Dashboard() {
     return (saved === 'list' || saved === 'board' ? saved : defaultMode) as 'board' | 'list';
   });
   const [favoriteTaskIds, setFavoriteTaskIds] = useState<Set<number>>(new Set());
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   const tasksRef = useRef(tasks);
   useEffect(() => { tasksRef.current = tasks; }, [tasks]);
@@ -685,7 +687,17 @@ export default function Dashboard() {
       ) {
         return;
       }
+      
       const key = e.key.toLowerCase();
+      
+      // AI Panel shortcut (Ctrl/Cmd + K)
+      if ((e.ctrlKey || e.metaKey) && key === "k") {
+        e.preventDefault();
+        setShowAIPanel(true);
+        return;
+      }
+      
+      // Existing shortcuts
       if (key === "n") {
         const col = selectedTaskId
           ? normalizeStatus(tasks.find((x) => x.id === selectedTaskId)?.status || "")
@@ -1501,7 +1513,7 @@ export default function Dashboard() {
           
           {/* Keyboard shortcuts */}
           <div style={styles.shortcuts(colors)} className="shortcuts-badge">
-            <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
+            <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done · <kbd>⌘K</kbd> AI
           </div>
 
           {/* Member avatars */}
@@ -1558,6 +1570,23 @@ export default function Dashboard() {
               )}
             </div>
           )}
+          
+          <button 
+            style={styles.chatBtn(colors)} 
+            className="chat-btn-animated"
+            onClick={() => setShowAIPanel(true)}
+            onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '1'; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+              <path d="M9 12l2 2 4-4"></path>
+              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+              <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"></path>
+              <path d="M12 21c0-1-1-3-3-3s-3 2-3 3 1 3 3 3 3-2 3-3"></path>
+            </svg>
+            AI Assistant
+          </button>
           
           <button 
             style={styles.chatBtn(colors)} 
@@ -1777,6 +1806,32 @@ export default function Dashboard() {
           teamMembers={teamMembers}
         />
       )}
+      
+      {/* AI Panel */}
+      <AIPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        onCreateTasks={async (aiTasks) => {
+          if (!projectId) return;
+          
+          try {
+            // Create tasks from AI suggestions
+            for (const aiTask of aiTasks) {
+              await createTask(aiTask.title, parseInt(projectId), aiTask.status || 'todo');
+            }
+            
+            // Refresh tasks
+            const updated = await fetchTasks(parseInt(projectId));
+            setTasks(updated);
+            
+            // Show success message
+            setAlertMessage(`Created ${aiTasks.length} tasks from AI suggestions!`);
+          } catch (err) {
+            console.error("Failed to create AI tasks:", err);
+            setAlertMessage("Failed to create tasks from AI suggestions");
+          }
+        }}
+      />
       
       {/* Bottom Navigation */}
       <BottomNav projectId={projectId} />

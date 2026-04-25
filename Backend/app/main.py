@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import auth_routes, project_routes, task_routes
+from app.routes import auth_routes, project_routes, task_routes, ai_routes
 from app.routes import team_routes, subscription_routes
 from app.db.database import Base, engine
 from fastapi.middleware.cors import CORSMiddleware
@@ -149,6 +149,7 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(project_routes.router)
 app.include_router(task_routes.router)
+app.include_router(ai_routes.router, prefix="/api/ai", tags=["ai"])
 app.include_router(team_routes.router)
 app.include_router(subscription_routes.router)
 

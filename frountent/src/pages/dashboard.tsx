@@ -690,12 +690,7 @@ export default function Dashboard() {
       
       const key = e.key.toLowerCase();
       
-      // AI Panel shortcut (Ctrl/Cmd + K)
-      if ((e.ctrlKey || e.metaKey) && key === "k") {
-        e.preventDefault();
-        setShowAIPanel(true);
-        return;
-      }
+      // AI Panel shortcut removed - use button instead
       
       // Existing shortcuts
       if (key === "n") {
@@ -1513,7 +1508,7 @@ export default function Dashboard() {
           
           {/* Keyboard shortcuts */}
           <div style={styles.shortcuts(colors)} className="shortcuts-badge">
-            <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done · <kbd>⌘K</kbd> AI
+            <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
           </div>
 
           {/* Member avatars */}

@@ -258,19 +258,30 @@ export function AIPanel({ isOpen, onClose, onCreateTasks }: AIPanelProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex"
-      style={{ background: 'rgba(0,0,0,0.5)' }}
-      onClick={onClose}
+      className="fixed top-0 right-0 h-full z-50"
+      style={{
+        width: window.innerWidth <= 768 ? '100vw' : '400px',
+        transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
     >
+      {/* Backdrop */}
       <div
-        className="ml-auto h-full flex flex-col"
+        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+        style={{ zIndex: -1 }}
+        onClick={onClose}
+      />
+      
+      {/* Panel */}
+      <div
+        className="h-full flex flex-col"
         style={{
-          width: '400px',
           background: colors.surface,
-          borderLeft: `1px solid ${colors.border}`,
-          animation: 'slideInRight 0.3s ease-out'
+          borderLeft: window.innerWidth <= 768 ? 'none' : `1px solid ${colors.border}`,
+          boxShadow: isDark 
+            ? '-4px 0 20px rgba(0,0,0,0.5)' 
+            : '-2px 0 15px rgba(0,0,0,0.1)',
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div
@@ -496,17 +507,6 @@ export function AIPanel({ isOpen, onClose, onCreateTasks }: AIPanelProps) {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-          }
-          to {
-            transform: translateX(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }

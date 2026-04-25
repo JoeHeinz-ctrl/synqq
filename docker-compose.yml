@@ -27,6 +27,9 @@ services:
       context: ./Backend
       dockerfile: Dockerfile
     container_name: synq-Backend
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-joe123}

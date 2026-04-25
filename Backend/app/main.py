@@ -139,10 +139,12 @@ app.add_middleware(
         "https://www.dozzl.xyz",
         "http://dozzl.xyz",
         "http://www.dozzl.xyz",
+        "https://api.dozzl.xyz",
+        "http://api.dozzl.xyz",
     ],
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"https://.*\.dozzl\.xyz|https://.*\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
+    allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
 )
@@ -163,6 +165,15 @@ async def options_handler(full_path: str):
 @app.get("/")
 def root():
     return {"message": "Backend is running 🚀 with Socket.IO v2"}
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint with CORS headers"""
+    return {
+        "status": "healthy",
+        "message": "Backend is running with CORS enabled",
+        "cors_enabled": True
+    }
 
 @app.get("/socket-test")
 def socket_test():

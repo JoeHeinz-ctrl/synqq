@@ -13,7 +13,6 @@ import os
 import psycopg2
 from urllib.parse import urlparse
 
-from app.routes import auth_routes, project_routes, task_routes, team_routes, subscription_routes
 from app.socket_handler import sio
 
 # ⭐ Create database tables
@@ -138,11 +137,14 @@ app.add_middleware(
         "https://synqq-neon.vercel.app",
         "https://dozzl.xyz",
         "https://www.dozzl.xyz",
+        "http://dozzl.xyz",
+        "http://www.dozzl.xyz",
     ],
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "Accept"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -152,6 +154,11 @@ app.include_router(task_routes.router)
 app.include_router(ai_routes.router, prefix="/api/ai", tags=["ai"])
 app.include_router(team_routes.router)
 app.include_router(subscription_routes.router)
+
+# Global OPTIONS handler for CORS preflight
+@app.options("/{full_path:path}")
+async def options_handler(full_path: str):
+    return {"message": "OK"}
 
 @app.get("/")
 def root():

@@ -30,6 +30,9 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
+    extra_hosts:
+      - "oauth2.googleapis.com:142.250.185.109"
+      - "www.googleapis.com:142.250.185.106"
     environment:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-joe123}

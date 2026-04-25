@@ -30,9 +30,12 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
+      - 1.1.1.1
+    dns_search: []
     extra_hosts:
       - "oauth2.googleapis.com:142.250.185.109"
       - "www.googleapis.com:142.250.185.106"
+      - "accounts.google.com:142.250.185.109"
     environment:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-joe123}
@@ -78,3 +81,8 @@ volumes:
 networks:
   synq-network:
     driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: synq-br0
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

@@ -33,7 +33,7 @@ services:
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-synq}
-      FRONTEND_URL: http://localhost:5173
+      FRONTEND_URL: https://dozzl.xyz
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       SECRET_KEY: ${SECRET_KEY:-secret}
@@ -55,7 +55,7 @@ services:
       dockerfile: Dockerfile
     container_name: synq-frountent
     environment:
-      VITE_API_URL: http://localhost:8000
+      VITE_API_URL: https://api.dozzl.xyz
     ports:
       - "5173:5173"
     depends_on:

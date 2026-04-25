@@ -6,7 +6,7 @@ import BottomNav from "../components/BottomNav";
 import TaskDetailModal from "../components/TaskDetailModal";
 import SettingsDropdown from "../components/SettingsDropdown";
 import { SoftListView } from "../components/SoftListView";
-import { AIPanel } from "../components/AIPanel";
+import { AISidePanel } from "../components/AISidePanel";
 
 const styles: any = {
   container: {
@@ -690,7 +690,7 @@ export default function Dashboard() {
       
       const key = e.key.toLowerCase();
       
-      // AI Panel shortcut removed - use button instead
+      // No AI keyboard shortcuts - use toggle button instead
       
       // Existing shortcuts
       if (key === "n") {
@@ -1374,9 +1374,6 @@ export default function Dashboard() {
             gap: 8px !important;
             align-items: center !important;
           }
-          .shortcuts-badge {
-            display: none !important;
-          }
           .board-grid { 
             grid-template-columns: 1fr !important; 
             gap: 10px !important;
@@ -1393,6 +1390,12 @@ export default function Dashboard() {
           .view-toggle-container {
             justify-content: center !important;
             width: 100% !important;
+          }
+          
+          /* AI panel full screen on mobile */
+          .ai-panel-mobile {
+            width: 100vw !important;
+            left: 0 !important;
           }
         }
       `}</style>
@@ -1433,7 +1436,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Right Section - Shortcuts + Avatars + Actions */}
+        {/* Right Section - Clean and minimal */}
         <div style={styles.headerRight} className="header-right">
           {/* View Mode Toggle */}
           <div className="view-toggle-container" style={{ 
@@ -1505,11 +1508,6 @@ export default function Dashboard() {
               List
             </button>
           </div>
-          
-          {/* Keyboard shortcuts */}
-          <div style={styles.shortcuts(colors)} className="shortcuts-badge">
-            <kbd>N</kbd> new · <kbd>E</kbd> edit · <kbd>D</kbd> done
-          </div>
 
           {/* Member avatars */}
           {teamMembers.length > 0 && (
@@ -1566,42 +1564,18 @@ export default function Dashboard() {
             </div>
           )}
           
-          <button 
-            style={styles.chatBtn(colors)} 
-            className="chat-btn-animated"
-            onClick={() => setShowAIPanel(true)}
-            onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '0.8'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '1'; }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-              <path d="M9 12l2 2 4-4"></path>
-              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
-              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
-              <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"></path>
-              <path d="M12 21c0-1-1-3-3-3s-3 2-3 3 1 3 3 3 3-2 3-3"></path>
-            </svg>
-            AI Assistant
-          </button>
-          
-          <button 
-            style={styles.chatBtn(colors)} 
-            className="chat-btn-animated"
-            onClick={() => projectId && navigate(`/chat/${projectId}`)}
-            onMouseEnter={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '0.8'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = colors.primaryLight; e.currentTarget.style.opacity = '1'; }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            Chat
-          </button>
-          
           <SettingsDropdown />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div style={styles.mainContent}>
+      {/* Main Content - Adjusted for AI panel */}
+      <div 
+        style={{
+          ...styles.mainContent,
+          marginRight: showAIPanel ? '320px' : '0',
+          transition: 'margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
         {viewMode === 'board' && (
           <div style={styles.board} className="board-grid">
             {(["todo", "doing", "done"] as const).map((col) => {
@@ -1802,30 +1776,10 @@ export default function Dashboard() {
         />
       )}
       
-      {/* AI Panel */}
-      <AIPanel
+      {/* AI Side Panel */}
+      <AISidePanel
         isOpen={showAIPanel}
-        onClose={() => setShowAIPanel(false)}
-        onCreateTasks={async (aiTasks) => {
-          if (!projectId) return;
-          
-          try {
-            // Create tasks from AI suggestions
-            for (const aiTask of aiTasks) {
-              await createTask(aiTask.title, parseInt(projectId), aiTask.status || 'todo');
-            }
-            
-            // Refresh tasks
-            const updated = await fetchTasks(parseInt(projectId));
-            setTasks(updated);
-            
-            // Show success message
-            setAlertMessage(`Created ${aiTasks.length} tasks from AI suggestions!`);
-          } catch (err) {
-            console.error("Failed to create AI tasks:", err);
-            setAlertMessage("Failed to create tasks from AI suggestions");
-          }
-        }}
+        onToggle={() => setShowAIPanel(!showAIPanel)}
       />
       
       {/* Bottom Navigation */}

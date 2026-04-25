@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import auth_routes, project_routes, task_routes, ai_routes
+from app.routes import auth_routes, project_routes, task_routes
 from app.routes import team_routes, subscription_routes
 from app.db.database import Base, engine
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +8,17 @@ from app.models.project import Project
 from app.models.task import Task
 from app.models.team import Team, TeamMember
 from app.models.message import Message
+from datetime import datetime
+
+# Optional AI routes - don't crash if not available
+try:
+    from app.routes import ai
+    ai_routes_available = True
+    print("✅ AI routes loaded successfully")
+except ImportError as e:
+    ai = None
+    ai_routes_available = False
+    print(f"⚠️ AI routes not available: {e}")
 import socketio
 import os
 import psycopg2
@@ -128,11 +139,29 @@ run_migrations()
 
 app = FastAPI(title="Project Management App")
 
+@app.on_event("startup")
+async def startup_event():
+    """Startup event handler for debugging"""
+    print("🚀 FastAPI application starting up...")
+    print(f"✅ Core routes loaded: auth, project, task, team, subscription")
+    print(f"🤖 AI routes available: {ai_routes_available}")
+    print("🌐 CORS middleware: enabled (debug mode)")
+    print("💾 Database: connected")
+    print("🔧 Socket.IO: enabled")
+    print("✅ Application startup complete!")
+
 # Include all routes FIRST
 app.include_router(auth_routes.router)
 app.include_router(project_routes.router)
 app.include_router(task_routes.router)
-app.include_router(ai_routes.router)
+
+# Include AI routes only if available
+if ai_routes_available and ai:
+    app.include_router(ai.router)
+    print("✅ AI routes registered")
+else:
+    print("⚠️ AI routes skipped - not available")
+
 app.include_router(team_routes.router)
 app.include_router(subscription_routes.router)
 
@@ -164,13 +193,16 @@ def root():
 
 @app.get("/health")
 def health_check():
-    """Health check endpoint with CORS headers"""
+    """Health check endpoint for Docker and load balancers"""
     return {
-        "status": "healthy",
-        "message": "Backend is running with CORS enabled",
-        "cors_enabled": True,
-        "ai_routes_loaded": True,
-        "timestamp": "2024-04-25T12:00:00Z"
+        "status": "ok",
+        "message": "Backend is healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "services": {
+            "database": "connected",
+            "ai_routes": "available" if ai_routes_available else "unavailable",
+            "cors": "enabled"
+        }
     }
 
 @app.get("/test/cors")

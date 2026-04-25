@@ -11,7 +11,15 @@ from app.db.session import get_db
 from app.routes.auth_routes import get_current_user
 
 router = APIRouter(prefix="/api/ai", tags=["AI"])
-ai_engine = AIEngine()
+
+# Initialize AI engine with error handling
+try:
+    ai_engine = AIEngine()
+    ai_engine_available = True
+except Exception as e:
+    ai_engine = None
+    ai_engine_available = False
+    print(f"⚠️ AI Engine not available: {e}")
 
 class ChatRequest(BaseModel):
     message: str
@@ -29,6 +37,9 @@ async def ai_chat(
     db: Session = Depends(get_db)
 ):
     try:
+        if not ai_engine_available or not ai_engine:
+            raise HTTPException(status_code=503, detail="AI service not available")
+            
         if not request.message.strip():
             raise HTTPException(status_code=400, detail="Message cannot be empty")
         
@@ -67,6 +78,9 @@ async def get_suggestions(
 ):
     """Get contextual suggestions based on user's current tasks"""
     try:
+        if not ai_engine_available or not ai_engine:
+            raise HTTPException(status_code=503, detail="AI service not available")
+            
         # Fetch user's tasks
         user_tasks = db.query(Task).filter(Task.assigned_tosss == current_user.id).all()
         
@@ -91,3 +105,12 @@ async def get_suggestions(
     except Exception as e:
         print(f"AI Suggestions Error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/status")
+async def ai_status():
+    """Check AI service status"""
+    return {
+        "ai_engine_available": ai_engine_available,
+        "status": "available" if ai_engine_available else "unavailable",
+        "timestamp": datetime.utcnow().isoformat()
+    }

@@ -184,14 +184,13 @@ app.include_router(team_routes.router)
 app.include_router(subscription_routes.router)
 
 # Add CORS middleware AFTER routes
-# Production CORS configuration
+# Production CORS configuration for dozzl.xyz
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://dozzl.xyz",
-        "https://www.dozzl.xyz", 
-        "https://*.vercel.app",
-        "http://localhost:5173",
+        "https://www.dozzl.xyz",
+        "http://localhost:5173",  # Keep for local development
         "http://localhost:3000"
     ],
     allow_credentials=True,
@@ -252,11 +251,10 @@ def test_cors_post():
 def debug_cors():
     """Debug endpoint to check CORS configuration"""
     return {
-        "cors_status": "PRODUCTION MODE - SPECIFIC ORIGINS ALLOWED",
+        "cors_status": "PRODUCTION MODE - DOZZL.XYZ CONFIGURED",
         "allowed_origins": [
             "https://dozzl.xyz",
-            "https://www.dozzl.xyz", 
-            "https://*.vercel.app",
+            "https://www.dozzl.xyz",
             "http://localhost:5173",
             "http://localhost:3000"
         ],
@@ -264,7 +262,8 @@ def debug_cors():
         "allowed_headers": ["*"],
         "credentials_allowed": True,
         "preflight_handler": "enabled",
-        "note": "Production CORS configuration active"
+        "backend_url": "https://api.dozzl.xyz",
+        "frontend_url": "https://dozzl.xyz"
     }
 
 @app.get("/socket-test")

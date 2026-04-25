@@ -9,12 +9,7 @@ interface Message {
   timestamp: Date;
 }
 
-interface AISidePanelProps {
-  isOpen: boolean;
-  onToggle: () => void;
-}
-
-export function AISidePanel({ isOpen, onToggle }: AISidePanelProps) {
+export function AISidePanel({ isOpen }: { isOpen: boolean }) {
   const { mode, getThemeColors } = useTheme();
   const colors = getThemeColors();
   const isDark = mode === 'dark';
@@ -55,27 +50,76 @@ export function AISidePanel({ isOpen, onToggle }: AISidePanelProps) {
     setIsLoading(true);
 
     try {
-      // Mock response for now - replace with actual API call
-      setTimeout(() => {
+      // Try to connect to actual backend API
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "https://api.dozzl.xyz"}/api/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ message })
+      });
+
+      if (response.ok) {
+        const aiResponse = await response.json();
+        
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
           type: 'ai',
-          content: "I understand you want help with that. Let me analyze your tasks and provide suggestions.",
+          content: formatAIResponse(aiResponse),
+          data: aiResponse,
           timestamp: new Date()
         };
+
         setMessages(prev => [...prev, aiMessage]);
-        setIsLoading(false);
-      }, 1000);
+      } else {
+        throw new Error('Backend API not available');
+      }
     } catch (error) {
       console.error('AI Chat Error:', error);
+      
+      // Fallback to mock responses when backend is not available
+      const mockResponses = {
+        'plan my day': "Based on your current tasks, I recommend starting with the most urgent items first. Focus on completing 2-3 key tasks today.",
+        'break down tasks': "I can help you break down complex tasks into smaller, manageable steps. Which task would you like me to analyze?",
+        'prioritize tasks': "Let me analyze your tasks by deadline and importance. I'll rank them in order of priority for you.",
+        'default': "I understand you need help with that. While I'm working on connecting to the full AI system, I can still provide basic guidance on task management."
+      };
+      
+      const lowerMessage = message.toLowerCase();
+      let response = mockResponses.default;
+      
+      for (const [key, value] of Object.entries(mockResponses)) {
+        if (lowerMessage.includes(key.replace(' ', ''))) {
+          response = value;
+          break;
+        }
+      }
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: "Sorry, I'm having trouble right now. Please try again in a moment.",
+        content: response,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
+    }
+  };
+
+  const formatAIResponse = (response: any): string => {
+    switch (response.type) {
+      case 'plan':
+        return `Here's your day plan:\n\n${response.data.summary}`;
+      case 'tasks':
+        return `I've broken down "${response.data.title}" into ${response.data.subtasks.length} manageable steps.`;
+      case 'priority':
+        return `I've analyzed your tasks and ranked them by priority. Focus on the top items first!`;
+      case 'chat':
+        return response.data.message;
+      default:
+        return response.data?.message || "I'm here to help with your productivity!";
     }
   };
 
@@ -85,59 +129,17 @@ export function AISidePanel({ isOpen, onToggle }: AISidePanelProps) {
 
   return (
     <>
-      {/* Toggle Button - Always visible */}
-      <button
-        onClick={onToggle}
-        className="fixed top-1/2 right-0 z-40 transform -translate-y-1/2"
-        style={{
-          background: colors.primary,
-          color: '#fff',
-          border: 'none',
-          borderRadius: '8px 0 0 8px',
-          padding: '12px 8px',
-          cursor: 'pointer',
-          boxShadow: isDark 
-            ? '-2px 0 10px rgba(0,0,0,0.3)' 
-            : '-2px 0 10px rgba(0,0,0,0.1)',
-          transition: 'all 0.2s ease',
-          transform: isOpen 
-            ? 'translateY(-50%) translateX(-320px)' 
-            : 'translateY(-50%) translateX(0)',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = colors.primaryHover;
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = colors.primary;
-        }}
-      >
-        <svg 
-          width="16" 
-          height="16" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2"
-          style={{
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease'
-          }}
-        >
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
-      </button>
-
-      {/* AI Panel */}
+      {/* AI Panel - Fixed positioning */}
       <div
-        className="fixed top-0 right-0 h-full z-30"
+        className={`fixed top-0 right-0 h-full z-30 ${window.innerWidth <= 768 ? 'ai-panel-mobile' : ''}`}
         style={{
-          width: '320px',
+          width: window.innerWidth <= 768 ? '100vw' : '350px',
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           background: colors.surface,
-          borderLeft: `1px solid ${colors.border}`,
+          borderLeft: window.innerWidth <= 768 ? 'none' : `1px solid ${colors.border}`,
           boxShadow: isDark 
-            ? '-4px 0 20px rgba(0,0,0,0.3)' 
+            ? '-4px 0 20px rgba(0,0,0,0.4)' 
             : '-2px 0 15px rgba(0,0,0,0.1)',
         }}
       >
@@ -361,14 +363,6 @@ export function AISidePanel({ isOpen, onToggle }: AISidePanelProps) {
           </div>
         </div>
       </div>
-
-      {/* Mobile Backdrop */}
-      {isOpen && window.innerWidth <= 768 && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
-          onClick={onToggle}
-        />
-      )}
     </>
   );
 }

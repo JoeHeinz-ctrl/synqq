@@ -1509,6 +1509,42 @@ export default function Dashboard() {
             </button>
           </div>
 
+          {/* AI Toggle Button */}
+          <button
+            onClick={() => setShowAIPanel(!showAIPanel)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: `1px solid ${colors.border}`,
+              background: showAIPanel ? colors.primary : colors.surface,
+              color: showAIPanel ? '#fff' : colors.text,
+              fontSize: '12px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            onMouseEnter={(e) => {
+              if (!showAIPanel) {
+                e.currentTarget.style.background = colors.surfaceHover;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!showAIPanel) {
+                e.currentTarget.style.background = colors.surface;
+              }
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 12l2 2 4-4"></path>
+              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+            </svg>
+            AI
+          </button>
+
           {/* Member avatars */}
           {teamMembers.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
@@ -1572,7 +1608,7 @@ export default function Dashboard() {
       <div 
         style={{
           ...styles.mainContent,
-          marginRight: showAIPanel ? '320px' : '0',
+          marginRight: showAIPanel ? '350px' : '0',
           transition: 'margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
@@ -1779,7 +1815,6 @@ export default function Dashboard() {
       {/* AI Side Panel */}
       <AISidePanel
         isOpen={showAIPanel}
-        onToggle={() => setShowAIPanel(!showAIPanel)}
       />
       
       {/* Bottom Navigation */}

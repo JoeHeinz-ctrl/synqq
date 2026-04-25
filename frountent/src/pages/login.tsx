@@ -638,6 +638,7 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
       justifyContent: "center",
       padding: "20px",
       minWidth: "400px",
+      minHeight: "100vh",
     },
 
     loginCard: {

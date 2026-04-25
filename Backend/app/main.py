@@ -190,8 +190,10 @@ app.add_middleware(
     allow_origins=[
         "https://dozzl.xyz",
         "https://www.dozzl.xyz",
-        "http://localhost:5173",  # Keep for local development
-        "http://localhost:3000",
+        "http://localhost:5173",  # Vite dev server
+        "http://localhost:3000",  # Alternative dev server
+        "http://127.0.0.1:5173",  # Alternative localhost
+        "http://127.0.0.1:3000",  # Alternative localhost
         "https://accounts.google.com",  # Allow Google OAuth
         "https://oauth2.googleapis.com"  # Allow Google OAuth API
     ],

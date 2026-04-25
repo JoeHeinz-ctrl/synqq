@@ -634,9 +634,9 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
     rightSide: {
       flex: 1,
       display: "flex",
-      alignItems: "flex-start",
+      alignItems: "center",
       justifyContent: "center",
-      padding: "40px 20px 20px 20px",
+      padding: "20px",
       minWidth: "400px",
     },
 

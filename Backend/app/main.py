@@ -128,28 +128,7 @@ run_migrations()
 
 app = FastAPI(title="Project Management App")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://synqq.vercel.app",
-        "https://synqq-neon.vercel.app",
-        "https://dozzl.xyz",
-        "https://www.dozzl.xyz",
-        "http://dozzl.xyz",
-        "http://www.dozzl.xyz",
-        "https://api.dozzl.xyz",
-        "http://api.dozzl.xyz",
-    ],
-    allow_origin_regex=r"https://.*\.dozzl\.xyz|https://.*\.vercel\.app",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-)
-
-
+# Include all routes FIRST
 app.include_router(auth_routes.router)
 app.include_router(project_routes.router)
 app.include_router(task_routes.router)
@@ -157,10 +136,27 @@ app.include_router(ai_routes.router)
 app.include_router(team_routes.router)
 app.include_router(subscription_routes.router)
 
+# Add CORS middleware AFTER routes
+# TEMPORARY DEBUG MODE - Remove after testing
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for debugging
+    allow_credentials=False,  # Must be False when using "*"
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
+
 # Global OPTIONS handler for CORS preflight
 @app.options("/{full_path:path}")
 async def options_handler(full_path: str):
-    return {"message": "OK"}
+    """Handle all OPTIONS requests for CORS preflight"""
+    return {
+        "message": "CORS preflight OK",
+        "path": full_path,
+        "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        "headers": "all"
+    }
 
 @app.get("/")
 def root():
@@ -173,21 +169,40 @@ def health_check():
         "status": "healthy",
         "message": "Backend is running with CORS enabled",
         "cors_enabled": True,
-        "ai_routes_loaded": True
+        "ai_routes_loaded": True,
+        "timestamp": "2024-04-25T12:00:00Z"
+    }
+
+@app.get("/test/cors")
+def test_cors():
+    """Test endpoint specifically for CORS validation"""
+    return {
+        "cors_test": "success",
+        "message": "If you can see this from the frontend, CORS is working!",
+        "timestamp": "2024-04-25T12:00:00Z",
+        "origin_allowed": True
+    }
+
+@app.post("/test/cors")
+def test_cors_post():
+    """Test POST endpoint for CORS validation"""
+    return {
+        "cors_post_test": "success",
+        "message": "POST request successful - CORS is working for all methods!",
+        "timestamp": "2024-04-25T12:00:00Z"
     }
 
 @app.get("/debug/cors")
 def debug_cors():
     """Debug endpoint to check CORS configuration"""
     return {
-        "cors_origins": [
-            "https://www.dozzl.xyz",
-            "https://dozzl.xyz", 
-            "https://api.dozzl.xyz"
-        ],
-        "methods_allowed": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
-        "headers_allowed": "all",
-        "credentials_allowed": True
+        "cors_status": "DEBUG MODE - ALL ORIGINS ALLOWED",
+        "allowed_origins": ["*"],
+        "allowed_methods": ["*"],
+        "allowed_headers": ["*"],
+        "credentials_allowed": False,
+        "preflight_handler": "enabled",
+        "note": "This is temporary debug mode - will be restricted in production"
     }
 
 @app.get("/socket-test")

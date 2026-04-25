@@ -83,7 +83,10 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
         'plan my day': "Based on your current tasks, I recommend starting with the most urgent items first. Focus on completing 2-3 key tasks today.",
         'break down tasks': "I can help you break down complex tasks into smaller, manageable steps. Which task would you like me to analyze?",
         'prioritize tasks': "I've analyzed your tasks and ranked them by priority. Focus on the top items first!",
-        'default': "I understand you need help with that. While I'm working on connecting to the full AI system, I can still provide basic guidance on task management."
+        'what': "I can answer questions on various topics. What would you like to know about?",
+        'how': "I can explain how things work or provide step-by-step guidance. What do you need help with?",
+        'explain': "I'd be happy to explain that topic for you. Could you be more specific about what you'd like to understand?",
+        'default': "I can help with task management, answer general questions, provide explanations, and offer advice. What would you like to know?"
       };
       
       const lowerMessage = message.toLowerCase();
@@ -145,6 +148,7 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
         zIndex: 30,
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden', // Prevent content from overflowing
       }}
     >
       {/* Header */}
@@ -156,6 +160,7 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
           padding: '16px 20px',
           borderBottom: `1px solid ${colors.border}`,
           flexShrink: 0,
+          minHeight: '80px', // Ensure header has minimum height
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -181,14 +186,20 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
               AI Assistant
             </h3>
             <p style={{ fontSize: '12px', color: colors.textSecondary, margin: 0 }}>
-              Productivity companion
+              Ask me anything!
             </p>
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${colors.border}`, flexShrink: 0 }}>
+      <div style={{ 
+        padding: '16px 20px', 
+        borderBottom: `1px solid ${colors.border}`, 
+        flexShrink: 0,
+        maxHeight: '200px', // Limit quick actions height
+        overflowY: 'auto'
+      }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button
             onClick={() => handleQuickAction('Plan my day')}
@@ -217,7 +228,13 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
               e.currentTarget.style.color = colors.text;
             }}
           >
-            📅 Plan my day
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Plan my day
           </button>
           <button
             onClick={() => handleQuickAction('Break down tasks')}
@@ -246,7 +263,12 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
               e.currentTarget.style.color = colors.text;
             }}
           >
-            🔨 Break down tasks
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 12l2 2 4-4"></path>
+              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+            </svg>
+            Break down tasks
           </button>
           <button
             onClick={() => handleQuickAction('Prioritize tasks')}
@@ -275,13 +297,24 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
               e.currentTarget.style.color = colors.text;
             }}
           >
-            ⚡ Prioritize tasks
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Prioritize tasks
           </button>
         </div>
       </div>
 
-      {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Messages - This should take up remaining space */}
+      <div style={{ 
+        flex: 1, 
+        overflowY: 'auto', 
+        padding: '16px 20px', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '16px',
+        minHeight: 0 // Important for flex child to shrink
+      }}>
         {messages.map((message) => (
           <div
             key={message.id}
@@ -375,8 +408,13 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div style={{ padding: '16px 20px', borderTop: `1px solid ${colors.border}`, flexShrink: 0 }}>
+      {/* Input - Fixed at bottom */}
+      <div style={{ 
+        padding: '16px 20px', 
+        borderTop: `1px solid ${colors.border}`, 
+        flexShrink: 0,
+        minHeight: '80px' // Ensure input area has minimum height
+      }}>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input
             ref={inputRef}

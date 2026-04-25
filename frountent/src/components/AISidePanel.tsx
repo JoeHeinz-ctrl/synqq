@@ -82,7 +82,7 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
       const mockResponses = {
         'plan my day': "Based on your current tasks, I recommend starting with the most urgent items first. Focus on completing 2-3 key tasks today.",
         'break down tasks': "I can help you break down complex tasks into smaller, manageable steps. Which task would you like me to analyze?",
-        'prioritize tasks': "Let me analyze your tasks by deadline and importance. I'll rank them in order of priority for you.",
+        'prioritize tasks': "I've analyzed your tasks and ranked them by priority. Focus on the top items first!",
         'default': "I understand you need help with that. While I'm working on connecting to the full AI system, I can still provide basic guidance on task management."
       };
       
@@ -127,242 +127,329 @@ export function AISidePanel({ isOpen }: { isOpen: boolean }) {
     sendMessage(action);
   };
 
+  if (!isOpen) return null;
+
   return (
-    <>
-      {/* AI Panel - Fixed positioning */}
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        width: '400px',
+        height: '100vh',
+        background: colors.surface,
+        borderLeft: `1px solid ${colors.border}`,
+        boxShadow: isDark 
+          ? '-4px 0 20px rgba(0,0,0,0.4)' 
+          : '-2px 0 15px rgba(0,0,0,0.1)',
+        zIndex: 30,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Header */}
       <div
-        className={`fixed top-0 right-0 h-full z-30 ${window.innerWidth <= 768 ? 'ai-panel-mobile' : ''}`}
         style={{
-          width: window.innerWidth <= 768 ? '100vw' : '350px',
-          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          background: colors.surface,
-          borderLeft: window.innerWidth <= 768 ? 'none' : `1px solid ${colors.border}`,
-          boxShadow: isDark 
-            ? '-4px 0 20px rgba(0,0,0,0.4)' 
-            : '-2px 0 15px rgba(0,0,0,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px 20px',
+          borderBottom: `1px solid ${colors.border}`,
+          flexShrink: 0,
         }}
       >
-        {/* Header */}
-        <div
-          className="flex items-center justify-between p-4 border-b"
-          style={{ borderColor: colors.border }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: colors.primary }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-                <path d="M9 12l2 2 4-4"></path>
-                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
-                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-sm" style={{ color: colors.text }}>
-                AI Assistant
-              </h3>
-              <p className="text-xs" style={{ color: colors.textSecondary }}>
-                Productivity companion
-              </p>
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              background: colors.primary,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+              <path d="M9 12l2 2 4-4"></path>
+              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+            </svg>
           </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="p-4 border-b" style={{ borderColor: colors.border }}>
-          <div className="space-y-2">
-            <button
-              onClick={() => handleQuickAction('Plan my day')}
-              className="w-full p-3 rounded-lg text-left text-sm font-medium transition-all"
-              style={{
-                background: colors.surfaceHover,
-                color: colors.text,
-                border: `1px solid ${colors.border}`,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = colors.primary;
-                e.currentTarget.style.color = '#fff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = colors.surfaceHover;
-                e.currentTarget.style.color = colors.text;
-              }}
-            >
-              📅 Plan my day
-            </button>
-            <button
-              onClick={() => handleQuickAction('Break down tasks')}
-              className="w-full p-3 rounded-lg text-left text-sm font-medium transition-all"
-              style={{
-                background: colors.surfaceHover,
-                color: colors.text,
-                border: `1px solid ${colors.border}`,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = colors.primary;
-                e.currentTarget.style.color = '#fff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = colors.surfaceHover;
-                e.currentTarget.style.color = colors.text;
-              }}
-            >
-              🔨 Break down tasks
-            </button>
-            <button
-              onClick={() => handleQuickAction('Prioritize tasks')}
-              className="w-full p-3 rounded-lg text-left text-sm font-medium transition-all"
-              style={{
-                background: colors.surfaceHover,
-                color: colors.text,
-                border: `1px solid ${colors.border}`,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = colors.primary;
-                e.currentTarget.style.color = '#fff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = colors.surfaceHover;
-                e.currentTarget.style.color = colors.text;
-              }}
-            >
-              ⚡ Prioritize tasks
-            </button>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[85%] p-3 rounded-lg text-sm ${
-                  message.type === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm'
-                }`}
-                style={{
-                  background: message.type === 'user' 
-                    ? colors.primary 
-                    : colors.surfaceHover,
-                  color: message.type === 'user' ? '#fff' : colors.text,
-                }}
-              >
-                {message.content}
-                <div
-                  className="text-xs mt-2 opacity-70"
-                >
-                  {message.timestamp.toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
-                </div>
-              </div>
-            </div>
-          ))}
-          
-          {isLoading && (
-            <div className="flex justify-start">
-              <div
-                className="p-3 rounded-lg rounded-bl-sm"
-                style={{
-                  background: colors.surfaceHover,
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="flex space-x-1">
-                    <div
-                      className="w-2 h-2 rounded-full animate-bounce"
-                      style={{ 
-                        background: colors.primary,
-                        animationDelay: '0ms'
-                      }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 rounded-full animate-bounce"
-                      style={{ 
-                        background: colors.primary,
-                        animationDelay: '150ms'
-                      }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 rounded-full animate-bounce"
-                      style={{ 
-                        background: colors.primary,
-                        animationDelay: '300ms'
-                      }}
-                    ></div>
-                  </div>
-                  <span className="text-sm" style={{ color: colors.textSecondary }}>
-                    Thinking...
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        <div className="p-4 border-t" style={{ borderColor: colors.border }}>
-          <div className="flex gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage(inputValue);
-                }
-              }}
-              placeholder="Ask me anything..."
-              className="flex-1 p-3 rounded-lg border outline-none transition-all text-sm"
-              style={{
-                background: colors.input,
-                border: `1px solid ${colors.border}`,
-                color: colors.text
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = colors.primary;
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = colors.border;
-              }}
-              disabled={isLoading}
-            />
-            <button
-              onClick={() => sendMessage(inputValue)}
-              disabled={!inputValue.trim() || isLoading}
-              className="p-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: colors.primary,
-                color: '#fff'
-              }}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.background = colors.primaryHover;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.background = colors.primary;
-                }
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            </button>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, margin: 0 }}>
+              AI Assistant
+            </h3>
+            <p style={{ fontSize: '12px', color: colors.textSecondary, margin: 0 }}>
+              Productivity companion
+            </p>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Quick Actions */}
+      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${colors.border}`, flexShrink: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <button
+            onClick={() => handleQuickAction('Plan my day')}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              textAlign: 'left',
+              fontSize: '14px',
+              fontWeight: '500',
+              background: colors.surfaceHover,
+              color: colors.text,
+              border: `1px solid ${colors.border}`,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = colors.primary;
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = colors.surfaceHover;
+              e.currentTarget.style.color = colors.text;
+            }}
+          >
+            📅 Plan my day
+          </button>
+          <button
+            onClick={() => handleQuickAction('Break down tasks')}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              textAlign: 'left',
+              fontSize: '14px',
+              fontWeight: '500',
+              background: colors.surfaceHover,
+              color: colors.text,
+              border: `1px solid ${colors.border}`,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = colors.primary;
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = colors.surfaceHover;
+              e.currentTarget.style.color = colors.text;
+            }}
+          >
+            🔨 Break down tasks
+          </button>
+          <button
+            onClick={() => handleQuickAction('Prioritize tasks')}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              textAlign: 'left',
+              fontSize: '14px',
+              fontWeight: '500',
+              background: colors.surfaceHover,
+              color: colors.text,
+              border: `1px solid ${colors.border}`,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = colors.primary;
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = colors.surfaceHover;
+              e.currentTarget.style.color = colors.text;
+            }}
+          >
+            ⚡ Prioritize tasks
+          </button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            style={{
+              display: 'flex',
+              justifyContent: message.type === 'user' ? 'flex-end' : 'flex-start',
+            }}
+          >
+            <div
+              style={{
+                maxWidth: '85%',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                lineHeight: '1.5',
+                background: message.type === 'user' 
+                  ? colors.primary 
+                  : colors.surfaceHover,
+                color: message.type === 'user' ? '#fff' : colors.text,
+                wordWrap: 'break-word',
+              }}
+            >
+              {message.content}
+              <div
+                style={{
+                  fontSize: '11px',
+                  marginTop: '8px',
+                  opacity: 0.7,
+                  color: message.type === 'user' ? '#fff' : colors.textSecondary,
+                }}
+              >
+                {message.timestamp.toLocaleTimeString([], { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {isLoading && (
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div
+              style={{
+                padding: '12px 16px',
+                borderRadius: '12px',
+                background: colors.surfaceHover,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <div
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: colors.primary,
+                      animation: 'bounce 1.4s ease-in-out infinite both',
+                      animationDelay: '0ms'
+                    }}
+                  ></div>
+                  <div
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: colors.primary,
+                      animation: 'bounce 1.4s ease-in-out infinite both',
+                      animationDelay: '160ms'
+                    }}
+                  ></div>
+                  <div
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: colors.primary,
+                      animation: 'bounce 1.4s ease-in-out infinite both',
+                      animationDelay: '320ms'
+                    }}
+                  ></div>
+                </div>
+                <span style={{ fontSize: '14px', color: colors.textSecondary }}>
+                  Thinking...
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div style={{ padding: '16px 20px', borderTop: `1px solid ${colors.border}`, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(inputValue);
+              }
+            }}
+            placeholder="Ask me anything..."
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: `1px solid ${colors.border}`,
+              outline: 'none',
+              transition: 'all 0.2s ease',
+              fontSize: '14px',
+              background: colors.input,
+              color: colors.text,
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = colors.primary;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = colors.border;
+            }}
+            disabled={isLoading}
+          />
+          <button
+            onClick={() => sendMessage(inputValue)}
+            disabled={!inputValue.trim() || isLoading}
+            style={{
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: colors.primary,
+              color: '#fff',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              opacity: (!inputValue.trim() || isLoading) ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.background = colors.primaryHover;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.background = colors.primary;
+              }
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 80%, 100% {
+            transform: scale(0);
+          } 40% {
+            transform: scale(1);
+          }
+        }
+      `}</style>
+    </div>
   );
 }

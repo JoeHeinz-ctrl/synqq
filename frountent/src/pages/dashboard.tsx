@@ -1608,7 +1608,7 @@ export default function Dashboard() {
       <div 
         style={{
           ...styles.mainContent,
-          marginRight: showAIPanel ? '350px' : '0',
+          marginRight: showAIPanel ? '400px' : '0',
           transition: 'margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >

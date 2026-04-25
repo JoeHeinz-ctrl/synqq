@@ -24,12 +24,25 @@ import os
 import psycopg2
 from urllib.parse import urlparse
 
-from app.socket_handler import sio
+# Optional Socket.IO - don't crash if not available
+try:
+    from app.socket_handler import sio
+    socket_available = True
+    print("✅ Socket.IO loaded successfully")
+except ImportError as e:
+    sio = None
+    socket_available = False
+    print(f"⚠️ Socket.IO not available: {e}")
 
-# ⭐ Create database tables
-Base.metadata.create_all(bind=engine)
+# ⭐ Create database tables (optional - don't crash on failure)
+try:
+    Base.metadata.create_all(bind=engine)
+    print("✅ Database tables created successfully")
+except Exception as e:
+    print(f"⚠️ Database table creation failed: {e}")
+    print("ℹ️ Application will continue without database setup")
 
-# ⭐ Run migrations to add missing columns
+# ⭐ Run migrations to add missing columns (optional)
 def run_migrations():
     """Ensure all required columns exist in the database"""
     try:
@@ -134,8 +147,12 @@ def run_migrations():
     except Exception as e:
         print(f"⚠️  Migration warning: {e}")
 
-# Run migrations on startup
-run_migrations()
+# Run migrations on startup (optional)
+try:
+    run_migrations()
+except Exception as e:
+    print(f"⚠️ Migration failed: {e}")
+    print("ℹ️ Application will continue without migrations")
 
 app = FastAPI(title="Project Management App")
 
@@ -147,7 +164,7 @@ async def startup_event():
     print(f"🤖 AI routes available: {ai_routes_available}")
     print("🌐 CORS middleware: enabled (production mode)")
     print("💾 Database: connected")
-    print("🔧 Socket.IO: enabled")
+    print(f"🔧 Socket.IO: {'enabled' if socket_available else 'disabled'}")
     print("🏥 Health check: /health endpoint active")
     print("✅ Application startup complete!")
 
@@ -253,14 +270,40 @@ def debug_cors():
 @app.get("/socket-test")
 def socket_test():
     """Test endpoint to verify socket.io is configured"""
-    return {
-        "socket_configured": True,
-        "active_users": len(active_users),
-        "project_rooms": {k: len(v) for k, v in project_rooms.items()}
-    }
+    if not socket_available:
+        return {
+            "socket_configured": False,
+            "message": "Socket.IO not available",
+            "active_users": 0,
+            "project_rooms": {}
+        }
+    
+    try:
+        from app.socket_handler import active_users, project_rooms
+        return {
+            "socket_configured": True,
+            "active_users": len(active_users),
+            "project_rooms": {k: len(v) for k, v in project_rooms.items()}
+        }
+    except Exception as e:
+        return {
+            "socket_configured": False,
+            "error": str(e),
+            "active_users": 0,
+            "project_rooms": {}
+        }
 
-# Import the dictionaries from socket_handler
-from app.socket_handler import active_users, project_rooms
+# Optional socket handler imports
+try:
+    from app.socket_handler import active_users, project_rooms
+except ImportError:
+    active_users = {}
+    project_rooms = {}
 
-# Wrap FastAPI app with Socket.IO - MUST be at the end
-socket_app = socketio.ASGIApp(sio, app)
+# Wrap FastAPI app with Socket.IO - MUST be at the end (optional)
+if socket_available and sio:
+    socket_app = socketio.ASGIApp(sio, app)
+    print("✅ Socket.IO ASGI app created")
+else:
+    socket_app = app
+    print("⚠️ Using FastAPI app without Socket.IO")

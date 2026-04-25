@@ -145,9 +145,10 @@ async def startup_event():
     print("🚀 FastAPI application starting up...")
     print(f"✅ Core routes loaded: auth, project, task, team, subscription")
     print(f"🤖 AI routes available: {ai_routes_available}")
-    print("🌐 CORS middleware: enabled (debug mode)")
+    print("🌐 CORS middleware: enabled (production mode)")
     print("💾 Database: connected")
     print("🔧 Socket.IO: enabled")
+    print("🏥 Health check: /health endpoint active")
     print("✅ Application startup complete!")
 
 # Include all routes FIRST
@@ -166,12 +167,18 @@ app.include_router(team_routes.router)
 app.include_router(subscription_routes.router)
 
 # Add CORS middleware AFTER routes
-# TEMPORARY DEBUG MODE - Remove after testing
+# Production CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for debugging
-    allow_credentials=False,  # Must be False when using "*"
-    allow_methods=["*"],
+    allow_origins=[
+        "https://dozzl.xyz",
+        "https://www.dozzl.xyz", 
+        "https://*.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"],
 )
@@ -228,13 +235,19 @@ def test_cors_post():
 def debug_cors():
     """Debug endpoint to check CORS configuration"""
     return {
-        "cors_status": "DEBUG MODE - ALL ORIGINS ALLOWED",
-        "allowed_origins": ["*"],
-        "allowed_methods": ["*"],
+        "cors_status": "PRODUCTION MODE - SPECIFIC ORIGINS ALLOWED",
+        "allowed_origins": [
+            "https://dozzl.xyz",
+            "https://www.dozzl.xyz", 
+            "https://*.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:3000"
+        ],
+        "allowed_methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         "allowed_headers": ["*"],
-        "credentials_allowed": False,
+        "credentials_allowed": True,
         "preflight_handler": "enabled",
-        "note": "This is temporary debug mode - will be restricted in production"
+        "note": "Production CORS configuration active"
     }
 
 @app.get("/socket-test")

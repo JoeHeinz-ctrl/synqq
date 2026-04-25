@@ -62,7 +62,7 @@ export function AIPanel({ isOpen, onClose, onCreateTasks }: AIPanelProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/ai/chat', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "https://api.dozzl.xyz"}/api/ai/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

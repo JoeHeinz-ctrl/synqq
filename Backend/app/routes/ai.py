@@ -44,7 +44,7 @@ async def ai_chat(
             raise HTTPException(status_code=400, detail="Message cannot be empty")
         
         # Fetch user's tasks
-        user_tasks = db.query(Task).filter(Task.assigned_tosss == current_user.id).all()
+        user_tasks = db.query(Task).filter(Task.assigned_user_id == current_user.id).all()
         
         # Convert tasks to dict format for AI engine
         tasks_data = []
@@ -54,7 +54,7 @@ async def ai_chat(
                 'title': task.title,
                 'description': task.description,
                 'status': task.status,
-                'due_date': task.due_date.isoformat() if task.due_date else None,
+                'due_date': task.due_date if task.due_date else None,
                 'priority': getattr(task, 'priority', None)
             })
         
@@ -82,7 +82,7 @@ async def get_suggestions(
             raise HTTPException(status_code=503, detail="AI service not available")
             
         # Fetch user's tasks
-        user_tasks = db.query(Task).filter(Task.assigned_tosss == current_user.id).all()
+        user_tasks = db.query(Task).filter(Task.assigned_user_id == current_user.id).all()
         
         # Convert tasks to dict format
         tasks_data = []
@@ -91,7 +91,7 @@ async def get_suggestions(
                 'id': task.id,
                 'title': task.title,
                 'status': task.status,
-                'due_date': task.due_date.isoformat() if task.due_date else None
+                'due_date': task.due_date if task.due_date else None
             })
         
         # Generate contextual suggestions

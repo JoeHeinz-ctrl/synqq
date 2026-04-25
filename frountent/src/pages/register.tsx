@@ -189,7 +189,7 @@ export default function Register() {
                   e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = isDarkTheme ? "#374151" : "#d1d5db";
+                  e.target.style.borderColor = isDarkTheme ? "#334155" : "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -209,7 +209,7 @@ export default function Register() {
                   e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = isDarkTheme ? "#374151" : "#d1d5db";
+                  e.target.style.borderColor = isDarkTheme ? "#334155" : "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -229,7 +229,7 @@ export default function Register() {
                   e.target.style.boxShadow = "0 0 0 3px rgba(5, 150, 105, 0.1)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = isDarkTheme ? "#374151" : "#d1d5db";
+                  e.target.style.borderColor = isDarkTheme ? "#334155" : "#d1d5db";
                   e.target.style.boxShadow = "none";
                 }}
               />
@@ -509,11 +509,15 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
     },
 
     tipCard: {
-      background: "rgba(255, 255, 255, 0.95)",
+      background: isDark 
+        ? "rgba(15, 23, 42, 0.8)" 
+        : "rgba(255, 255, 255, 0.95)",
       backdropFilter: "blur(10px)",
       padding: "30px",
       borderRadius: "20px",
-      border: "2px solid rgba(0, 0, 0, 0.1)",
+      border: isDark 
+        ? "2px solid rgba(255, 255, 255, 0.1)" 
+        : "2px solid rgba(0, 0, 0, 0.1)",
       textAlign: "center",
       boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
     },
@@ -526,7 +530,7 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
 
     tip: {
       fontSize: "16px",
-      color: "#000000", // Black text
+      color: isDark ? "#ffffff" : "#000000", // White text in dark theme, black in light
       lineHeight: "1.6",
       margin: "0",
       fontWeight: "600", // Bold
@@ -593,13 +597,13 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
     registerCard: {
       width: "100%",
       maxWidth: "380px",
-      background: isDark ? "#1f2937" : "#ffffff",
+      background: isDark ? "#0f172a" : "#ffffff",
       borderRadius: "16px",
       padding: "40px 32px",
       boxShadow: isDark 
-        ? "0 20px 40px rgba(0, 0, 0, 0.4)" 
+        ? "0 20px 40px rgba(0, 0, 0, 0.6)" 
         : "0 20px 40px rgba(0, 0, 0, 0.1)",
-      border: isDark ? "1px solid #374151" : "1px solid #e5e7eb",
+      border: isDark ? "1px solid #1e293b" : "1px solid #e5e7eb",
     },
 
     header: {
@@ -636,8 +640,8 @@ function getStyles(isDark: boolean): { [key: string]: React.CSSProperties } {
       padding: "14px 16px",
       fontSize: "15px",
       color: isDark ? "#ffffff" : "#111827",
-      background: isDark ? "#111827" : "#f9fafb",
-      border: isDark ? "1px solid #374151" : "1px solid #d1d5db",
+      background: isDark ? "#1e293b" : "#f9fafb",
+      border: isDark ? "1px solid #334155" : "1px solid #d1d5db",
       borderRadius: "8px",
       outline: "none",
       transition: "all 0.2s ease",
